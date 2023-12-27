@@ -1,0 +1,25 @@
+Canvas Scaler（画布缩放器）：
+
+Unity的Canvas组件有一个Canvas Scaler组件，可以帮助你适应不同的屏幕分辨率。
+设置UI Scale Mode为Scale With Screen Size，然后指定设计分辨率（例如，基于 1920x1080 的设计）和匹配模式（例如，Match Width or Height）。
+Aspect Ratio Enforcer（纵横比强制器）：
+
+创建一个脚本来确保游戏窗口保持期望的纵横比。这可以通过调整摄像机的orthographicSize或fieldOfView来实现。
+在屏幕大小改变时，你可以在脚本中检测并更新摄像机参数。
+Multiple Resolutions（多分辨率适配）：
+
+创建多个UI画布，每个画布适配一个特定的分辨率范围。
+使用Screen.width和Screen.height动态选择适当的画布。
+自适应UI：
+
+使用Anchors和Layout Groups确保UI元素相对于屏幕的位置和大小自适应。
+使用Flexible Width和Height属性来调整UI元素的大小。
+分辨率独立资源：
+
+提供不同分辨率的图像资源，并使用Resources.Load或AssetBundles动态加载适合当前分辨率的资源。
+Camera Viewport（摄像机视口）：
+
+使用摄像机的Viewport Rect属性来调整显示区域，确保UI适应不同的分辨率。
+插件或资产包：
+
+有一些第三方插件和Unity Asset Store上的资产包专门用于屏幕分辨率适配。这些工具通常提供更高级的功能和更方便的设置。
