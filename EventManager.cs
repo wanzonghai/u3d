@@ -24,33 +24,62 @@ public class EventManager
 }
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 using System;
+using System.Collections.Generic;
 
-public class EventSystem
+public class EventMgr
 {
-    // 定义事件委托
-    public delegate void EventHandler();
+    // 定义泛型事件委托
+    public delegate void EventHandler<T>(T eventData);
 
-    // 事件
-    public static event EventHandler OnEventTriggered;
+    // 存储不同事件的泛型委托字典
+    private static Dictionary<string, Delegate> eventDictionary = new Dictionary<string, Delegate>();
 
     // 订阅事件
-    public static void SubscribeToEvent(EventHandler handler)
+    public static void SubscribeToEvent<T>(string eventName, EventHandler<T> handler)
     {
-        OnEventTriggered += handler;
+        if (!eventDictionary.ContainsKey(eventName))
+        {
+            eventDictionary[eventName] = null;
+        }
+
+        eventDictionary[eventName] = (EventHandler<T>)eventDictionary[eventName] + handler;
     }
 
     // 取消订阅事件
-    public static void UnsubscribeFromEvent(EventHandler handler)
+    public static void UnsubscribeFromEvent<T>(string eventName, EventHandler<T> handler)
     {
-        OnEventTriggered -= handler;
+        if (eventDictionary.ContainsKey(eventName))
+        {
+            eventDictionary[eventName] = (EventHandler<T>)eventDictionary[eventName] - handler;
+        }
     }
 
     // 触发事件
-    public static void TriggerEvent()
+    public static void TriggerEvent<T>(string eventName, T eventData)
     {
-        OnEventTriggered?.Invoke();
+        if (eventDictionary.ContainsKey(eventName))
+        {
+            ((EventHandler<T>)eventDictionary[eventName])?.Invoke(eventName, eventData);
+        }
     }
 }
+
+
+
+private void OnEnable()
+{
+    UpdateView();
+    EventMgr.SubscribeToEvent<bool>("OnGameStarted", HandleGameStarted);        
+}
+
+private void HandleGameStarted(bool eventData)
+{
+    // 在这里处理游戏开始的逻辑
+    gameStarted = eventData;
+    Debug.Log("游戏开始");
+}
+
+
 >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
 using UnityEngine;
 
