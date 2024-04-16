@@ -12,7 +12,7 @@ public class AssetBundleManager : Singleton<AssetBundleManager>
     private Dictionary<string, AssetBundle> loadedAssetBundles = new Dictionary<string, AssetBundle>();
 
     // 加载 AssetBundle
-    public void LoadAssetBundle(string bundlePath, Action<AssetBundle> onComplete)
+    public void LoadAssetBundle(string bundlePath, Action<AssetBundle> onComplete=null)
     {
         string bundleName = Path.GetFileName(bundlePath);
         if (loadedAssetBundles.ContainsKey(bundleName))

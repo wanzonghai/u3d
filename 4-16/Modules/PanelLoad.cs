@@ -71,6 +71,7 @@ public class PanelLoad: MonoBehaviour
 
         // 触发事件
         EventManager.Instance.TriggerEventLoadPanel();
+        App.PanelMgr.HidePanel(gameObject);
     }
     // Update is called once per frame
     void Update()

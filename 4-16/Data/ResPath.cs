@@ -1,6 +1,11 @@
 ﻿public class ResPath
 {
-    public static string BundleURL = "ui_panels.ui";
+    public static string BundleURL_panel = "ui_panels.ui";
+    public static string BundleURL_load = "load_ui.ui";
+    public static string BundleURL_common_btn = "common_btn.btns";
+    public static string BundleURL_hall = "hall.ui";
+    public static string BundleURL_hall_btn = "hall_btn.btns";
+    public static string BundleURL_hall_pro = "hall_pro.pros";
     public static string Panel_load = "PanelLoad";
     public static string Panel_help= "PanelAssist";
     public static string Panel_privacy = "PanelPrivacy";

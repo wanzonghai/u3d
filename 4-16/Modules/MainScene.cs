@@ -2,13 +2,10 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
-using UnityEngine.UI;
 
-public class FirstScene: MonoBehaviour
+public class MainScene: MonoBehaviour
 {
     private Transform Layer_top;
-    private Toggle privacyToggle;
-    private GameObject loadingPanel;
     //If the value is inactive during scenario creation or prefab instantiation,
     //this parameter is invoked when it is active and is executed only once
     private void Awake()
@@ -19,13 +16,11 @@ public class FirstScene: MonoBehaviour
     private void InintView()
     {
         Layer_top = transform.parent.Find("Layer_top");
-        //privacyToggle = transform.parent.Find("Layer_mid/Toggle_privacy")?.GetComponent<Toggle>();
     }
     //When the scene is loaded, the GameObject is instantiated,
     //and the object is enabled
     private void OnEnable()
     {
-        
         UpdateView();
 
     }
@@ -41,15 +36,12 @@ public class FirstScene: MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        OnLoadAssetBundle();
         //initialize
-        App.EventMgr.OnEventLoadPanel += OnEventLoadHanel;
-      
+        OnLoadAssetBundle();
     }
     private void OnLoadAssetBundle()
     {
-        App.ABMgr.LoadAssetBundle(ResPath.BundleURL_load);
-        App.ABMgr.LoadAssetBundle(ResPath.BundleURL_common_btn);
+
     }
     // Update is called once per frame
     void Update()
@@ -71,30 +63,24 @@ public class FirstScene: MonoBehaviour
         string btn_name = clickedObject.name;
         switch (btn_name)
         {
-            case "btn_start":
-                if (privacyToggle != null && privacyToggle.isOn)
-                {
-                    App.GameMgr.ShowPanel(ResPath.Panel_load, Layer_top);
-                }
-                App.GameMgr.ShowPanel(ResPath.Panel_load, Layer_top);
+            case "btn_home":
+                App.GameMgr.LoadScene("FirstScene");
                 break;
             case "btn_help":
-                App.GameMgr.ShowPanel(ResPath.Panel_help, Layer_top);
+                App.GameMgr.ShowPanel( ResPath.Panel_help, Layer_top);
                 break;
-            case "btn_exit":
+            case "btn_effect":
                 App.GameMgr.QuitGame();
                 break;
-            case "btn_privacy":
-                App.GameMgr.ShowPanel( ResPath.Panel_privacy, Layer_top);
+            case "btn_music":
+                App.GameMgr.ShowPanel(ResPath.Panel_privacy, Layer_top);
+                break;
+            case "btn_play":
+                App.GameMgr.QuitGame();
                 break;
             default:
                 break;
         }
-    }
-
-    private void OnEventLoadHanel(params object[] args)
-    {
-        App.GameMgr.LoadScene("MainScene");
     }
     ///fixedupdate
     /// <summary>
@@ -109,9 +95,5 @@ public class FirstScene: MonoBehaviour
     }
     //monobehaviour is destroyed
     void OnDestroy() {
-        if (App.EventMgr != null)
-        {
-            App.EventMgr.OnEventLoadPanel -= OnEventLoadHanel;
-        }
     }
 }

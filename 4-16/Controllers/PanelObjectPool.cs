@@ -27,10 +27,17 @@ public class PanelObjectPool : Singleton<PanelObjectPool>
         }
 
         // 检查对象池中是否有可用的实例
-        if (panelPools.ContainsKey(panelName) && panelPools[panelName].Count > 0)
+        if (panelPools.ContainsKey(panelName)  && panelPools[panelName].Count > 0)
         {
             // 检查是否有激活的面板实例存在
             GameObject existingPanel = panelPools[panelName].Peek();
+            if (existingPanel == null )
+            {
+                // 清理空队列
+                panelPools.Remove(panelName);
+                LoadPanelAssetBundle(bundlePath, panelName, parent, onPanelInstantiated);
+                return;
+            }
             if (existingPanel.activeSelf)
             {
                 Debug.LogWarning("An active panel instance already exists. Reusing existing instance.");
@@ -48,28 +55,34 @@ public class PanelObjectPool : Singleton<PanelObjectPool>
         }
         else
         {
-            // 如果没有可用实例，需要加载新的面板
-            LoadPanelFromAssetBundle(bundlePath, panelName, parent, (panelPrefab) =>
-             {
-                 if (panelPrefab != null)
-                 {
-                     // 实例化加载后的面板对象
-                     GameObject instance = Instantiate(panelPrefab, parent);
-
-                     // 将实例化后的面板对象放入对象池中
-                     AddPanelToPool(panelName, instance);
-
-                     // 如果有回调函数，执行回调函数并传入实例化的面板
-                     onPanelInstantiated?.Invoke(instance);
-                 }
-                 else
-                 {
-                     Debug.LogError("Failed to load panel from AssetBundle: " + panelName);
-                     onPanelInstantiated?.Invoke(null);
-                 }
-             });
+            LoadPanelAssetBundle(bundlePath, panelName, parent, onPanelInstantiated);
             //LoadPanelResources(panelName, onPanelInstantiated);
         }
+    }
+
+    private void LoadPanelAssetBundle(string bundlePath, string panelName, Transform parent = null, Action<GameObject> onPanelInstantiated = null)
+    {
+        // 如果没有可用实例，需要加载新的面板
+        LoadPanelFromAssetBundle(bundlePath, panelName, parent, (panelPrefab) =>
+        {
+            if (panelPrefab != null)
+            {
+
+                // 实例化加载后的面板对象
+                GameObject instance = Instantiate(panelPrefab, parent);
+
+                // 将实例化后的面板对象放入对象池中
+                AddPanelToPool(panelName, instance);
+
+                // 如果有回调函数，执行回调函数并传入实例化的面板
+                onPanelInstantiated?.Invoke(instance);
+            }
+            else
+            {
+                Debug.LogError("Failed to load panel from AssetBundle: " + panelName);
+                onPanelInstantiated?.Invoke(null);
+            }
+        });
     }
     // 将实例化后的面板对象放入对象池中
     private void AddPanelToPool(string panelName, GameObject panelInstance)
