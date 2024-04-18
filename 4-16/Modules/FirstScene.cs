@@ -41,6 +41,7 @@ public class FirstScene: MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
+        App.SoundMgr.Initialize();
         OnLoadAssetBundle();
         //initialize
         App.EventMgr.OnEventLoadPanel += OnEventLoadHanel;
@@ -50,6 +51,21 @@ public class FirstScene: MonoBehaviour
     {
         App.ABMgr.LoadAssetBundle(ResPath.BundleURL_load);
         App.ABMgr.LoadAssetBundle(ResPath.BundleURL_common_btn);
+        LoadClip();
+    }
+
+    private void LoadClip()
+    {
+        App.GameMgr.LoadResFromAssetBundle<AudioClip>(ResPath.BundleURL_clips_hall, GameData.clipsDic, (_clipsDic) =>
+        {
+            if (_clipsDic.Count > 0)
+            {
+                foreach (var kvp in _clipsDic)
+                {
+                    SoundManager.Instance.AddAudioClip(kvp.Key, kvp.Value);
+                }
+            }
+        });
     }
     // Update is called once per frame
     void Update()
@@ -62,6 +78,7 @@ public class FirstScene: MonoBehaviour
 
     public void OnBtnClick()
     {
+        SoundManager.Instance.PlaySFX("btn_effect_clip");
         // 检查是否有 EventSystem
         if (EventSystem.current == null) return;
 

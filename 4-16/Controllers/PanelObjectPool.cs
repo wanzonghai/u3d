@@ -60,7 +60,7 @@ public class PanelObjectPool : Singleton<PanelObjectPool>
         }
     }
 
-    private void LoadPanelAssetBundle(string bundlePath, string panelName, Transform parent = null, Action<GameObject> onPanelInstantiated = null)
+    public void LoadPanelAssetBundle(string bundlePath, string panelName, Transform parent = null, Action<GameObject> onPanelInstantiated = null)
     {
         // 如果没有可用实例，需要加载新的面板
         LoadPanelFromAssetBundle(bundlePath, panelName, parent, (panelPrefab) =>

@@ -15,4 +15,7 @@
 
     // 使用 PanelObjectPool 类的静态成员
     public static PanelObjectPool panelPool = PanelObjectPool.Instance;
+
+    // 使用 TipsManager 类的静态成员
+    public static TipsManager tipsMgr = TipsManager.Instance;
 }

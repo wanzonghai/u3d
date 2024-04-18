@@ -8,7 +8,7 @@ public class PanelManager : Singleton<PanelManager>
     private GameObject panel;
     private Transform parent;
     // 加载并显示面板
-    public void ShowPanel(string bundlePath, string panelName, Transform parentObject = null, Action<GameObject> onPanelLoaded = null)
+    public void ShowPanel(string bundlePath, string panelName, Transform parentObject = null, Action<GameObject> onPanelLoaded = null, Dictionary<string, object> parameters = null)
     {
         // 在显示新面板之前，先隐藏并回收所有隐藏的面板
         //RecycleHiddenPanels(parentObject);
@@ -23,6 +23,12 @@ public class PanelManager : Singleton<PanelManager>
                 // 将面板设置为激活状态并放置在指定的父对象下
                 panel.SetActive(true);
                 panel.transform.SetParent(parent);
+
+                // Get the panel component attached to the panel object
+                PanelBase panelComponent = panelObject.GetComponent<PanelBase>();
+                // Call the InitializePanel method with the provided parameters
+                panelComponent?.InitializePanel(parameters);
+
             }
             else
             {
