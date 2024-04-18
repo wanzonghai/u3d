@@ -29,13 +29,43 @@ public class AssetBundleManager : Singleton<AssetBundleManager>
         string url;
         if (isLocalFile)
         {
+            // 对于 Android 平台，需要特殊处理 StreamingAssets 路径
+#if UNITY_ANDROID && !UNITY_EDITOR
+             url = Application.streamingAssetsPath + "/" + bundleURL;
+            // 在 Android 平台上，Unity 不能直接从 StreamingAssets 文件夹加载文件，需要使用 UnityWebRequest 手动解析
+           if (url.StartsWith("http://") || url.StartsWith("https://"))
+            {
+                UnityWebRequest www = UnityWebRequest.Get(url);
+                yield return www.SendWebRequest();
+                if (www.result == UnityWebRequest.Result.Success)
+                {
+                    AssetBundle assetBundle = AssetBundle.LoadFromMemory(www.downloadHandler.data);
+                    onComplete?.Invoke(assetBundle);
+                }
+                else
+                {
+                    Debug.LogError("Failed to load AssetBundle: " + www.error);
+                    onComplete?.Invoke(null);
+                }
+                www.Dispose(); // 加载完成后释放 UnityWebRequest
+                yield break;
+            }
+#else
+            // 在其他平台上，继续使用原始逻辑
             string filePath = Path.Combine(Application.streamingAssetsPath, bundleURL);
             url = "file://" + filePath;
+#endif
         }
         else
         {
-            // 如果不是本地文件，则直接使用提供的URL
-            url = bundleURL;
+            // 如果不是本地文件，尝试创建一个 Uri
+            if (!Uri.TryCreate(bundleURL, UriKind.Absolute, out Uri uri))
+            {
+                Debug.LogError("Invalid URL: " + bundleURL);
+                onComplete?.Invoke(null);
+                yield break;
+            }
+            url = uri.AbsoluteUri;
         }
         // 使用UnityWebRequest加载AssetBundle文件
         using (UnityWebRequest request = UnityWebRequestAssetBundle.GetAssetBundle(url))

@@ -14,6 +14,7 @@ public class GameManager : Singleton<GameManager>
     {
         App.PanelMgr.ShowPanel(ResPath.BundleURL_panel, panelName, parentObject, onPanelLoaded);
     }
+
     public void LoadResFromAssetBundle<T>(string bundlePath, Dictionary<string, T> resDic=null, Action<Dictionary<string,T>> onAllResourcesLoaded = null) where T : UnityEngine.Object
     {
         // 从 AssetBundle 中加载面板

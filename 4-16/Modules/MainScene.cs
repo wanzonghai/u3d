@@ -191,11 +191,13 @@ public class MainScene: MonoBehaviour
                 GameData.isEffectEnble = !GameData.isEffectEnble;
                 string spriteName_effect = GameData.isEffectEnble ? "btn_effect" : "btn_uneffect";
                 ChangeSpriteBtn(spriteName_effect, clickedObject.transform,GameData.btnsSprites);
+                App.SoundMgr.sfxEnabled = GameData.isEffectEnble;
                 break;
             case "btn_music":
                 GameData.isSoundEnble = !GameData.isSoundEnble;
                 string spriteName_music = GameData.isSoundEnble ? "btn_music" : "btn_unmusic";
                 ChangeSpriteBtn(spriteName_music, clickedObject.transform, GameData.btnsSprites);
+                OnBackGroundSound();
                 break;
             case "btn_play":
                 btn_play = clickedObject;
