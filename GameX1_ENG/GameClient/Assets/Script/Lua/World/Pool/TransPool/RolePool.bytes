@@ -1,0 +1,50 @@
+RolePool= Class("RolePool", TransPool)
+
+local Animator = typeof(CS.UnityEngine.Animator)
+local Transform = typeof(CS.UnityEngine.Transform)
+local SkinnedMeshRenderer = typeof(CS.UnityEngine.SkinnedMeshRenderer)
+
+function RolePool:ctor(transform, path)
+	RolePool.super.ctor(self, transform)
+
+	self.mount = {}
+	if string.find(path, "Bone") ~= nil then
+		self.animator = transform:GetComponent(Animator)
+		if IsNil(self.animator) then
+			L.LogError(path .. "没挂动作组件")
+		end
+		self:InitMount(transform)
+		self:InitTrail(transform, self.animator)
+	elseif string.find(path, "Body") ~= nil then
+		self.skinnedMeshRenderer = transform:GetComponentsInChildren(SkinnedMeshRenderer, true)
+	elseif string.find(path, "Weapon") ~= nil then
+		self.skinnedMeshRenderer = transform:GetComponentsInChildren(SkinnedMeshRenderer, true)
+		self:InitMount(transform)
+	end
+end
+
+function RolePool:InitMount(transform)
+	local list = transform:GetComponentsInChildren(Transform)
+	local length = list.Length - 1
+	local v = nil
+	for i = 0, length do
+		v = list[i]
+		if self.mount[v.name] == nil then
+			self.mount[v.name] = v
+		end
+	end
+end
+
+function RolePool:OnBack()
+	RolePool.super.OnBack(self)
+	self.transform.gameObject:SetActive(true)
+end
+
+function RolePool:ApplyFlash(time)end
+function RolePool:FadeInDissolve(time) end
+function RolePool:FadeOutDissolve(time) end
+function RolePool:FadeInTransparent(time) end
+function RolePool:FadeOutTransparent(time) end
+function RolePool:FadeInRim(time, r, g, b) end
+function RolePool:FadeOutRim(time) end
+function RolePool:InitTrail(transform, animation) end

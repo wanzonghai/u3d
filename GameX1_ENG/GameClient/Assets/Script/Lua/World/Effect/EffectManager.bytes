@@ -1,0 +1,48 @@
+EffectManager = Class("EffectManager")
+
+local this = EffectManager
+
+function this:GetInstance()
+    if nil == self.m_Instance then
+        self.m_Instance = self:New()
+    end
+    return self.m_Instance
+end
+
+function this:ctor()
+	self.effects = {}
+end
+
+function this:OnDestroy()
+    self.class.m_Instance = nil
+end
+
+function this:AddEffect(effect)
+	table.insert(self.effects, 1, effect)
+end
+
+function this:RemoveEffect(effect)
+	table.removeValue(self.effects, effect)
+end
+
+function this:ExitScene()
+	local effects = {}
+    for _, v in pairs(self.effects) do
+        if v.destroyForExitScene then
+            table.insert(effects, v)
+        end
+    end
+    for _, v in pairs(effects) do
+        v:Destroy()
+    end
+end
+
+function this:Update(t)
+	local effects = {}
+	for _, v in pairs(self.effects) do
+		table.insert(effects, 1, v)
+    end
+    for _, v in pairs(effects) do
+        v:Update(t)
+    end
+end

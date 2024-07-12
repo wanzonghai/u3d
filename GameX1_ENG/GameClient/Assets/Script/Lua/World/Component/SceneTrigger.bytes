@@ -1,0 +1,77 @@
+SceneTrigger = Class("SceneTrigger")
+
+--传送门之类的触发物
+local Quaternion = CS.UnityEngine.Quaternion
+
+function SceneTrigger:ctor(info)
+    self.isCreate = false
+    self.info = info
+    self.startTime = 0
+    self.timer = nil
+    self.isListenObjectRemove = nil
+    if string.IsNullOrEmpty(info.CreateCode) then 
+        self:OnCreate()
+    else
+        self.playIndex = 0
+        local code = GameUtils.StringFormat(info.CreateCode)
+        self.actions = string.split(code, ";")
+        self:Play()
+    end
+end
+
+function SceneTrigger:Play()
+	self.playIndex = self.playIndex + 1
+    if self.playIndex > #self.actions then return end
+	self:CodeOneShot(self.actions[self.playIndex])
+end
+
+function SceneTrigger:CodeOneShot(code)
+	local action = string.split(code, ",")
+   if action[1] == "start_time" then 
+        self.startTime = tonumber(action[2])
+        self.timer = Timer.New(self,self.startTime,function()
+            self:Play()
+        end,1)
+    elseif action[1] == "finish_level" then 
+        self.isListenObjectRemove = true
+        EventDispatcher:GetInstance():AddEventListener(self,EventID.SceneObjectRemove,self.OnSceneObjectRemove)
+        self:Play()
+    end
+end
+
+function SceneTrigger:OnCreate()
+    if self.isCreate then return end
+    self.isCreate = true
+
+    local effect = nil
+	if self.info.EffectID > 0 then
+		effect = FixedEffect.New(self.info.EffectID)
+		effect:FixedToPosition(self.info.Position)
+	end
+
+    local rotation = nil
+    if self.info.EulerAngles then rotation = Quaternion.Euler(self.info.EulerAngles) end
+	local worldTrigger = WorldTrigger.New(self.info.Id, self.info.Position, rotation)
+	worldTrigger:Function(
+        function(object)
+            if not GameUtils.IsMyPlayer(object.controller) then return end
+            if self.info.SceneID > 0 then 
+                SceneManager:GetInstance():OnMapEnter(self.info.SceneID)
+            else 
+                SceneCode.New(self.info.Code, self) 
+            end
+            if self.info.OneShot then worldTrigger:OnDestroy() end
+        end,
+        --Exit
+        function()
+        end
+    )
+    if self.info.Radius > 0 then worldTrigger:Radius(self.info.Radius) end
+    self.worldTrigger = worldTrigger
+    self.effect = effect
+end
+
+function SceneTrigger:OnDestroy()
+    if self.StartTimeTimer then self.StartTimeTimer:OnDestroy() self.StartTimeTimer = nil end
+    if self.isListenObjectRemove then EventDispatcher:GetInstance():RemoveEventListener(self,EventID.SceneObjectRemove) end
+end

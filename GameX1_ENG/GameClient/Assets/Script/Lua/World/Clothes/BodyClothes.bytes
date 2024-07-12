@@ -1,0 +1,108 @@
+BodyClothes = Class("BodyClothes")
+
+function BodyClothes:ctor(boneClothes)
+	self.boneClothes = boneClothes
+
+	self.id = 0
+	self.transform = nil
+	self.layer = Layers.Default
+	self.boneRenderer = {}
+	self.bodyComplete = false
+	self.event = Delegate.New()
+	self.boneClothes.boneEvent:Add(self, self.LaunchModel)
+end
+
+function BodyClothes:OnModel(id)
+	if self.id == id then return end
+	self:Destroy()
+
+	self.id = id
+	if self.id == 0 then return end
+
+	if self.boneClothes.boneComplete then self:LaunchModel() end
+end
+
+function BodyClothes:LaunchModel()
+	self.boneClothes.boneEvent:Remove(self)
+	if self.id == 0 then return end
+
+	local path = nil
+	if self.boneClothes.highQuality then path = "Role/" .. self.boneClothes.boneName .. "/Body" .. self.id .. ".prefab"
+	else path = "Role/" .. self.boneClothes.boneName .. "/Body" .. self.id .. ".prefab"
+	end
+	PoolManager:GetInstance():Take(path, self, function(transform)
+		self.transform = transform
+		self.transform.parent = self.boneClothes.parent
+		self.transform.position = self.boneClothes.parent.position
+	    self.transform.rotation = self.boneClothes.parent.rotation--[[  ]]
+	    self.transform.localScale = GameUtils.Vector3One
+
+		local length = self.pool.handler.skinnedMeshRenderer.Length - 1
+		for i = 0, length do
+			local renderer = self.pool.handler.skinnedMeshRenderer[i]
+			local rt = {}
+			rt.renderer = renderer
+			rt.bones = renderer.bones
+			rt.rootBone = renderer.rootBone
+			table.insert(self.boneRenderer, rt)
+
+			local bonesList = {}
+			local length2 = rt.bones.Length - 1
+			for j = 0 , length2 do
+				table.insert(bonesList, self.boneClothes:GetMountByName(rt.bones[j].name, true))
+			end
+			renderer.bones = bonesList
+			renderer.rootBone = self.boneClothes:GetMountByName(rt.rootBone.name, true)
+		end
+
+	    self:SetLayer(self.layer)
+		self:SetShow(self.boneClothes.show)
+		self:SetSortingOrder(self.boneClothes.sortingOrder)
+		self:SetParticleSystemScale(self.boneClothes.particleSystemScale)
+		
+		self.bodyComplete = true
+	    self.event:Function()
+	end)
+end
+
+function BodyClothes:SetLayer(layer)
+	self.layer = layer
+	if IsNil(self.transform) then return end
+	self.pool.handler:SetLayer(layer)
+end
+
+function BodyClothes:SetShow(show)
+	if IsNil(self.transform) then return end
+	self.pool.handler:SetShow(show)
+end
+
+function BodyClothes:SetSortingOrder(sortingOrder)
+	if IsNil(self.transform) then return end
+	self.pool.handler:SetSortingOrder(sortingOrder)
+end
+
+function BodyClothes:SetParticleSystemScale(particleSystemScale)
+	if IsNil(self.transform) then return end
+	self.pool.handler:SetParticleSystemScale(particleSystemScale)
+end
+
+function BodyClothes:FadeInRim(time, r, g, b)
+	if IsNil(self.transform) then return end
+	self.pool.handler:FadeInRim(time, r, g, b)
+end
+function BodyClothes:FadeOutRim(time)
+	if IsNil(self.transform) then return end
+	self.pool.handler:FadeOutRim(time)
+end
+
+function BodyClothes:Destroy()
+	if self.id == 0 then return end
+	for _, rt in pairs(self.boneRenderer) do
+		rt.renderer.bones = rt.bones
+		rt.renderer.rootBone = rt.rootBone
+	end
+	self.boneRenderer = {}
+	if self.pool ~= nil then PoolManager:GetInstance():Back(self) end
+	self.id = 0
+	self.transform = nil
+end

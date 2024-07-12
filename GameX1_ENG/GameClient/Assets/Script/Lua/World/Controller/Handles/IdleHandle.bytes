@@ -1,0 +1,61 @@
+IdleHandle = Class("IdleHandle", HandleBase)
+
+local ClampForever = CS.UnityEngine.WrapMode.ClampForever
+local Loop = CS.UnityEngine.WrapMode.Loop
+
+function IdleHandle:ctor(controller)
+	IdleHandle.super.ctor(self, controller, Handles.Idle)
+
+	self.animation = self.controller.object.boneClothes.animation
+	self.initPlayAnimation = false
+
+	self.isLoop = false
+	self.idleAction = Actions.Idle
+	local aniName = controller.object.normVO.role.default_act
+    if not string.IsNullOrEmpty(aniName) then
+        self.idleAction = aniName
+    end
+end
+
+--前置动作
+function IdleHandle:OnHandle(...)
+	IdleHandle.super.OnHandle(self, ...)
+	self.action = ...
+end
+
+function IdleHandle:Run()
+	IdleHandle.super.Run(self)
+
+	if not string.IsNullOrEmpty(self.action) then 
+		self:OnPlayAction()
+	else 
+		if not self.initPlayAnimation then
+			self.initPlayAnimation = true
+			self:OnPlayAnimation()
+		end
+	end
+end
+
+function IdleHandle:Update(time)
+	IdleHandle.super.Update(self, time)
+	
+	if not self.isLoop and self.animation:Finish()  then self:OnPlayAnimation() end
+end
+
+function IdleHandle:OnPlayAnimation()
+	self:PlayIdle()
+end
+
+function IdleHandle:OnPlayAction()
+	self.isLoop = false
+	self.animation:Play(self.action)
+end
+
+function IdleHandle:PlayIdle()
+	self.isLoop = false
+	self.animation:PlayIdle()
+end
+
+function IdleHandle:Destroy()
+	IdleHandle.super.Destroy(self)
+end

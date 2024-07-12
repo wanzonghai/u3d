@@ -1,0 +1,339 @@
+--字符串方法类
+StringUtils = {}
+
+--属性
+---阿拉伯数值的文本表
+local numberStr =
+{
+    L.Language(2100),L.Language(2101),L.Language(2102),
+    L.Language(2103),L.Language(2104),L.Language(2105),
+    L.Language(2106),L.Language(2107),L.Language(2108),
+    --9
+    L.Language(2109),L.Language(2110)
+}
+
+--活动
+StringUtils.TimeStamp = function(second)
+	second = math.ceil(second)
+    local timeDay                   = math.floor(second / 86400)  
+    local timeHour                  = math.fmod(math.floor(second / 3600), 24)
+    local timeMinute                = math.fmod(math.floor(second / 60), 60)
+    local timeSecond                = math.fmod(second, 60)
+    return timeDay, timeHour, timeMinute, timeSecond  
+end
+---显示一个单位时间(余数进1)
+StringUtils.TimeStamp1 = function(second)
+	second = math.ceil(second)
+	if second >= 86400 then
+		return math.ceil(second / 86400) .. L.Language(2001)
+	elseif second >= 3600 then
+		return math.ceil(second / 3600) .. L.Language(2002)
+	elseif second >= 60 then
+		return math.ceil(second / 60) .. L.Language(2003)
+	else
+		return math.ceil(second) .. L.Language(2004)
+	end
+end
+---显示时间(如20分30秒)
+StringUtils.TimeStamp2 = function(second)
+	second = math.ceil(second)
+	if second >= 86400 then
+		return math.floor(second / 86400) .. L.Language(2001) .. math.fmod(math.floor(second / 3600), 24) .. L.Language(2002) .. math.fmod(math.floor(second / 60), 60) .. L.Language(2003) .. math.fmod(second, 60) .. L.Language(2004)
+	elseif second >= 3600 then
+		return math.fmod(math.floor(second / 3600), 24) .. L.Language(2002) .. math.fmod(math.floor(second / 60), 60) .. L.Language(2003) .. math.fmod(second, 60) .. L.Language(2004)
+	elseif second >= 60 then
+		return math.fmod(math.floor(second / 60), 60) .. L.Language(2003) .. math.fmod(second, 60) .. L.Language(2004)
+	else
+		return math.fmod(math.max(0, second), 60) .. L.Language(2004)
+	end
+end
+---显示时间(如20:30:30)后面加个参数显示23:56
+StringUtils.TimeStamp3 = function(second,sign)
+    second = math.ceil(second)
+    if sign then
+        return  string.format("%02d", math.fmod(math.floor(second / 60), 60)) ..":" .. string.format("%02d", math.fmod(second, 60))
+    end
+    return string.format("%02d", math.fmod(math.floor(second / 3600), 24)) .. ":" .. string.format("%02d", math.fmod(math.floor(second / 60), 60)) ..":" .. string.format("%02d", math.fmod(second, 60))
+end
+---显示时间(如20时20分)
+StringUtils.TimeStamp4 = function(second)
+    second = math.ceil(second)
+
+    --20200102  显示时,不显示0时
+    local iHour = math.floor(second/3600)
+    local s = ""
+    if iHour>0 then
+        s = s..iHour..L.Language(2002)
+        second = math.fmod(second,3600)
+    end
+    
+    --20200102  显示分,不显示0分,除非没时间
+    --修"1时0分"的问题
+    local iMinute = math.floor(second/60)
+    if iMinute>0 or iHour==0 then
+        s = s..iMinute..L.Language(2003)
+    end
+    return s
+end
+---显示时间(如xx前)
+StringUtils.TimeStamp5 = function(second)
+    second = math.ceil(second)
+    if second >= 2592000 then
+        return math.ceil(second / 2592000) .. L.Language(10782)
+    elseif second >= 86400 then
+        return math.ceil(second / 86400) .. L.Language(10783)
+    elseif second >= 3600 then
+        return math.ceil(second / 3600) .. L.Language(10784)
+    elseif second >= 60 then
+        return math.ceil(second / 60) .. L.Language(10785)
+    else
+        return math.ceil(second) .. L.Language(10786)
+    end
+end
+---显示时间(如天时分)
+StringUtils.TimeStamp6 = function(second)
+	second = math.ceil(second)
+	if second >= 86400 then
+		return math.floor(second / 86400) .. L.Language(2001) .. math.fmod(math.floor(second / 3600), 24) .. L.Language(2002) .. math.fmod(math.floor(second / 60), 60) .. L.Language(2003) 
+	elseif second >= 3600 then
+		return math.fmod(math.floor(second / 3600), 24) .. L.Language(2002) .. math.fmod(math.floor(second / 60), 60) .. L.Language(2003) .. math.fmod(second, 60)
+	elseif second >= 60 then
+		return math.fmod(math.floor(second / 60), 60) .. L.Language(2003) .. math.fmod(second, 60)
+	else
+		return math.fmod(math.max(0, second), 60)
+	end
+end
+
+---阿拉伯数值转中文,支持0到99
+StringUtils.NumberToString = function(number)
+    if CS.AssetDataPath.ChannelStatus == 5 then
+        return number
+    end
+    if number < 0 or number > 99 then
+        L.LogError("StringUtils.NumberToString只支持0~99的数字转换，当前为" .. number)
+        return ""
+    end
+    local str = ""
+    if number >= 10 then
+        if math.floor(number / 10) > 1 then str = str .. numberStr[math.floor(number / 10) + 1] end
+        str = str .. numberStr[11]
+    end
+    if number % 10 > 0 or number < 10 then
+        str = str .. numberStr[number % 10 + 1]
+    end
+    return str
+end
+
+---分割<>字符串获取<>内的内容
+StringUtils.String_split = function(str)
+    local len = utf8.len(str)
+    local ref_len = 0
+    string.gsub(str,"(<.->)", function (ref)
+        ref_len = ref_len + utf8.len(ref)
+    end)
+    len = len-ref_len
+    return len
+end
+---判断字符串长度
+StringUtils.GetUTFLen = function(str)
+    local sTable = str
+    local len = 0
+    local charLen = 0
+    local index = 1
+    while index <= #sTable do
+        local utfCharLen = string.byte(string.sub(sTable, index, index))
+        if utfCharLen > 127 then -- 长度大于127的就认为是中文  
+            charLen = 2
+            index = index + 3
+        else
+            charLen = 1
+            index = index + 1
+        end
+
+        len = len + charLen
+    end
+    return len
+end
+
+---按指定字符分割字符串 返回table
+StringUtils.Split = function(str,reps)
+    local isSplit = string.find(str,reps)
+    if isSplit == nil then
+        return nil
+    else
+        local resultStrList = {}
+        string.gsub(str,'[^'..reps..']+',function ( w )
+            table.insert(resultStrList,w)
+        end)
+        return resultStrList
+    end
+end
+
+---字符串转table
+StringUtils.StrToTable = function(str)
+    local ret = load("return "..str)()
+    return ret
+end
+
+StringUtils.StrColorInUGUI=function(str,color)
+    return "<color=#"..color..">"..str.."</color>"
+end
+
+---截取中英混合的UTF8字符串,endIndex可缺省
+function SubStringUTF8(str,startIndex,endIndex)
+    if startIndex < 0 then
+        startIndex = SubStringGetTotalIndex(str) + startIndex + 1;
+    end
+
+    if endIndex ~= nil and endIndex < 0 then
+        endIndex = SubStringGetTotalIndex(str) + endIndex + 1;
+    end
+
+    if endIndex == nil then
+        return string.sub(str, SubStringGetTrueIndex(str, startIndex));
+    else
+        return string.sub(str, SubStringGetTrueIndex(str, startIndex), SubStringGetTrueIndex(str, endIndex + 1) - 1);
+    end
+end
+
+---获取中英混合UTF8字符串的真实字符数量
+function SubStringGetTotalIndex(str)
+    local curIndex = 0;
+    local i = 1;
+    local lastCount = 1;
+    repeat
+        lastCount = StringUtils.SubStringGetByteCount(str, i)
+        i = i + lastCount;
+        curIndex = curIndex + 1;
+    until(lastCount == 0);
+    return curIndex - 1;
+end
+
+function SubStringGetTrueIndex(str,index)
+    local curIndex = 0;
+    local i = 1;
+    local lastCount = 1;
+    repeat
+        lastCount = StringUtils.SubStringGetByteCount(str, i)
+        i = i + lastCount;
+        curIndex = curIndex + 1;
+    until(curIndex >= index);
+    return i - lastCount;
+end
+
+---返回当前字符实际占用的字符数
+StringUtils.SubStringGetByteCount=function(str,index)
+    local iChar = string.byte(str, index)
+    return StringUtils.AsciiToByteCount(iChar)
+end
+
+---Ascii码取中文所占byte数
+StringUtils.AsciiToByteCount = function(iChar)
+    local byteCount = 1
+    if iChar == nil then
+        byteCount = 0
+    elseif iChar > 0 and iChar <= 127 then
+        byteCount = 1
+    elseif iChar>=192 and iChar<=223 then
+        byteCount = 2
+    elseif iChar>=224 and iChar<=239 then
+        byteCount = 3
+    elseif iChar>=240 and iChar<=247 then
+        byteCount = 4
+    end
+    return byteCount
+end
+
+---保留小数点后两位
+StringUtils.KeepTwoDecimalPlaces = function(decimal)
+    decimal = decimal * 100
+    decimal = (decimal % 1 >= 0.5 and math.ceil(decimal)) or math.floor(decimal)
+    return  decimal * 0.01
+end
+
+StringUtils.IsValidRedisStr = function(str)
+    if str == "" then
+        return false
+    end
+    for p, c in utf8.codes(str) do
+        if c == 32 or c == 37 then
+            return false
+        end
+    end
+    return true
+end
+
+---去除小数点
+StringUtils.GetIntPart = function(num)
+    if num <= 0 then
+       return math.ceil(num)
+    end
+
+    if math.ceil(num) == num then
+       num = math.ceil(num)
+    else
+       num = math.ceil(num) - 1
+    end
+    return num
+end
+
+StringUtils.Trim = function(str)
+    str = string.gsub(str,"\r\n","")
+    return str
+end
+
+StringUtils.IsErrorStr = function(str)
+    local str,spacing = string.find(str,"(%s*)")
+    return spacing
+end
+
+---20190312  按显示字符数插入文本(s原文本,iPos插入位置,sIn插入文本)
+---长度不足iPos的不插入
+StringUtils.InsertShow = function(s,iPos,sIn)
+    local iFindPos=0
+    local iPosNow=0
+    local iC=1
+
+    --20190312  颜色标签的状态,0无,1标签中,2标签尾
+    local iColor=0
+    for i=1,10000 do
+        local iChar=string.byte(s,iC)
+        if iChar==60 then
+            iColor=1
+        elseif iColor==1 and iChar==62 then
+            iColor=2
+        elseif iColor==2 then
+            iColor=0
+        end
+        if iColor==0 then
+            --20190312  中文字符的1段char算2个字符
+            local iCharL=StringUtils.AsciiToByteCount(iChar)
+            iC=iC+iCharL-1
+            if iCharL>1 then
+                iPosNow=iPosNow+2
+            else
+                iPosNow=iPosNow+1
+            end
+        
+            --20190312  指定位置插回车
+            if iPosNow>=iPos then
+                s=table.concat({string.sub(s,0,iC),sIn,string.sub(s,iC+1)})
+                break
+            end
+        end
+
+        --20190312  下个字符
+        iC=iC+1
+        if iC>#s then break end
+    end
+    return s
+end
+
+StringUtils.StringFormat = function(str)
+	str = string.gsub(str, " ", "")
+	str = string.gsub(str, "\n", "")
+	if string.sub(str, -1) == ";" then
+		str = string.sub(str, 1, -2)
+	end
+	return str
+end

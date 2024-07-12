@@ -1,0 +1,172 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: MainViewAtlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 0
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: f6dd59a334612e04884a60c8a67d6589, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: e3eef3405a1a81e47800e37bb5f7c17f, type: 3}
+  - {fileID: 21300000, guid: 5f49ea70c74e64546810d3a8c52f59b7, type: 3}
+  - {fileID: 21300000, guid: 75cdf0c04a7ecc4429cf455c548015ab, type: 3}
+  - {fileID: 21300000, guid: 42c0f8c092e4e8c4194e67d51e1a602a, type: 3}
+  - {fileID: 21300000, guid: ce7e24f0455c54b4386780b980fca5b3, type: 3}
+  - {fileID: 21300000, guid: fbbbd5f04701fa740879aada1502bdc4, type: 3}
+  - {fileID: 21300000, guid: 1cb42d21b34aa3c42be2244dc1aeda48, type: 3}
+  - {fileID: 21300000, guid: a09002513c7ded240a9a97fd88e8b8e3, type: 3}
+  - {fileID: 21300000, guid: e27e6561f29cc1f47898454b22d9c377, type: 3}
+  - {fileID: 21300000, guid: d5a62661776d0d34ea806cfeb32eae53, type: 3}
+  - {fileID: 21300000, guid: 189380816e9eefb43b2cfb412c183048, type: 3}
+  - {fileID: 21300000, guid: b4a694819a4127b40b7105586b413d43, type: 3}
+  - {fileID: 21300000, guid: 34a34632da72cb3498db23f9085a8853, type: 3}
+  - {fileID: 21300000, guid: b31ad952e2a7fe3479515e634a4e2941, type: 3}
+  - {fileID: 21300000, guid: 49ad49825fdf077418aee229667ae9dd, type: 3}
+  - {fileID: 21300000, guid: f79f46b2662f7df48bf31e3384a96f63, type: 3}
+  - {fileID: 21300000, guid: c3fab803348aa964a86868bf4fc96b8a, type: 3}
+  - {fileID: 21300000, guid: b9652f033ec09884aab6598ae4202030, type: 3}
+  - {fileID: 21300000, guid: 06a9ee532e8a18a43832fc6de2841709, type: 3}
+  - {fileID: 21300000, guid: 2ab47293172850b449f2f3e8b6adc73f, type: 3}
+  - {fileID: 21300000, guid: ed1477933df3ab043931cb5227b7afbd, type: 3}
+  - {fileID: 21300000, guid: 2c1c49b3750cee3458a66a47193df424, type: 3}
+  - {fileID: 21300000, guid: 9c5292249430dbc4797618d4549d5d54, type: 3}
+  - {fileID: 21300000, guid: 238aa624fb6145d4bb52ae7d4f4f1133, type: 3}
+  - {fileID: 21300000, guid: 8c998b44ea0e7484a8b1bc5a628add19, type: 3}
+  - {fileID: 21300000, guid: 2509f454412cd8d47b20be841f80c7a0, type: 3}
+  - {fileID: 21300000, guid: 13971da4593b4304685d9110591c02c9, type: 3}
+  - {fileID: 21300000, guid: 262cf385fb6ef364ca8410a1871f5285, type: 3}
+  - {fileID: 21300000, guid: ca211b47b5dac4e459cd8479a10b4513, type: 3}
+  - {fileID: 21300000, guid: 036d8767e69f54446a96e824970e9495, type: 3}
+  - {fileID: 21300000, guid: 4b0e46f722c1a964a8b6c3b1da3f67c3, type: 3}
+  - {fileID: 21300000, guid: 32bf0cf78be511c40b93223e6077cefd, type: 3}
+  - {fileID: 21300000, guid: 42293f082dd444447a71d6cb8fd28c4c, type: 3}
+  - {fileID: 21300000, guid: 1bdb5a1828765ff449b7b6ce1b7e5c7e, type: 3}
+  - {fileID: 21300000, guid: faf6cb3878aa1c641a611c75dc2ce5ae, type: 3}
+  - {fileID: 21300000, guid: e688d398f8887c944b3738bdfd7ac077, type: 3}
+  - {fileID: 21300000, guid: 230840d88c5319f48bd29181b7e7cce3, type: 3}
+  - {fileID: 21300000, guid: 23d608f8b7fe5e141890c13063d164e4, type: 3}
+  - {fileID: 21300000, guid: d8a12119ed945244c9b9124db836e68d, type: 3}
+  - {fileID: 21300000, guid: 39ab244910bbbe74e8c4760b86a88c7c, type: 3}
+  - {fileID: 21300000, guid: 07f874a9295b8374baa865afd2e06e2f, type: 3}
+  - {fileID: 21300000, guid: 11a72bb90c0e9324bb397bc3fa94437f, type: 3}
+  - {fileID: 21300000, guid: 946b57c927fb2b14ea9067aa6a0ab5cd, type: 3}
+  - {fileID: 21300000, guid: c712a12a7fb08a6439136fbda66261ee, type: 3}
+  - {fileID: 21300000, guid: c3953a5a2d8142647a3cc97577f3c908, type: 3}
+  - {fileID: 21300000, guid: 091a0cea7cc943b49b12fe31fd727020, type: 3}
+  - {fileID: 21300000, guid: b4d7282b30581c042b64c76b2adda49c, type: 3}
+  - {fileID: 21300000, guid: 76c7b74b15af60a409f70d79fc534078, type: 3}
+  - {fileID: 21300000, guid: ca8c246b0ebfbc54fb493a54dcf49a05, type: 3}
+  - {fileID: 21300000, guid: 36039edb10e5b0845bb4ef9ad5112707, type: 3}
+  - {fileID: 21300000, guid: c7b9bd0ce7df6154c87d21b341308a7e, type: 3}
+  - {fileID: 21300000, guid: 5df07d2d876e0d3488ff9c1824195d53, type: 3}
+  - {fileID: 21300000, guid: 0bf0ab4df31099a46b00b9b439c8ec8f, type: 3}
+  - {fileID: 21300000, guid: 24407c5d0c393b54d8c42835093f79e2, type: 3}
+  - {fileID: 21300000, guid: 00c3cfdd627282042ae524aef29b09d4, type: 3}
+  - {fileID: 21300000, guid: c420bbbeff3f20343b9d7c5cd6a8d5c5, type: 3}
+  - {fileID: 21300000, guid: 2458ebce79aab0d409954bdbef71f0ab, type: 3}
+  - {fileID: 21300000, guid: 41e03fcef2664654f891dcbc0c39c10b, type: 3}
+  - {fileID: 21300000, guid: 83636dde29966ba4a959e8aa723e67c9, type: 3}
+  - {fileID: 21300000, guid: 1528400fbfcbfc2429d753be529968b1, type: 3}
+  - {fileID: 21300000, guid: 290e501f147ad3e4a825f1e0677217ed, type: 3}
+  - {fileID: 21300000, guid: b5b2fc5f1f2676a4b88881a47f4fe2a9, type: 3}
+  - {fileID: 21300000, guid: c547c07fd7916af49aa58b3cc88f1a2a, type: 3}
+  - {fileID: 21300000, guid: 2f194a8f05296e84d909d986f8060b22, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - 6
+  - 0
+  - kuohaoyou
+  - 3
+  - 3
+  - 8
+  - 4
+  - 2
+  - 5
+  - button2
+  - 7
+  - 0
+  - 4
+  - 8
+  - s
+  - 0
+  - 4
+  - fanhui
+  - 8
+  - 2
+  - Physical
+  - 3
+  - tilitiao
+  - tili1
+  - 4
+  - 1
+  - 3
+  - 7
+  - 9
+  - recover
+  - kuohaozuo
+  - 7
+  - 6
+  - 2
+  - 4
+  - 9
+  - 0
+  - 9
+  - 0
+  - 5
+  - 2
+  - tilihuifu
+  - 2
+  - 1
+  - 9
+  - 1
+  - 5
+  - 5
+  - 6
+  - 8
+  - Time symbols
+  - 3
+  - 6
+  - tili2
+  - 7
+  - 5
+  - 1
+  - 1
+  - 7
+  - 9
+  - s
+  - 8
+  - tili3
+  - 6
+  m_RenderDataMap: {}
+  m_Tag: MainViewAtlas
+  m_IsVariant: 0

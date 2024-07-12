@@ -1,0 +1,10 @@
+NPCObject =  Class("NPCObject", WorldObject)
+
+function NPCObject:ctor(id)
+	NPCObject.super.ctor(self, id)
+	
+end
+
+function NPCObject:Start()
+	NPCObject.super.Start(self)
+end

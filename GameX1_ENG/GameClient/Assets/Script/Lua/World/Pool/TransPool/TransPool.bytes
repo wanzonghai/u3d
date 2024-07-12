@@ -1,0 +1,120 @@
+TransPool = Class("TransPool")
+
+local Renderer = typeof(CS.UnityEngine.Renderer)
+local ParticleSystem = typeof(CS.UnityEngine.ParticleSystem)
+local TrailRenderer = typeof(CS.UnityEngine.TrailRenderer)
+
+function TransPool:ctor(transform)
+	self.transform = transform
+	self.layer = Layers.Default
+	self.show = true
+	self.sortingOrder = 0
+	self.particleSystemscale = 1
+	self.renderers = transform:GetComponentsInChildren(Renderer, true)
+	self.ps = transform:GetComponentsInChildren(ParticleSystem, true)
+	self.isPsEmission = false
+	self.psEmission = nil
+	local length = self.ps.Length - 1
+	for i = 0, length do
+		self.ps[i]:Clear(false)
+	end
+
+	self.tr = nil
+end
+
+function TransPool:OnBack()
+	
+end
+
+function TransPool:SetShow(value)
+	if self.show == value then return end
+	self.show = value
+
+	local length = self.renderers.Length - 1
+	local v = nil
+	for i = 0, length do
+		v = self.renderers[i]
+		v.enabled = value
+	end
+end
+
+function TransPool:SetParticleSystemScale(value)
+	if self.particleSystemscale == value then return end
+	
+	local scale = value / self.particleSystemscale
+	self.particleSystemscale = value
+	local length = self.ps.Length - 1
+	for i = 0, length do
+		local main = self.ps[i].main
+		main.startSpeedMultiplier = main.startSpeedMultiplier * scale
+		if main.startSize3D then
+			main.startSizeXMultiplier = main.startSizeXMultiplier * scale
+			main.startSizeYMultiplier = main.startSizeYMultiplier * scale
+			main.startSizeZMultiplier = main.startSizeZMultiplier * scale
+		else
+			main.startSizeMultiplier = main.startSizeMultiplier * scale
+		end
+		local shape = self.ps[i].shape
+		shape.radius = shape.radius * scale
+		--main.gravityModifierMultiplier = main.gravityModifierMultiplier * scale
+		--local sizeOverLifetime = self.ps[i].sizeOverLifetime
+		--sizeOverLifetime.sizeMultiplier = sizeOverLifetime.sizeMultiplier * scale
+		self.ps[i]:Clear(false)
+	end
+end
+
+function TransPool:SetLayer(value)
+	if self.layer == value then return end
+	self.layer = value
+
+	local length = self.renderers.Length - 1
+	local v = nil
+	for i = 0, length do
+		v = self.renderers[i]
+		v.gameObject.layer = value
+	end
+end
+
+function TransPool:SetSortingOrder(value)
+	if self.sortingOrder == value then return end
+	self.sortingOrder = value
+
+	local length = self.renderers.Length - 1
+	local v = nil
+	for i = 0, length do
+		v = self.renderers[i]
+		v.sortingOrder = value
+	end
+end
+
+function TransPool:EmissionClear(clear)
+	if self.isPsEmission == clear then return end
+	self.isPsEmission = clear
+	if self.psEmission == nil then
+		self.psEmission = {}
+		local length = self.ps.Length - 1
+		for i = 0, length do
+			self.psEmission[i] = self.ps[i].emission.rateOverDistanceMultiplier
+		end
+	end
+	if clear then 
+		local length = self.ps.Length - 1
+		for i = 0, length do
+			self.ps[i].emission.rateOverDistanceMultiplier = 0
+			self.ps[i]:Clear(false)
+		end
+		if self.tr == nil then self.tr = self.transform:GetComponentsInChildren(TrailRenderer, true) end
+		length = self.tr.Length
+		if length > 0 then
+			length = length - 1
+			for i = 0, length do
+				self.tr[i]:Clear()
+			end
+		end
+	else
+		local length = self.ps.Length - 1
+		for i = 0, length do
+			self.ps[i].emission.rateOverDistanceMultiplier = self.psEmission[i]
+		end
+	end
+end

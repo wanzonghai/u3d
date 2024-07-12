@@ -1,0 +1,54 @@
+ChargeClientSkill = Class("ChargeClientSkill", SkillAcitonBase)
+
+--客户端冲锋
+local Vector3 = CS.UnityEngine.Vector3
+function ChargeClientSkill:ctor(skillUnit, p)
+	ChargeClientSkill.super.ctor(self, skillUnit, p)
+
+    self.t1 = tonumber(self.params["T1"] or 0.2)
+    self.t2 = tonumber(self.params["T2"] or 0.2)
+    self.t3 = tonumber(self.params["T3"] or 0.2)
+
+    self.time = 0
+    self.state = 0
+end
+
+function ChargeClientSkill:Play(target, position)
+	ChargeClientSkill.super.Play(self, target, position)
+    
+    self.position = position
+    self.offset = position - self.object.root.position
+    self.state = 1
+    self.time = 0
+end
+
+function ChargeClientSkill:Update(time)
+	ChargeClientSkill.super.Update(self, time)
+
+    self.time = self.time + time
+    if self.state == 1 then
+        if self.time >= self.t1 then 
+            self.object.hTransform.position = self.position
+            self.time = 0
+            if self.t2 > 0 then self.state = 2
+            else self.state = 3
+            end
+        else self.object.hTransform.position = self.object.root.position + self.offset * (self.time / self.t1)
+        end
+    elseif self.state == 2 then
+        if self.time >= self.t2 then 
+            self.time = 0
+            self.state = 3
+        end
+    elseif self.state == 3 then
+        if self.time >= self.t3 then self:Stop()
+        else self.object.hTransform.position = self.object.root.position + self.offset * ((self.t3 - self.time) / self.t3)
+        end
+    end
+end
+
+function ChargeClientSkill:Stop()
+	ChargeClientSkill.super.Stop(self)
+    self.object.hTransform.localPosition = Vector3(0, 0, 0)
+    self.state = 0
+end

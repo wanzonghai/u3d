@@ -1,0 +1,71 @@
+MonsterController = Class("MonsterController", NormController)
+
+function MonsterController:ctor(object, kindMode)
+	MonsterController.super.ctor(self, object, kindMode)
+end
+
+function MonsterController:Destroy()
+	if self.isDestroy then return end
+	MonsterController.super.Destroy(self)
+end
+
+function MonsterController:Update(time)
+	MonsterController.super.Update(self, time)
+	if SceneManager:GetInstance().scene.stop then return end
+	if self.object.attributes.hp.value <= 0 then
+		if self.handle ~= Handles.Dead then
+			self:OnHandles(Handles.Dead)
+			SceneManager:GetInstance().scene:StopRound(true)
+		end
+		return
+	end
+	if not self.object.boneClothes.animation or not self.object.boneClothes.animation.animation then return end
+	self:OnAttackMonster()
+	--选中目标判断
+	if self.attackTarget then
+		if not GameUtils.IsLife(self.attackTarget) then
+			self.attackTarget = nil
+		end
+	end
+end
+
+--自动攻击
+function MonsterController:OnAttackMonster()
+	if self.object.skills:Playing() then return end
+	self:OnAttackSkill()  --释放技能
+end
+
+function MonsterController:OnAttackSkill()
+	self.attackTarget = self:SelectAttackTarget()
+	if not self.attackTarget then return end
+
+	local skillID = self:GetPlaySkill()
+	if skillID > 0 then
+		self:OnPlaySkill(skillID)
+	end
+end
+
+--获取攻击目标（目标类型，最小距离）  切换目标
+function MonsterController:SelectAttackTarget()
+	return SceneManager:GetInstance().scene.player
+end
+
+--播放技能
+function MonsterController:OnPlaySkill(skillID)
+	local position = nil
+	local object = nil
+	if self.attackTarget then object = self.attackTarget.object end
+	self:OnHandles(Handles.Skill, skillID, object,position)
+end
+
+function MonsterController:GetPlaySkill()
+	local skillList = self.object.normVO.role.skill_list
+	for _,id in ipairs(skillList) do
+		if self.object.skills:CanPlay(id) then return id end
+	end
+	return 0
+end
+
+function MonsterController:Run()
+	MonsterController.super.Run(self)
+end

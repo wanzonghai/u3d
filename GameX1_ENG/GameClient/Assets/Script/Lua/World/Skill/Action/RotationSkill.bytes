@@ -1,0 +1,38 @@
+RotationSkill = Class("RotationSkill", SkillAcitonBase)
+
+local Vector3 = CS.UnityEngine.Vector3
+local Vector3Zero = CS.UnityEngine.Vector3.zero
+local Quaternion  = CS.UnityEngine.Quaternion
+
+function RotationSkill:ctor(skillUnit, p)
+	RotationSkill.super.ctor(self, skillUnit, p)
+	self.r = tonumber(self.params["R"] or 180)
+	self.t = tonumber(self.params["T"] or 0)
+	self.time = 0
+end
+
+function RotationSkill:Play(target)
+	RotationSkill.super.Play(self, target)
+	self.time = self.t
+	self.object.skills.isRotation = true
+	if self.time <= 0 then self:Stop() end
+end
+
+function RotationSkill:Update(time)
+	RotationSkill.super.Update(self, time)
+	if self.time > 0 then
+		self.time = self.time - time
+		local joystickDir = self.object.controller.joystickDir
+		if joystickDir ~= Vector3Zero then
+			local v3 = Vector3(joystickDir.x, 0, joystickDir.z)
+			local rotation = Quaternion.LookRotation(v3)
+			self.object.root.rotation = Quaternion.RotateTowards(self.object.root.rotation, rotation, time * self.r)
+		end
+		if self.time <= 0 then self:Stop() end
+	end
+end
+
+function RotationSkill:Stop()
+	RotationSkill.super.Stop(self)
+	self.object.skills.isRotation = false
+end

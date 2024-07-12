@@ -1,0 +1,111 @@
+SkillUnit = Class("SkillUnit")
+
+local skillConfig = require "Config/Skill"
+
+function SkillUnit:ctor(object, id)
+	self.object = object									--角色
+	self.id = id 											--技能id
+	self.unit = skillConfig[id]								--当前技能表
+	if self.unit == nil then 
+		L.LogError("skill不存在id " .. id) 
+		return
+	end
+	self.target = nil										--技能目标
+	self.position = nil
+	self.event = Delegate.New()								--各种事件(name)
+
+	self.isMyPlayer = GameUtils.IsMyPlayer(self.object.controller)
+	self.cd = SkillUtils.GetCd(self.id) 					--表CD
+	self.playing = false									--是否在播放
+	self.actions = {}										--技能行为列表
+	self.run = {}											--正在执行的技能行为
+	self.playIndex = 0										--行为列表的播放索引
+
+    local skillVO = SkillUtils.GetConfigVOByID(id)
+    for i = 1, #skillVO do
+    	local action = self:GetSkillAciton(skillVO[i].name, skillVO[i].params)
+    	if action ~= nil then table.insert(self.actions, action) end
+    end
+    self.attributes = self.object.attributes
+	self.actionSpeed = 1
+	
+	self.nowCD = 0											--当前CD 
+end
+
+function SkillUnit:AddRun(action)
+	table.insert(self.run, 1, action)
+end
+
+function SkillUnit:RemoveRun(action)
+	table.removeValue(self.run, action)
+end
+
+function SkillUnit:Update(time)
+	if self.nowCD > 0 then
+		self.nowCD = math.max(0, self.nowCD - time)
+		self.event:Function("cd")
+	end
+
+	if not self.playing then return end
+	time = time * self.actionSpeed
+	local func = {}
+	for _, v in pairs(self.run) do
+		table.insert(func, v)
+    end
+	for _, v in pairs(func) do
+		v:Update(time)
+    end
+end
+
+function SkillUnit:Play(target, position)
+	if self.playing then return end
+	self.nowCD = self.cd
+	self.target = target
+	self.position = position
+	self.playing = true
+	self.playIndex = 0
+	self.run = {}
+	self:PlayOneShot()
+	self.event:Function("cd")
+end
+
+function SkillUnit:Stop()
+	if not self.playing then return end
+	self.playing = false
+	self.target = nil
+
+	local func = {}
+	for _, v in pairs(self.run) do
+		table.insert(func, 1, v)
+    end
+    for _, v in pairs(func) do
+		v:Stop()
+    end
+end
+
+function SkillUnit:StopAndIdle()
+	if not self.playing then return end
+	self:Stop()
+	if self.object.attributes.hp.value <= 0 then return end
+	self.object.controller:OnHandles(Handles.Idle)
+end
+
+function SkillUnit:PlayOneShot()
+	if not self.playing then return end
+	self.playIndex = self.playIndex + 1
+	if self.playIndex > #self.actions then
+		self:Stop()
+	 	return 
+	end
+	self.actions[self.playIndex]:Play(self.target, self.position)
+	if not self.actions[self.playIndex].pause then
+		self:PlayOneShot()
+	end
+end
+
+function SkillUnit:GetSkillAciton(name, params)
+	local cLassPanel = gClass[name.."Skill"]
+	if cLassPanel ~= nil then
+		return gClass[name.."Skill"].New(self, params)
+	end
+end

@@ -1,0 +1,34 @@
+EffectMoveRoleSkill = Class("EffectMoveRoleSkill", SkillAcitonBase)
+
+local Vector3 = CS.UnityEngine.Vector3
+
+--移动挂人特效效果 ID特效id Fx挂点 TFx目标挂点 S移动速度 Buff(BUFF效果)
+function EffectMoveRoleSkill:ctor(skillUnit, p)
+	EffectMoveRoleSkill.super.ctor(self, skillUnit, p)
+	self.id = tonumber(self.params["ID"] or 0)
+	self.fx = self.params["Fx"] or Mounts.Body
+	self.tFx = self.params["TFx"] or Mounts.Body
+	self.s = tonumber(self.params["S"] or 1)
+end
+
+function EffectMoveRoleSkill:Play(target)
+	EffectMoveRoleSkill.super.Play(self, target)
+
+	if self.object:IsShowEffect() then
+		local start = self.object.boneClothes:GetMountByName(self.fx).position
+		local effect = MoveEffect.New(self.id)
+		if target == nil then
+			local position = self.object.root.position
+			local offset = Vector3(0, 0, 30)
+			position = position + self.object.root.rotation * offset
+			effect:MoveToPosition(start, self.s, position)
+		else
+			effect:MoveToTransform(start, self.s, target.boneClothes:GetMountByName(self.tFx), function() end)
+		end
+	end
+	self:Stop()
+end
+
+function EffectMoveRoleSkill:Stop()
+	EffectMoveRoleSkill.super.Stop(self)
+end

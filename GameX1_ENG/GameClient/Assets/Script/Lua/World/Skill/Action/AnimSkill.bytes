@@ -1,0 +1,23 @@
+AnimSkill = Class("AnimSkill", SkillAcitonBase)
+
+local Loop = CS.UnityEngine.WrapMode.Loop
+local ClampForever = CS.UnityEngine.WrapMode.ClampForever
+
+--动画 N动画名
+function AnimSkill:ctor(skillUnit, p)
+	AnimSkill.super.ctor(self, skillUnit, p)
+	self.n = self.params["N"] or Actions.Idle
+	self.animation = self.object.boneClothes.animation
+end
+
+function AnimSkill:Play(target)
+	AnimSkill.super.Play(self, target)
+	self.animation:Play(self.n)
+	self.actionSpeed = self.skillUnit.actionSpeed
+	self.animation:SetSpeed(self.actionSpeed)
+	self:Stop()
+end
+
+function AnimSkill:Stop()
+	AnimSkill.super.Stop(self)
+end

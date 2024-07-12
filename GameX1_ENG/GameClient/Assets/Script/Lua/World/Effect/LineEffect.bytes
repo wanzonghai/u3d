@@ -1,0 +1,62 @@
+LineEffect = Class("LineEffect", EffectBase)
+
+function LineEffect:ctor(id, destroyForExitScene)
+	LineEffect.super.ctor(self, id, destroyForExitScene)
+	
+    self.time = 0
+    self.transformList = nil
+    self.positionList = nil
+end
+
+function LineEffect:LineTransform(transformList, time)
+    self.transformList = transformList
+    self.time = time or 0
+    if not self.isCreate then self:CreateTransform() end
+end
+
+function LineEffect:LinePosition(positionList, time)
+    self.positionList = positionList
+    self.time = time or 0
+    if not self.isCreate then self:CreateTransform() end
+end
+
+function LineEffect:LoadComplete()
+    LineEffect.super.LoadComplete(self)
+    self:OnTransform()
+    self:OnPosition()
+end
+
+function LineEffect:Update(time)
+	LineEffect.super.Update(self, time)
+
+    if self.isDestroy then return end
+    if self.time == 0 then self:OnTransform()
+    elseif self.time > 0 then
+		self.time = self.time - self.playSpeed * time
+		if self.time <= 0 then
+			self:Destroy()
+        else
+            self:OnTransform()
+        end
+	end
+end
+
+function LineEffect:OnTransform()
+    if self.transformList == nil then return end
+    if IsNil(self.transform) then return end
+    local positions = {}
+    for i=1, #self.transformList do
+        if IsNil(self.transformList[i]) then 
+            self:Destroy()
+            return 
+        end
+        table.insert(positions, self.transformList[i].position)
+    end
+    self.pool.handler:LinePosition(positions)
+end
+
+function LineEffect:OnPosition()
+    if self.positionList == nil then return end
+    if IsNil(self.transform) then return end
+    self.pool.handler:LinePosition(self.positionList)
+end

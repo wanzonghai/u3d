@@ -1,0 +1,51 @@
+--#J_角色属性升级表.xlsx
+local team = {}
+local config = 
+{
+	[1] =
+	{
+		id = 1,
+		name = "经验",
+		key = "exp",
+		item_icon_id = 1,
+		desc = "角色经验，用于提升角色的等级。",
+	},
+	[2] =
+	{
+		id = 2,
+		name = "金砖",
+		key = "yuanbao",
+		item_icon_id = 2,
+		desc = "通过通关方式获得的珍稀货币，可用于购买物品",
+	},
+	[1] =
+	{
+		id = 1,
+		name = "经验",
+		key = "exp",
+		item_icon_id = 1,
+		desc = "角色经验，用于提升角色的等级。",
+	},
+	[2] =
+	{
+		id = 2,
+		name = "金砖",
+		key = "yuanbao",
+		item_icon_id = 2,
+		desc = "通过通关方式获得的珍稀货币，可用于购买物品",
+	},
+}
+local _default_values =
+{
+	id = 0,
+	name = "",
+	key = "",
+	drop_model = 0,
+	item_icon_id = 0,
+	desc = "",
+}
+local base = { __index = _default_values }
+for _, v in pairs(config) do
+	setmetatable( v, base )
+end
+return config, _default_values

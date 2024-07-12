@@ -1,0 +1,32 @@
+SkillHandle = Class("SkillHandle", HandleBase)
+
+function SkillHandle:ctor(controller)
+	SkillHandle.super.ctor(self, controller, Handles.Skill)
+
+	self.id = 0
+	self.skills = self.controller.object.skills
+end
+
+--技能id 角色object
+function SkillHandle:OnHandle(...)
+	SkillHandle.super.OnHandle(self, ...)
+
+	self.id, self.target, self.position = ...
+end
+
+function SkillHandle:Run()
+	SkillHandle.super.Run(self)
+
+	self.skills:Play(self.id, self.target, self.position)
+end
+
+function SkillHandle:Update(time)
+	SkillHandle.super.Update(self, time)
+	if not self.skills:Playing() then self.controller:OnHandles(Handles.Idle) end
+end
+
+function SkillHandle:Destroy()
+	if self.isDestroy then return end
+	SkillHandle.super.Destroy(self)
+	self.skills:Stop()
+end

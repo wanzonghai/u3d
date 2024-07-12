@@ -1,0 +1,100 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: NewAtlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 0
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: 1148dd15d43dab242a8a2acbdec0ac8b, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: a62e4700c5f59444d85bc4dbf3b75cfa, type: 3}
+  - {fileID: 21300000, guid: 53e395c174c63f849ac85a503718f1de, type: 3}
+  - {fileID: 21300000, guid: 7e4bee42841c5314cadf410032ce9c03, type: 3}
+  - {fileID: 21300000, guid: 52165334820ce5742a0a97e03dd35b0b, type: 3}
+  - {fileID: 21300000, guid: 6cb30fa4adb433140bd82621b9b68670, type: 3}
+  - {fileID: 21300000, guid: b096a805ac2a4e8468d9ee2de2835143, type: 3}
+  - {fileID: 21300000, guid: 2ed17055097eefd4781c9aeeb7ce95af, type: 3}
+  - {fileID: 21300000, guid: bc21b785645c3934a92002b297f50892, type: 3}
+  - {fileID: 21300000, guid: ab1db8c51f0784c4ca6d087549e80bf1, type: 3}
+  - {fileID: 21300000, guid: 4a547c76377fe224abbf483072c4171b, type: 3}
+  - {fileID: 21300000, guid: d47410d61ba75d345b5f458cc2fb1af4, type: 3}
+  - {fileID: 21300000, guid: 038832176febaa6418696776dd33e8a2, type: 3}
+  - {fileID: 21300000, guid: 27f3e2571affd22498b8d08132ffcfe1, type: 3}
+  - {fileID: 21300000, guid: a89402f7cbd74c44d97f15e95c0c4ea7, type: 3}
+  - {fileID: 21300000, guid: 6ac27688f676eeb438cff3a07a20a6a9, type: 3}
+  - {fileID: 21300000, guid: d2b4c3a82bfa7774da854ea3c188ef20, type: 3}
+  - {fileID: 21300000, guid: d4b769f941054444e9a801d434c1935a, type: 3}
+  - {fileID: 21300000, guid: d480143a906b7a349a8e3e8b86bcb2cf, type: 3}
+  - {fileID: 21300000, guid: 930c283a467228a4dbf3c6ca149e04eb, type: 3}
+  - {fileID: 21300000, guid: 60e9d98aecb5a9841b4d97960449a871, type: 3}
+  - {fileID: 21300000, guid: 66ee73da8add28540b9604fb050db58e, type: 3}
+  - {fileID: 21300000, guid: bad97cfa7d5450542bef3723f3e2b277, type: 3}
+  - {fileID: 21300000, guid: 49a56e7baa1287e43aeb3c610bf903da, type: 3}
+  - {fileID: 21300000, guid: c4257b4c477cf284f9cb6c5e2739538a, type: 3}
+  - {fileID: 21300000, guid: 4cd9a13dc51fbb047aee432d2bb23a2e, type: 3}
+  - {fileID: 21300000, guid: e0cd398e6b46838499d3479e02b4261e, type: 3}
+  - {fileID: 21300000, guid: d0b40bdeb50d5dd41ab9f2f2c4040022, type: 3}
+  - {fileID: 21300000, guid: 3c223fef06b994645a4609739bfe1137, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - Game_1_kaiguangjian_Guang_En
+  - Game_1_keyidalun
+  - img_play
+  - Game_1_Bukeyidalun
+  - Game_1_Bukeyidalun_En
+  - Game_1_Sound_En
+  - Game_1_kaiguangjian_Guang
+  - redio
+  - Game_1_tuichuyouxikuang
+  - Game_1_keyidalun_En
+  - txt_restart_eng
+  - Game_1_Buzengshi
+  - Game_1_zengshi
+  - Game_1_kaiguangjian
+  - Game_1_shezhi_jin
+  - Game_1_Congxinkaishi_En
+  - Game_1_Play_En
+  - Game_1_jixuyouxi_En
+  - Game_1_Guangqiashu
+  - Game_1_shizhi
+  - Game_1_zengshi_En
+  - btn_restart
+  - Game_1_Exit
+  - Game_1_Nuzengshi_En
+  - Game_1_kaiguangjian_kai
+  - Game_1_gongnengbeijinkuang
+  - Game_1_kaiguangjian_Kai_En
+  - Game_1_Music_En
+  m_RenderDataMap: {}
+  m_Tag: NewAtlas
+  m_IsVariant: 0

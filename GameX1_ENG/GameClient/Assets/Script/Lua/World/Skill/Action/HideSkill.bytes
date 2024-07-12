@@ -1,0 +1,30 @@
+HideSkill = Class("HideSkill", SkillAcitonBase)
+
+--隐藏角色 t时间
+function HideSkill:ctor(skillUnit, p)
+	HideSkill.super.ctor(self, skillUnit, p)
+	self.t = tonumber(self.params["T"] or 0)
+end
+
+function HideSkill:Play(target)
+	HideSkill.super.Play(self, target)
+	
+	self.time = self.t
+	self.object.boneClothes:SetShow(false)
+end
+
+function HideSkill:Update(time)
+	HideSkill.super.Update(self, time)
+
+	if self.time > 0 then
+		self.time = self.time - time
+		if self.time <= 0 then
+			self:Stop()
+		end
+	end
+end
+
+function HideSkill:Stop()
+	HideSkill.super.Stop(self)
+	self.object.boneClothes:SetShow(true)
+end

@@ -1,0 +1,60 @@
+PlayerController = Class("PlayerController", NormController)
+
+function PlayerController:ctor(object, kindMode)
+	PlayerController.super.ctor(self, object, kindMode)
+	self.needAttackCount = 0
+end
+
+function PlayerController:Destroy()
+	if self.isDestroy then return end
+	PlayerController.super.Destroy(self)
+end
+
+function PlayerController:AttackMonster()
+	self.needAttackCount = self.needAttackCount + 1
+end
+
+function PlayerController:CanAttack()
+	self.attackTarget = SceneManager:GetInstance().scene.monster
+	if not GameUtils.IsLife(self.attackTarget) then
+		return false
+	end
+	if self.object.skills:Playing() then
+		return false
+	end
+	return true
+end
+
+function PlayerController:Reborn()
+	self.object.attributes.hp:Equal(self.object.attributes.hp_max.value)
+end
+
+function PlayerController:Update(time)
+	PlayerController.super.Update(self,time)
+	if SceneManager:GetInstance().scene.stop then return end
+	if self.object.attributes.hp.value <= 0 then
+		if self.handle ~= Handles.Dead then
+			self:OnHandles(Handles.Dead)
+			SceneManager:GetInstance().scene:StopRound(false)
+		end
+		return
+	end
+	if self.needAttackCount > 0 then
+		if self:CanAttack() then
+			self:OnHandles(Handles.Skill, self:GetPlaySkill(), self.attackTarget.object)
+			self.needAttackCount = self.needAttackCount - 1
+		end
+	else
+		if not self.object.skills:Playing() and self.handle ~= Handles.Idle then
+			self:OnHandles(Handles.Idle)
+		end
+	end
+end
+
+function PlayerController:GetPlaySkill()
+	local skillList = self.object.normVO.role.skill_list
+	for _,id in ipairs(skillList) do
+		if self.object.skills:CanPlay(id) then return id end
+	end
+	return 0
+end

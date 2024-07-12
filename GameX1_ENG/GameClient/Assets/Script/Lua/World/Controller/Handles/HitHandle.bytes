@@ -1,0 +1,65 @@
+HitHandle = Class("HitHandle", HandleBase)
+
+local ClampForever = CS.UnityEngine.WrapMode.ClampForever
+local Vector3 = CS.UnityEngine.Vector3
+
+function HitHandle:ctor(controller)
+	HitHandle.super.ctor(self, controller, Handles.Hit)
+	self.isLookAt = false
+end
+
+function HitHandle:OnHandle(...)
+	HitHandle.super.OnHandle(self, ...)
+
+	self.position, self.p_time, self.p2_time, self.attacker = ...
+	if self.position == nil or self.p_time <= 0 then 
+		if self.isMove then
+			self.controller.object.navMeshAgents:Speed(self.controller.object.attributes.move_speed.value)
+			self.controller.object.navMeshAgents:IsRotation(true)
+			self.controller.object.navMeshAgents:Stop()
+		end
+		self.isMove = false
+	else self.isMove = true end
+		
+	self.time = self.p_time + self.p2_time
+end
+
+function HitHandle:Run()
+	HitHandle.super.Run(self)
+
+	self.controller.object.boneClothes.animation:Play(Actions.Hit)
+	SoundManager:GetInstance():Play(self.controller.object.normVO.model.hit_sound)
+	if not self.isLookAt then
+		local attacker = self.controller.scene:GetObject(self.attacker)
+		if attacker then
+			self.controller.object.navMeshAgents:LookAt(attacker.object.root.position)
+			self.isLookAt = true
+		end
+	end
+	if self.isMove then
+		self.controller.object.navMeshAgents:Speed(Vector3.Distance(self.controller.object.root.position, self.position) / self.p_time)
+		self.controller.object.navMeshAgents:IsRotation(false)
+		self.controller.object.navMeshAgents:MoveRay(self.position)
+	end
+end
+
+function HitHandle:Update(time)
+	HitHandle.super.Update(self, time)
+
+	self.time = self.time - time
+    if self.time <= 0 then
+        self.controller:OnHandles(Handles.Idle)
+    end
+end
+
+function HitHandle:Destroy()
+	if self.isDestroy then return end
+
+	if self.isMove then
+		self.controller.object.navMeshAgents:Speed(self.controller.object.attributes.move_speed.value)
+		self.controller.object.navMeshAgents:IsRotation(true)
+		self.controller.object.navMeshAgents:Stop()
+		self.isMove = false
+	end
+	HitHandle.super.Destroy(self)
+end

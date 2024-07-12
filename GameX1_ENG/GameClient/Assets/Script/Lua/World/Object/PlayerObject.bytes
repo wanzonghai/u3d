@@ -1,0 +1,18 @@
+PlayerObject =  Class("PlayerObject", WorldObject)
+local this = PlayerObject
+
+function this:ctor(id)
+	this.super.ctor(self, id)
+end
+
+function this:Start()
+	this.super.Start(self)
+end
+
+function this:Run()
+	this.super.Run(self)
+end
+
+function this:Destroy()
+	this.super.Destroy(self)
+end

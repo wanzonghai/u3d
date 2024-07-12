@@ -1,0 +1,70 @@
+NormVO = Class("NormVO")
+
+local RoleConfig = require"Config/Role"
+local ModelConfig = require"Config/Model"
+local attrConfig = require "Config/AttrDesc"
+local NavMeshSamplePosition = CS.LuaUtils.NavMeshSamplePosition
+
+function NormVO:ctor()
+	self.event = Delegate.New()
+	self.control_type = 1		--1客户端AI，2服务端AI
+	self.position = nil			--出生点
+	self.forward = nil			--面向向量
+	self.attrInfo = {}			--属性配置
+	self.role = nil				--角色配置
+	self.model = nil			--模型配置
+	self.worldInfo = nil 		--战斗数据
+	self.id = 0					--唯一ID
+end
+
+function NormVO:SetAttrByName(name, value)
+	self.attrInfo[name] = value
+end
+
+function NormVO:GetAttrByName(name)
+	return self.attrInfo[name] or 0
+end
+
+--对象数据信息构造
+function NormVO:SetWorldInfo(info)
+	self.id = info.id
+	self.worldInfo = info
+	self.role = RoleConfig[info.UID]
+	self.model = ModelConfig[self.role.model]
+	self:SetAttrByName("role_name", self.role.name)
+	self:SetAttrByName("move_speed", info.move_speed or self.role.move_speed)
+	self:SetAttrByName("hp_max",info.hp_max or self.role.hp_max)
+	self:SetAttrByName("hp",info.hp_cur or self.role.hp_max)
+	self:SetAttrByName("att",info.att)
+	self:SetAttrByName("def",info.def)
+
+	self.position = info.Position
+	self.position = NavMeshSamplePosition(self.position)
+	self.forward = info.Forward
+end
+
+--创建玩家，需要的数据跟怪物类似
+--都需要：role_id,移动速度，当前血量，最大血量，出生位置，出生旋转
+--不一样：怪物需要有行为树ID
+
+--单机数据(SceneVO)
+--[[
+	info.UID:角色ID
+	info.Position:出生点
+	info.forward:出生朝向
+	info.model
+]]--
+function NormVO:SetConfigInfo(info)
+	self.id = info.UID
+	self.worldInfo = info
+	self.role = RoleConfig[info.UID]
+	self.model = ModelConfig[self.role.model]
+	self:SetAttrByName("role_name", self.role.name)
+	self:SetAttrByName("move_speed", info.move_speed or self.role.move_speed)
+	self:SetAttrByName("hp_max",info.hp_max or self.role.hp_max)
+	self:SetAttrByName("hp",info.hp_cur or self.role.hp_max)
+
+	self.position = info.Position
+	self.position = NavMeshSamplePosition(self.position)
+	self.forward = info.Forward
+end

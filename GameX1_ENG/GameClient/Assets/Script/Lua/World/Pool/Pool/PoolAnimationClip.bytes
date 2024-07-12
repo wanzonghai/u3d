@@ -1,0 +1,34 @@
+PoolAnimationClip = Class("PoolAnimationClip")
+
+local DownLoaderState = CS.DownLoaderState
+local ABDLManager = CS.ABDLManager:GetInstance()
+local ABDownLoader = CS.ABDownLoader
+function PoolAnimationClip:ctor(path)
+	self.path = path
+	self.sign = "PoolAnimationClip-" .. path
+	self.downLoader = ABDownLoader(path, self.sign, true)
+
+	self.animationClip = nil
+	self.poolTakeList = {}		--加载等待缓存队列
+end
+
+function PoolAnimationClip:Take(evt)
+	if self.animationClip ~= nil then evt(self.animationClip) 
+	else
+		table.insert(self.poolTakeList, 1, evt)
+
+		if self.downLoader.State == DownLoaderState.None then
+			self.downLoader:Load(function() self:DownLoaderTake() end)
+		elseif self.downLoader.State == DownLoaderState.Complete then
+			self:DownLoaderTake()
+		end
+	end
+end
+
+function PoolAnimationClip:DownLoaderTake()
+	self.animationClip = ABDLManager:GetAsset(self.path, self.sign)
+	while #self.poolTakeList > 0 do
+		self.poolTakeList[1](self.animationClip)
+		table.remove(self.poolTakeList, 1)
+	end
+end

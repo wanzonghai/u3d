@@ -1,0 +1,130 @@
+MainView = Class("MainView",WindowBase)
+local this = MainView
+
+function this:ctor(transform,server)
+    this.super.ctor(self,transform,server)
+
+    local tf_power = transform:Find("Power")
+    self.tiliList = {}
+    for i=1,3 do
+        table.insert(self.tiliList,tf_power:Find("img_tili" .. i).gameObject)
+    end
+
+    local tf_level = transform:Find("txt_level")
+    self.levelNums = {}
+    for i=1,3 do
+        table.insert(self.levelNums,NumberUnit.New(tf_level:Find("num" .. i)))
+    end
+
+    local tf_countdown = transform:Find("countdown")
+    self.txt_countdown = tf_countdown:GetComponent("Text")
+    self.obj_countdown = tf_countdown.gameObject
+
+    local tf_btn_start = transform:Find("btn_start")
+    tf_btn_start:GetComponent("IceButton").OnClick:AddListener(
+        function()
+            SoundManager:GetInstance():Play(3)
+            if SceneManager:GetInstance().scene:GetPower() <= 0 then
+                SceneManager:GetInstance().scene:PlayAdvertisement(function()
+                    SceneManager:GetInstance().scene:RefreshPower(1)
+                end)
+            else
+                SceneManager:GetInstance().scene:StartRound()
+                WindowManager:GetInstance():Close(Windows.MainView)
+            end
+        end
+    )
+    self.obj_icon_play = tf_btn_start:Find("icon_play").gameObject
+
+    transform:Find("btn_setting"):GetComponent("IceButton").OnClick:AddListener(
+        function()
+            SoundManager:GetInstance():Play(3)
+            WindowManager:GetInstance():Open(Windows.SettingView,WindowType.Stack)
+        end
+    )
+    EventDispatcher:GetInstance():AddEventListener(self,EventID.PowerChange,self.OnPowerChange)
+end
+
+function this:OnEnable()
+    this.super.OnEnable(self)
+    local levelCfg = SceneManager:GetInstance().scene.levelCfg
+    self:SetLevelNum(levelCfg.level)
+    self:OnPowerChange()
+end
+
+function this:SetLevelNum(num)
+    if num <= 9 then
+        self.levelNums[1]:SetActive(true)
+        self.levelNums[2]:SetActive(false)
+        self.levelNums[3]:SetActive(false)
+        self.levelNums[1]:SetNum(num)
+    elseif num <= 99 then
+        self.levelNums[1]:SetActive(true)
+        self.levelNums[2]:SetActive(true)
+        self.levelNums[3]:SetActive(false)
+
+        self.levelNums[1]:SetNum(math.floor(num/10))
+        self.levelNums[2]:SetNum(num % 10)
+    else
+        self.levelNums[1]:SetActive(true)
+        self.levelNums[2]:SetActive(true)
+        self.levelNums[3]:SetActive(true)
+
+        local num1 = math.floor(num/100)
+        self.levelNums[1]:SetNum(num1)
+        local num2 = num - num1 * 100
+        self.levelNums[2]:SetNum(math.floor(num2/10))
+        self.levelNums[3]:SetNum(num2 % 10)
+    end
+end
+
+function this:OnPowerChange()
+    local curPower = SceneManager:GetInstance().scene:GetPower()
+    for i=1,#self.tiliList do
+        self.tiliList[i]:SetActive(i <= curPower)
+    end
+    self.obj_icon_play:SetActive(curPower <= 0)
+    self:SetCountDown(curPower)
+end
+
+function this:SetCountDown(curPower)
+    if curPower >= MainScene.MaxPower then
+        if self.timer then self.timer:OnDestroy() self.timer = nil end
+        self.obj_countdown:SetActive(false)
+    else
+        self.obj_countdown:SetActive(true)
+        self.refreshTime = SceneManager:GetInstance().scene:GetRefreshTime()
+        local time = math.max(0,self.refreshTime - os.time())
+        self:SetCountDownNum(time)
+        if not self.timer and time > 0 then
+            self.timer = Timer.New(self,1,function()
+                time = math.max(0,self.refreshTime - os.time())
+                self:SetCountDownNum(time)
+                if time == 0 then
+                    self:SetCountDown(SceneManager:GetInstance().scene:GetPower())
+                end
+            end)
+        end
+    end
+end
+
+function this:SetCountDownNum(time)
+    local hour = math.floor(time / 3600)
+    local minute = math.floor((time - hour * 3600)/60)
+    local second = time - hour * 3600 - minute * 60
+    local str = ""
+    if hour > 0 then
+        str = str .. hour .. ":" .. minute .. ":" .. second
+    elseif minute > 0 then
+        str = str .. minute .. ":" .. second
+    else
+        str = second
+    end
+    self.txt_countdown.text = string.format("(%s to recover 1 energy)",str)
+end
+
+function this:Close()
+    if self.timer then self.timer:OnDestroy() self.timer = nil end
+    EventDispatcher:GetInstance():RemoveEventListener(self,EventID.PowerChange)
+    this.super.Close(self)
+end

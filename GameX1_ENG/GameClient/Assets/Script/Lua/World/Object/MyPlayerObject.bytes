@@ -1,0 +1,21 @@
+MyPlayerObject = Class("MyPlayerObject", PlayerObject)
+
+function MyPlayerObject:ctor(id)
+	MyPlayerObject.super.ctor(self, id)
+end
+
+function MyPlayerObject:Start()
+	MyPlayerObject.super.Start(self)
+end
+
+function MyPlayerObject:Run()
+	MyPlayerObject.super.Run(self)
+end
+
+function MyPlayerObject:Update(time)
+	MyPlayerObject.super.Update(self, time)
+end
+
+function MyPlayerObject:Destroy()
+	MyPlayerObject.super.Destroy(self)
+end

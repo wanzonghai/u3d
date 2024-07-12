@@ -1,0 +1,30 @@
+{
+  "project_info": {
+    "project_number": "269469443447",
+    "firebase_url": "https://number-ten2-default-rtdb.asia-southeast1.firebasedatabase.app",
+    "project_id": "number-ten2",
+    "storage_bucket": "number-ten2.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:269469443447:android:7e799d680b084b101dad72",
+        "android_client_info": {
+          "package_name": "com.DracoDigitalTechnology.NumberTen"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBmCgP3FP_FiFao5Jqgnb8I5V1Y-qGNbNU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

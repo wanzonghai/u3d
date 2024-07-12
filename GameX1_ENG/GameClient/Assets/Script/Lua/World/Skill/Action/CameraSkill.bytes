@@ -1,0 +1,35 @@
+CameraSkill = Class("CameraSkill", SkillAcitonBase)
+
+--技能镜头 t时间
+function CameraSkill:ctor(skillUnit, p)
+	CameraSkill.super.ctor(self, skillUnit, p)
+	self.t = tonumber(self.params["T"] or 0)
+	self.camera = nil
+	self.time = 0
+end
+
+function CameraSkill:Play(target)
+	CameraSkill.super.Play(self, target)
+	
+	if self.object.boneClothes.boneComplete then
+		self.camera = CameraManager:GetInstance():GetMajorCamera("Skill")
+		self.camera:Play(self.object)
+		self.time = self.t
+	else
+		self.time = 0
+		self:Stop()
+	end
+end
+
+function CameraSkill:Update(time)
+	CameraSkill.super.Update(self, time)
+	if self.time > 0 then
+		self.time = self.time - time
+		if self.time <= 0 then self:Stop() end
+	end
+end
+
+function CameraSkill:Stop()
+	CameraSkill.super.Stop(self)
+	if self.camera then self.camera:Stop() end
+end

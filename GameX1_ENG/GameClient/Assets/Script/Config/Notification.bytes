@@ -1,0 +1,30 @@
+--G_规则：公共参数.xlsx
+local team = {}
+local config = 
+{
+	[1] =
+	{
+		id = 1,
+		week = -1,
+		time = "12:00",
+		title = "长生剑",
+		content = "众位仙友速回仙盟，BOSS即将来袭！元宝分红，参战即有！",
+	},
+	[2] =
+	{
+		id = 2,
+		week = -1,
+		time = "16:00",
+		title = "长生剑",
+		content = "瑶池又要召开蟠桃大会了，仙女姐姐让你快来跟她一起参加！",
+	},
+	[3] =
+	{
+		id = 3,
+		week = -1,
+		time = "19:30",
+		title = "长生剑",
+		content = "众位仙友速回仙盟，BOSS即将来袭！元宝分红，参战即有！",
+	},
+}
+return config

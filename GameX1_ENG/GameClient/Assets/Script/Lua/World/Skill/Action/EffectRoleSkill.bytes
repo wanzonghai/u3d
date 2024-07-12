@@ -1,0 +1,31 @@
+EffectRoleSkill = Class("EffectRoleSkill", SkillAcitonBase)
+
+--挂人特效 ID特效id Fx挂点 T时间 Ta目标
+function EffectRoleSkill:ctor(skillUnit, p)
+	EffectRoleSkill.super.ctor(self, skillUnit, p)
+
+	self.id = tonumber(self.params["ID"] or 0)
+	self.fx = self.params["Fx"] or Mounts.Body
+	self.t = tonumber(self.params["T"] or 0)
+	self.self = tonumber(self.params["Self"] or 1)
+	self.f = tonumber(self.params["F"] or 1)
+end
+
+function EffectRoleSkill:Play(target)
+	EffectRoleSkill.super.Play(self, target)
+
+	if self.object:IsShowEffect() then
+		if self.self == 0 then
+			if target ~= nil then
+				local effect = RoleEffect.New(self.id)
+				effect:RoleTo(target, self.fx, self.t, self.f == 1)
+				effect:PlaySpeed(self.skillUnit.actionSpeed)
+			end
+		elseif self.self == 1 then
+			local effect = RoleEffect.New(self.id)
+			effect:RoleTo(self.object, self.fx, self.t, self.f == 1)
+			effect:PlaySpeed(self.skillUnit.actionSpeed)
+		end
+	end
+	self:Stop()
+end

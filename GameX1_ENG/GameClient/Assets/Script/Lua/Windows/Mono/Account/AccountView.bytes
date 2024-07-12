@@ -1,0 +1,89 @@
+AccountView = Class("AccountView",WindowBase)
+local this = AccountView
+
+function this:ctor(transform,server)
+    this.super.ctor(self,transform,server)
+
+   local tf_power = transform:Find("Power")
+    self.tiliList = {}
+    for i=1,3 do
+        table.insert(self.tiliList,tf_power:Find("img_tili" .. i).gameObject)
+    end
+
+    self.obj_failure = transform:Find("txt_result_failure").gameObject
+    self.obj_sucess = transform:Find("txt_result_sucess").gameObject
+
+    local tf_btn_next = transform:Find("btn_next")
+    self.obj_btn_next = tf_btn_next.gameObject
+    tf_btn_next:GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        if SceneManager:GetInstance().scene:GetPower() <= 0 then
+            return
+        end
+        SceneManager:GetInstance().scene:StartRound()
+        WindowManager:GetInstance():Close(Windows.AccountView)
+    end)
+
+    local tf_btn_restart = transform:Find("btn_restart")
+    self.obj_btn_restart = tf_btn_restart.gameObject
+    tf_btn_restart:GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        if SceneManager:GetInstance().scene:GetPower() <= 0 then
+                SceneManager:GetInstance().scene:PlayAdvertisement(function()
+                    SceneManager:GetInstance().scene:RefreshPower(1)
+                end)
+            return
+        end
+        SceneManager:GetInstance().scene:StartRound()
+        WindowManager:GetInstance():Close(Windows.AccountView)
+    end)
+    self.obj_icon_restart_1 = tf_btn_restart:Find("img_icon1").gameObject
+    self.tf_icon_restart_2 = tf_btn_restart:Find("img_icon2")
+
+    transform:Find("btn_back"):GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        WindowManager:GetInstance():Open(Windows.MainView)
+        WindowManager:GetInstance():Close(Windows.GameView)
+        WindowManager:GetInstance():Close(Windows.AccountView)
+    end)
+
+    transform:Find("btn_setting"):GetComponent("IceButton").OnClick:AddListener(
+        function()
+            SoundManager:GetInstance():Play(3)
+        end
+    )
+
+    self.isWin = server.isWin
+end
+
+function this:OnEnable()
+    this.super.OnEnable(self)
+    local curPower = SceneManager:GetInstance().scene:GetPower()
+    for i=1,#self.tiliList do
+        self.tiliList[i]:SetActive(i <= curPower)
+    end
+
+    if self.isWin then
+        self.obj_btn_next:SetActive(true)
+        self.obj_btn_restart:SetActive(false)
+        self.obj_failure:SetActive(false)
+        self.obj_sucess:SetActive(true)
+    else
+        self.obj_btn_next:SetActive(false)
+        self.obj_btn_restart:SetActive(true)
+        self.obj_failure:SetActive(true)
+        self.obj_sucess:SetActive(false)
+
+        if curPower > 0 then
+            self.obj_icon_restart_1:SetActive(false)
+            self.tf_icon_restart_2.localPosition = GameUtils.Vector3(8,0,0)
+        else
+            self.obj_icon_restart_1:SetActive(true)
+            self.tf_icon_restart_2.localPosition = GameUtils.Vector3(44,0,0)
+        end
+    end
+end
+
+function this:Close()
+    this.super.Close(self)
+end

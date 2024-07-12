@@ -1,0 +1,15 @@
+WeaponPositionSkill = Class("WeaponPositionSkill", SkillAcitonBase)
+
+function WeaponPositionSkill:ctor(skillUnit, p)
+	WeaponPositionSkill.super.ctor(self, skillUnit, p)
+
+	self.t1 = tonumber(self.params["T1"] or 0)
+    self.t2 = tonumber(self.params["T2"] or 0)
+    self.t3 = tonumber(self.params["T3"] or 0)
+end
+
+function WeaponPositionSkill:Play(target, position)
+	WeaponPositionSkill.super.Play(self, target, position)
+	self.object.boneClothes.weaponClothes:OnFollowTransformY(position, self.t1, self.t2, self.t3)
+	self:Stop()
+end

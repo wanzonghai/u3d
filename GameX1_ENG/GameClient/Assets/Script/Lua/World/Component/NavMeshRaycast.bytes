@@ -1,0 +1,70 @@
+NavMeshRaycast =  Class("NavMeshRaycast")
+
+local slope = math.tan(math.deg2rad * 70)					--单位距离最大高度值(坡度)
+
+function NavMeshRaycast:ctor(navMeshAgents, object)
+    self.navMeshAgents = navMeshAgents
+    self.object = object
+    self.isDown = false										--是否允许掉落
+end
+
+function NavMeshRaycast:Update(time)
+    local endMove = 0                                       --0移动中 1正常移动到终点 2无法移动
+    local position = self.object.root.position
+    local dis = self.navMeshAgents.endPosition - position
+    local speed = time * self.navMeshAgents:GetSpeed()
+    local hitP, hit = nil, nil
+    local handles = self.object.controller.handle.handles
+    if handles == Handles.HitFly then
+        dis.y = 0
+        local magnitude = dis.magnitude
+        if magnitude <= speed then 
+            speed = magnitude
+            endMove = 1
+        end
+        position = position + speed * dis.normalized
+
+        hitP, hit = GameUtils.RaycastHitRayMap(position, 2, RaycastHitDistance)
+        if not IsNil(hit.transform) then
+            if hitP.y >= position.y then endMove = 2 end
+        else endMove = 2 end
+    else
+        dis.y = 0
+        local magnitude = dis.magnitude
+        if magnitude <= speed then 
+            speed = magnitude
+            endMove = 1
+        end
+        position = position + speed * dis.normalized
+
+        hitP, hit = GameUtils.RaycastHitRayMap(position, 2, RaycastHitDistance)
+        if not IsNil(hit.transform) then
+            local slopeHeight = slope * speed 												--水平移动能上的坡度高
+            local lx = hit.point.y - self.object.root.position.y
+            if lx >= 0 then 																--目标位置偏高
+                if slopeHeight >= lx then position.y = hit.point.y							--上坡
+                else endMove = 2 end
+            else																			--目标位置偏低
+                if self.isDown then
+                    if lx < -0.7 and -slopeHeight > lx then	endMove = 3						--掉落
+                    else position.y = hit.point.y											--下坡
+                    end
+                else 
+                    position.y = self.object.root.position.y								--水平移动												
+                end
+            end
+        else endMove = 2 end
+    end
+
+    --操作
+    if endMove == 0 then 
+        self.navMeshAgents:LookAt(position)
+        self.object.root.position = position
+    elseif endMove == 1 then
+        self.object.root.position = position
+        self.navMeshAgents:Stop() 
+    elseif endMove == 2 then self.navMeshAgents:Stop() 
+    elseif endMove == 3 then 
+        --暂时没有击飞或者类似的掉落需求
+    end
+end

@@ -1,0 +1,39 @@
+--#T_特效.xlsx
+local team = {}
+local config = 
+{
+	[900] =
+	{
+		id = 900,
+		path = "Effect/Scene/Effect1.prefab",
+	},
+	[901] =
+	{
+		id = 901,
+		path = "Effect/Scene/Effect1.prefab",
+	},
+	[902] =
+	{
+		id = 902,
+		path = "Effect/Scene/Effect1.prefab",
+	},
+	[903] =
+	{
+		id = 903,
+		path = "Effect/Scene/Effect1.prefab",
+	},
+}
+local _default_values =
+{
+	id = 0,
+	path = "",
+	Trail = false,
+	life = 0,
+	Mount = team,
+	scale = 0,
+}
+local base = { __index = _default_values }
+for _, v in pairs(config) do
+	setmetatable( v, base )
+end
+return config, _default_values

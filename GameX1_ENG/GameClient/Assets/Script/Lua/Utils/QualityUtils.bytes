@@ -1,0 +1,41 @@
+QualityUtils = {}
+
+local SystemInfo = CS.UnityEngine.SystemInfo
+local QualityLevel = 0
+local TwoCamera = nil
+local HideShake = nil
+
+QualityUtils.AutoQualityLevel = function()
+    if SystemInfo.systemMemorySize < 900 then QualityUtils.SetQualityLevel(1, true)
+    elseif SystemInfo.systemMemorySize < 1400 then QualityUtils.SetQualityLevel(2, true)
+    elseif SystemInfo.systemMemorySize < 1900 then QualityUtils.SetQualityLevel(3, true)
+    else QualityUtils.SetQualityLevel(4, true) end
+end
+
+QualityUtils.GetQualityLevel = function()
+    if QualityLevel == 0 then
+        QualityLevel = PlayerPrefsUtils.GetQualityLevel()
+        if QualityLevel == 0 then 
+            QualityUtils.AutoQualityLevel()
+        end
+    end
+    return QualityLevel
+end
+
+QualityUtils.SetQualityLevel = function(level, save)
+    if QualityLevel == level then return end
+    QualityLevel = level
+    if level == 1 then
+        QualityUtils.SetHideOtherPlayer(true)
+        QualityUtils.SetHideOtherSlave(true)
+        QualityUtils.SetHideOtherPartner(true)
+        QualityUtils.SetHideOtherPlayerEffect(true)
+        QualityUtils.SetHideMonster(true)
+        QualityUtils.SetHideTitle(true)
+        QualityUtils.SetHideOtherShenJiang(true)
+    end
+    if save then
+        PlayerPrefsUtils.SetQualityLevel(QualityLevel)
+        --PlayerPrefsUtils.Save()
+    end
+end

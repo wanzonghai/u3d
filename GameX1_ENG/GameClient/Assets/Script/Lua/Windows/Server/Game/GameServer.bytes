@@ -1,0 +1,23 @@
+GameServer = Class("GameServer",WindowServerBase)
+local this = GameServer
+
+function this:ctor()
+    this.super.ctor(self)
+    self.assetPath = { Windows.GetViewPathByName(Windows.GameView)}
+    self.time = 0
+    self.cb = nil
+end
+
+function this:Init()
+    this.super.Init(self)
+	self.view = GameView.New(self.root.transform, self)
+end
+
+function this:ShowCountDown(time,cb)
+    if self.view then self.view:ShowCountDown(time,cb)
+    else
+        self.time = time
+        self.cb = cb
+        WindowManager:GetInstance():Open(Windows.GameView)
+    end
+end

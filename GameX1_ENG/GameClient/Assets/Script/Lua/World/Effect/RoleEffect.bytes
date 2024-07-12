@@ -1,0 +1,68 @@
+RoleEffect = Class("RoleEffect", EffectBase)
+
+local Vector3 = CS.UnityEngine.Vector3
+
+function RoleEffect:ctor(id, destroyForExitScene)
+	RoleEffect.super.ctor(self, id, destroyForExitScene)
+	self.object = nil
+	self.time = 0
+	self.m_transform = nil
+	self.face = nil
+end
+
+function RoleEffect:RoleTo(object, mount, time, face)
+	if self.isCreate then return end
+	self.face = face
+	if self.face == nil then self.face = true end
+	self.m_transform = object.boneClothes:GetMountByName(mount)
+	if IsNil(self.m_transform) then 
+		self:Destroy()
+		return 
+	end
+	self.object = object
+	self:CreateTransform()
+	if self.face then 
+		self.root.parent = self.m_transform
+		self.root.localPosition = GameUtils.Vector3Zero
+		self.root.localRotation = GameUtils.QuaternionIdentity
+		self.root.localScale = GameUtils.Vector3One
+	else
+		self.root.position = self.m_transform.position
+	end
+	self.time = time or 0
+
+	object.destroyFunc:Add(self, self.Destroy)
+	object.showFunc:Add(self, self.ShowFunc)
+end
+
+function RoleEffect:Update(time)
+	RoleEffect.super.Update(self, time)
+
+	if self.isDestroy then return end
+	if self.time > 0 then
+		if not self.face then self.root.position = self.m_transform.position end
+		self.time = self.time - self.playSpeed * time
+		if self.time <= 0 then
+			self:Destroy()
+		end
+	end
+end
+
+function RoleEffect:ShowFunc()
+	self:SetShow(self.show)
+end
+
+function RoleEffect:SetShow(value)
+	self.show = value
+	if self.pool ~= nil and self.pool.handler ~= nil then self.pool.handler:SetShow(value and self.object:IsShowEffect()) end
+end
+
+function RoleEffect:Destroy()
+	if self.isDestroy then return end
+	if self.object ~= nil then
+		self.object.destroyFunc:Remove(self)
+		self.object.showFunc:Remove(self)
+		self.object = nil
+	end
+	RoleEffect.super.Destroy(self)
+end

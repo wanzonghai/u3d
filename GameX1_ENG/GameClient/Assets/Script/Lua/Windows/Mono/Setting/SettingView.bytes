@@ -1,0 +1,76 @@
+SettingView = Class("SettingView",WindowBase)
+local this = SettingView
+
+function this:ctor(transform,server)
+    this.super.ctor(self,transform,server)
+
+    local tf_bg = transform:Find("bg")
+
+    self.playMusic = PlayerPrefsUtils.GetGroundVolume() == 0
+    local tf_btn_music = tf_bg:Find("btn_music")
+    self.obj_light_music = tf_btn_music:Find("img_light").gameObject
+    self.obj_open_musice = tf_btn_music:Find("img_open").gameObject
+    self.obj_close_music = tf_btn_music:Find("img_close").gameObject
+    tf_btn_music:GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        self:OnMusicCick()
+    end)
+    self:OnMusicCick(true)
+
+    self.playSound = PlayerPrefsUtils.GetClipVolume() == 0
+    local tf_btn_sound = tf_bg:Find("btn_sound")
+    self.obj_light_sound = tf_btn_sound:Find("img_light").gameObject
+    self.obj_open_sound = tf_btn_sound:Find("img_open").gameObject
+    self.obj_close_sound = tf_btn_sound:Find("img_close").gameObject
+    tf_btn_sound:GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        self:OnSoundCick()
+    end)
+    self:OnSoundCick(true)
+
+    local tf_btn_exit = tf_bg:Find("btn_exit")
+    tf_btn_exit:GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        SceneManager:GetInstance().scene:ExitRound()
+        WindowManager:GetInstance():Open(Windows.MainView)
+        WindowManager:GetInstance():Close(Windows.GameView)
+        WindowManager:GetInstance():Close(Windows.SettingView)
+    end)
+    self.obj_btn_exit = tf_btn_exit.gameObject
+
+    tf_bg:Find("btn_close"):GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        WindowManager:GetInstance():Close(Windows.SettingView)
+    end)
+end
+
+function this:OnMusicCick(isInit)
+    self.playMusic = not self.playMusic
+    self.obj_light_music:SetActive(self.playMusic)
+    self.obj_open_musice:SetActive(self.playMusic)
+    self.obj_close_music:SetActive(not self.playMusic)
+
+    if not isInit then
+        SoundManager:GetInstance():SetGroundVolume(self.playMusic and 0.3 or 0)
+    end
+end
+
+function this:OnSoundCick(isInit)
+    self.playSound = not self.playSound
+    self.obj_light_sound:SetActive(self.playSound)
+    self.obj_open_sound:SetActive(self.playSound)
+    self.obj_close_sound:SetActive(not self.playSound)
+
+    if not isInit then
+        SoundManager:GetInstance():SetClipVolume(self.playSound and 1 or 0)
+    end
+end
+
+function this:OnEnable()
+    this.super.OnEnable(self)
+    self.obj_btn_exit:SetActive(not SceneManager:GetInstance().scene.stop)
+end
+
+function this:Close()
+    this.super.Close(self)
+end

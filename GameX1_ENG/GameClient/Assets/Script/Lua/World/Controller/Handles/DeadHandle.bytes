@@ -1,0 +1,49 @@
+DeadHandle = Class("DeadHandle", HandleBase)
+
+local ClampForever = CS.UnityEngine.WrapMode.ClampForever
+
+function DeadHandle:ctor(controller)
+	DeadHandle.super.ctor(self, controller, Handles.Dead)
+
+	self.id = 0
+	self.skills = self.controller.object.skills
+	self.stayDestroy = true
+end
+
+--技能id 是否直接死亡动画finish
+function DeadHandle:OnHandle(...)
+	DeadHandle.super.OnHandle(self, ...)
+
+	self.id, self.finish = ...
+
+	self.time = 2
+	self.stayDestroy = true
+end
+
+function DeadHandle:Run()
+	DeadHandle.super.Run(self)
+
+	if self.id ~= nil and self.id > 0 then
+		self.skills:Play(self.id)
+	else
+		if self.controller.object.boneClothes.animation.action ~= Actions.Dead then
+			if self.finish then
+				self.controller.object.boneClothes.animation:PlayFrameEnd(Actions.Dead)
+			else
+				self.controller.object.boneClothes.animation:Play(Actions.Dead)
+				SoundManager:GetInstance():Play(self.controller.object.normVO.model.die_sound) 
+			end
+		end
+	end
+	EventDispatcher:GetInstance():DispatchEvent(EventID.ObjectDead, self.controller)
+end
+
+function DeadHandle:Update(time)
+	DeadHandle.super.Update(self, time)
+	
+end
+
+function DeadHandle:Destroy()
+	if self.isDestroy then return end
+	DeadHandle.super.Destroy(self)
+end

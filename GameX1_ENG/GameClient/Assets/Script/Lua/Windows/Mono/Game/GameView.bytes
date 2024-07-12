@@ -1,0 +1,270 @@
+GameView = Class("GameView",WindowBase)
+local this = GameView
+
+function this:ctor(transform,server)
+    this.super.ctor(self,transform,server)
+    self.isPlayingAdvertisement = false
+
+    local tf_top = transform:Find("Top")
+    local tf_countdown1 = tf_top:Find("txt_countdown1")
+    self.countDownNums1 = {}
+    for i=1,3 do
+        table.insert(self.countDownNums1,NumberUnit.New(tf_countdown1:Find("num" .. i)))
+    end
+    self.obj_countdown1 = tf_countdown1.gameObject
+
+    local tf_countdown2 = tf_top:Find("txt_countdown2")
+    self.countDownNums2 = {}
+    for i=1,3 do
+        table.insert(self.countDownNums2,NumberUnit.New(tf_countdown2:Find("num" .. i)))
+    end
+    self.obj_countdown2 = tf_countdown2.gameObject
+
+    local tf_level = tf_top:Find("txt_level")
+    self.levelNums = {}
+    for i=1,3 do
+        table.insert(self.levelNums,NumberUnit.New(tf_level:Find("num" .. i)))
+    end
+
+    local tf_score = tf_top:Find("txt_score")
+    self.scoreNums = {}
+    for i=1,4 do
+        table.insert(self.scoreNums,NumberUnit.New(tf_score:Find("num" .. i)))
+    end
+
+    local tf_target = tf_score:Find("line/txt_target")
+    self.targetNums = {}
+    for i=1,4 do
+        table.insert(self.targetNums,NumberUnit.New(tf_target:Find("num" .. i)))
+    end
+
+    self.img_score_bar = tf_top:Find("Bar/fill"):GetComponent("Image")
+
+    tf_top:Find("btn_setting"):GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        WindowManager:GetInstance():Open(Windows.SettingView,WindowType.Stack)
+    end)
+
+    self.canDisruption = false
+    local tf_bottom = transform:Find("Bottom")
+    local tf_disruption = tf_bottom:Find("btn_disruption")
+    self.obj_icon_disable = tf_disruption:Find("img_icon_disable").gameObject
+    self.obj_disruption_play = tf_disruption:Find("img_play").gameObject
+    tf_disruption:GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        local scene = SceneManager:GetInstance().scene
+        if scene:CanDisruption() then
+            GridManager:GetInstance():Disruption()
+        else
+            scene:PlayAdvertisement(function()
+                scene:SetDisruption(1)
+            end)
+        end
+    end)
+
+    self.canAddTime = false
+    local tf_addtime = tf_bottom:Find("btn_addtime")
+    self.obj_addtime_disable = tf_addtime:Find("img_icon_disable").gameObject
+    self.obj_addtime_play = tf_addtime:Find("img_play").gameObject
+    tf_addtime:GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        local scene = SceneManager:GetInstance().scene
+        if scene:CanAddTime() then
+            self:ShowCountDown(self.time + 30,self.cb)
+            scene:SetAddTime(0)
+        else
+            scene:PlayAdvertisement(function()
+                scene:SetAddTime(1)
+            end)
+        end
+    end)
+
+    EventDispatcher:GetInstance():AddEventListener(self,EventID.LevelScoreChange,self.OnLevelScoreChange)
+    EventDispatcher:GetInstance():AddEventListener(self,EventID.DisruptionChange,self.OnDisruptionChange)
+    EventDispatcher:GetInstance():AddEventListener(self,EventID.AddTimeChange,self.OnAddTimeChange)
+    EventDispatcher:GetInstance():AddEventListener(self,EventID.AdvertisementState,self.OnAdvertisementState)
+end
+
+function this:OnEnable()
+    this.super.OnEnable(self)
+    if self.server.time > 0 then
+        self:ShowCountDown(self.server.time,self.server.cb)
+        self.server.time = 0
+        self.server.cb = nil
+    end
+
+    local levelId = SceneManager:GetInstance().scene.levelCfg.level
+    self:SetLevelNum(levelId)
+
+    local levelNeedScore = SceneManager:GetInstance().scene.levelNeedScore
+    self:SetNum(self.targetNums,levelNeedScore)
+
+    self:OnDisruptionChange()
+    self:OnLevelScoreChange()
+    self:OnAddTimeChange()
+end
+
+function this:OnLevelScoreChange()
+    self:SetNum(self.scoreNums,SceneManager:GetInstance().scene.curScore)
+    self.img_score_bar.fillAmount = math.min(1,SceneManager:GetInstance().scene.curScore / SceneManager:GetInstance().scene.levelNeedScore)
+end
+
+function this:OnDisruptionChange()
+    self.canDisruption = SceneManager:GetInstance().scene:CanDisruption()
+    self.obj_icon_disable:SetActive(not self.canDisruption)
+    self.obj_disruption_play:SetActive(not self.canDisruption)
+end
+
+function this:OnAddTimeChange()
+    self.canAddTime = SceneManager:GetInstance().scene:CanAddTime()
+    self.obj_addtime_disable:SetActive(not self.canAddTime)
+    self.obj_addtime_play:SetActive(not self.canAddTime)
+end
+
+function this:OnAdvertisementState(isPlaying)
+    if self.isPlayingAdvertisement == isPlaying then return end
+    self.isPlayingAdvertisement = isPlaying
+    if isPlaying then
+        if self.timer then self.timer:OnDestroy() self.timer = nil end
+    else
+        self:ShowCountDown(self.time,self.cb)
+    end
+end
+
+function this:SetNum(numUnits,num)
+    if num > 999 then
+        numUnits[1]:SetActive(true)
+        numUnits[2]:SetActive(true)
+        numUnits[3]:SetActive(true)
+        numUnits[4]:SetActive(true)
+
+        local num1 = math.floor(num/1000)
+        numUnits[1]:SetNum(num1)
+
+        local num2 = num - num1 * 1000
+        num2 = math.floor(num2/100)
+        numUnits[2]:SetNum(num2)
+
+        local num3 = num - num1 * 1000 - num2 * 100
+        num3 = math.floor(num3/10)
+        numUnits[3]:SetNum(num3)
+
+        local num4 = num - num1 * 1000 - num2 * 100 - num3 * 10
+        numUnits[4]:SetNum(num4)
+    elseif num > 99 then
+        numUnits[1]:SetActive(true)
+        numUnits[2]:SetActive(true)
+        numUnits[3]:SetActive(true)
+        numUnits[4]:SetActive(false)
+
+        local num1 = math.floor(num/100)
+        numUnits[1]:SetNum(num1)
+
+        local num2 = num - num1 * 100
+        num2 = math.floor(num2/10)
+        numUnits[2]:SetNum(num2)
+
+        local num3 = num - num1 * 100 - num2 * 10 
+        numUnits[3]:SetNum(num3)
+    elseif num > 9 then
+        numUnits[1]:SetActive(true)
+        numUnits[2]:SetActive(true)
+        numUnits[3]:SetActive(false)
+        numUnits[4]:SetActive(false)
+       
+        local num1 = math.floor(num/10)
+        numUnits[1]:SetNum(num1)
+        numUnits[2]:SetNum(num - num1 * 10)
+    else
+        numUnits[1]:SetActive(true)
+        numUnits[2]:SetActive(false)
+        numUnits[3]:SetActive(false)
+        numUnits[4]:SetActive(false)
+        numUnits[1]:SetNum(num)
+    end
+end
+
+function this:SetLevelNum(num)
+    if num <= 9 then
+        self.levelNums[1]:SetActive(true)
+        self.levelNums[2]:SetActive(false)
+        self.levelNums[3]:SetActive(false)
+        self.levelNums[1]:SetNum(num)
+    elseif num <= 99 then
+        self.levelNums[1]:SetActive(true)
+        self.levelNums[2]:SetActive(true)
+        self.levelNums[3]:SetActive(false)
+
+        self.levelNums[1]:SetNum(math.floor(num/10))
+        self.levelNums[2]:SetNum(num % 10)
+    else
+        self.levelNums[1]:SetActive(true)
+        self.levelNums[2]:SetActive(true)
+        self.levelNums[3]:SetActive(true)
+
+        local num1 = math.floor(num/100)
+        self.levelNums[1]:SetNum(num1)
+        local num2 = num - num1 * 100
+        self.levelNums[2]:SetNum(math.floor(num2/10))
+        self.levelNums[3]:SetNum(num2 % 10)
+    end
+end
+
+function this:SetCountDownNum(num)
+    if num <= 9 then
+        self.obj_countdown1:SetActive(false)
+        self.obj_countdown2:SetActive(true)
+
+        self.countDownNums2[1]:SetActive(true)
+        self.countDownNums2[2]:SetActive(false)
+        self.countDownNums2[3]:SetActive(false)
+        self.countDownNums2[1]:SetNum(num)
+    elseif num <= 99 then
+        self.obj_countdown1:SetActive(true)
+        self.obj_countdown2:SetActive(false)
+
+        self.countDownNums1[1]:SetActive(true)
+        self.countDownNums1[2]:SetActive(true)
+        self.countDownNums1[3]:SetActive(false)
+
+        self.countDownNums1[1]:SetNum(math.floor(num/10))
+        self.countDownNums1[2]:SetNum(num % 10)
+    else
+        self.obj_countdown1:SetActive(true)
+        self.obj_countdown2:SetActive(false)
+
+        self.countDownNums1[1]:SetActive(true)
+        self.countDownNums1[2]:SetActive(true)
+        self.countDownNums1[3]:SetActive(true)
+
+        local num1 = math.floor(num/100)
+        self.countDownNums1[1]:SetNum(num1)
+        local num2 = num - num1 * 100
+        self.countDownNums1[2]:SetNum(math.floor(num2/10))
+        self.countDownNums1[3]:SetNum(num2 % 10)
+    end
+end
+
+function this:ShowCountDown(time,cb)
+    if self.timer then self.timer:OnDestroy() self.timer = nil end
+    self.time = time
+    self.cb = cb
+    self:SetCountDownNum(time)
+    self.timer = Timer.New(self,1,function()
+        self.time = self.time - 1
+        self:SetCountDownNum(self.time)
+        if self.time <= 0 then
+            if self.cb then self.cb() end
+            if self.timer then self.timer:OnDestroy() self.timer = nil end
+        end
+    end)
+end
+
+function this:Close()
+    if self.timer then self.timer:OnDestroy() self.timer = nil end
+    EventDispatcher:GetInstance():RemoveEventListener(self,EventID.LevelScoreChange)
+    EventDispatcher:GetInstance():RemoveEventListener(self,EventID.DisruptionChange)
+    EventDispatcher:GetInstance():RemoveEventListener(self,EventID.AddTimeChange)
+    EventDispatcher:GetInstance():RemoveEventListener(self,EventID.AdvertisementState)
+    this.super.Close(self)
+end

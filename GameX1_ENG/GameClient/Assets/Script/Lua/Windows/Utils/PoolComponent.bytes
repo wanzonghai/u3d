@@ -1,0 +1,42 @@
+PoolComponent = Class("PoolComponent")
+local GameObject = CS.UnityEngine.GameObject
+
+function PoolComponent:ctor(parent, prefab)
+	self.parent = parent
+	self.prefab = prefab
+	prefab:SetActive(false)
+
+	self.list = {}
+end
+
+function PoolComponent:Take(parent)
+	local go = nil
+	if #self.list == 0 then
+		go = GameObject.Instantiate(self.prefab)
+	else
+		go = self.list[#self.list]
+		table.remove(self.list, #self.list)
+	end
+	if parent ~= nil then
+		go.transform:SetParent(parent.transform)
+		go.transform.localPosition = GameUtils.Vector3Zero
+		go.transform.localRotation = GameUtils.QuaternionIdentity
+		go.transform.localScale = GameUtils.Vector3One
+		go.layer = parent.layer
+	end
+	go:SetActive(true)
+	return go
+end
+
+function PoolComponent:Back(gameObject)
+	gameObject.transform:SetParent(self.parent)
+	gameObject:SetActive(false)
+	table.insert(self.list, gameObject)
+end
+
+function PoolComponent:Destory()
+	for _,v in pairs(self.list) do
+		GameObject.Destroy(v)
+	end
+	self.list = nil
+end

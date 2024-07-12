@@ -1,0 +1,20 @@
+SkillAcitonBase = Class("SkillAcitonBase")
+
+function SkillAcitonBase:ctor(skillUnit, params)
+	self.pause = false						--暂停
+	self.skillUnit = skillUnit
+	self.object = skillUnit.object
+	self.params = params
+end
+
+function SkillAcitonBase:Play(target, position)
+	self.skillUnit:AddRun(self)
+end
+
+function SkillAcitonBase:Update(time)
+
+end
+
+function SkillAcitonBase:Stop()
+	self.skillUnit:RemoveRun(self)
+end
