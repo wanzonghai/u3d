@@ -1,0 +1,141 @@
+--游戏方法类
+GameUtils = {}
+
+--local EffectConfig = require "Config/Effect"
+
+Vector3 = CS.UnityEngine.Vector3
+GameUtils.color = CS.UnityEngine.Color
+GameUtils.Vector2 = CS.UnityEngine.Vector2
+GameUtils.Vector3 = CS.UnityEngine.Vector3
+GameUtils.Vector4 = CS.UnityEngine.Vector4
+GameUtils.Vector3Zero = CS.UnityEngine.Vector3.zero
+GameUtils.Vector3One = CS.UnityEngine.Vector3.one
+GameUtils.Vector3Up = CS.UnityEngine.Vector3.up
+GameUtils.Vector3Down = CS.UnityEngine.Vector3.down
+GameUtils.QuaternionIdentity = CS.UnityEngine.Quaternion.identity
+GameUtils.Quaternion = CS.UnityEngine.Quaternion
+GameUtils.ShortcutExtensions = CS.DG.Tweening.ShortcutExtensions
+
+
+--json库
+local json = require"3rd/json/json"
+local jsonString = "{\"Space\":\"\\u00A0\"}"
+GameUtils.UnitySpace = json.decode(jsonString).Space
+
+--活动
+GameUtils.forUGUITextSpace = function(str)
+	return string.gsub(str, " ", GameUtils.UnitySpace)
+end
+
+GameUtils.notch = nil
+GameUtils.HaveNotch = function()
+	if GameUtils.notch == nil then
+		GameUtils.notch = (CS.UnityEngine.Screen.safeArea.width ~= CS.UnityEngine.Screen.width)
+	end
+
+	return GameUtils.notch
+end
+
+-- Unicode值转换成字符
+GameUtils.Unicode2Str = function(value)
+	local str
+	if value < 0x80 then
+		str = string.char(value % 0x80)
+	elseif value < 0x800 then
+		str = string.char(0xC0 + (math.floor(value / 0x40) % 0x20), 0x80 + (value % 0x40))
+	else
+		str = string.char(0xE0 + (math.floor(value / 0x1000) % 0x10), 0x80 + (math.floor(value / 0x40) % 0x40), 0x80 + (value % 0x40))
+	end
+	return str
+end
+
+GameUtils.IsLife = function(object)
+	if object == nil then return false end
+	if object.isDestroy then return false end
+	if object.handle.handles == Handles.Dead then return false end
+	return true
+end
+
+GameUtils.IsMyPlayer = function(controller)
+	return controller.id == 1
+end
+
+GameUtils.MapLayer = CS.LuaUtils.LeftOperation(Layers.Road)
+GameUtils.RaycastHitRay = CS.LuaUtils.RaycastHitRay
+local RaycastHitRayMapEmptyTable = {}
+GameUtils.RaycastHitRayMap = function(position, h, dis)
+	local vec3 = GameUtils.Vector3(position.x, position.y + h, position.z)
+	local hit = GameUtils.RaycastHitRay(vec3, GameUtils.Vector3Down, GameUtils.MapLayer, dis)
+	if not IsNil(hit.transform) then
+		vec3.y = hit.point.y
+		return vec3, hit
+	end
+	vec3.y = position.y
+	return vec3, RaycastHitRayMapEmptyTable
+end
+
+GameUtils.EffectMount = function(id, objs)
+	--[[local mount = EffectConfig[id].Mount
+	if #mount == 0 then
+		L.LogError("特效ID " .. id .. "Mount无参数")
+		return
+	else
+		local effect = nil
+		if mount[1] == "RoleMoveEffect" then
+			if #objs > 1 then 
+				effect = MoveEffect.New(id)
+				local position = objs[1].object.boneClothes:GetMountByName(mount[2], true).position
+				effect:MoveToTransform(position, mount[4], objs[2].object.boneClothes:GetMountByName(mount[3])) 
+			end
+		elseif mount[1] == "RoleLineEffect" then
+			local r1 = objs[1]
+			for i = 2, #objs do
+				if objs[i] then
+					effect = LineEffect.New(id)
+					effect:LineTransform({r1.object.boneClothes:GetMountByName(mount[2]), objs[i].object.boneClothes:GetMountByName(mount[3])}, 0)
+					r1 = objs[i]
+				end
+			end
+		elseif mount[1] == "FixedEffect" then
+			effect = FixedEffect.New(id)
+			effect:FixedToPosition(objs[1].object.boneClothes.parent.position, objs[1].object.boneClothes.parent.rotation)
+		elseif mount[1] == "RoleEffect" then
+			effect = RoleEffect.New(id)
+			effect:RoleTo(objs[1].object, mount[2])
+		elseif mount[1] == "MoveEffect" then
+			effect = MoveEffect.New(id)
+			local position = objs[1].object.boneClothes:GetMountByName(mount[2], true).position
+			local endPosition = position + objs[1].object.root.forward * mount[4]
+			effect:MoveToPosition(position, mount[3], endPosition)
+		end
+		return effect
+	end]]--
+end
+
+GameUtils.GetServerAttrValue = function (valueType, info)
+	local value = nil
+	if valueType == "Int" then
+		value = info.value_ulong
+	elseif valueType == "Float" then
+		value = info.value_float
+	elseif valueType == "LongLong" then
+		value = info.value_ulong
+	elseif valueType == "String" then
+		value = info.value_string
+	elseif valueType == "IntArray" then
+		value = load("return " .. info.value_array)()
+	elseif valueType == "FloatArray" then
+		value = load("return " .. info.value_array)()
+	elseif valueType == "Map" then
+		value = load("return " .. info.value_map)()
+	end
+	return value
+end
+
+GameUtils.IsValidTarget = function(object)
+	if not GameUtils.IsLife(object) then return false end
+	if object.kindMode == KindMode.NPC 
+	or object.kindMode == KindMode.Collection
+	then return false end
+	return true
+end

@@ -1,0 +1,28 @@
+ScrollRectItem = Class("ScrollRectItem")
+
+function ScrollRectItem:ctor(gameObject, args)
+	self.gameObject = gameObject
+	self.transform = gameObject.transform
+	self.args = args
+end
+
+function ScrollRectItem:OnEnable(data)
+
+end
+
+function ScrollRectItem:UpdateFrame(time)
+	-- body
+end
+
+function ScrollRectItem:PlayAni()
+	self.uiAniCom:ResetInit()
+	self.uiAniCom:PlayShowAni()
+end
+
+function ScrollRectItem:OnDisable()
+	if self.uiAniCom ~= nil then self.uiAniCom:ResetInit() end
+end
+
+function ScrollRectItem:OnDestroy()
+	-- body
+end

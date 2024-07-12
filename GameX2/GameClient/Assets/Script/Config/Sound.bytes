@@ -1,0 +1,21 @@
+--S_声音.xlsx
+local team = {}
+local config = 
+{
+	[1] =
+	{
+		id = 1,
+		path = "Sound/BGM.ogg",
+	},
+	[2] =
+	{
+		id = 2,
+		path = "Sound/eliminate.ogg",
+	},
+	[3] =
+	{
+		id = 3,
+		path = "Sound/Select.ogg",
+	},
+}
+return config

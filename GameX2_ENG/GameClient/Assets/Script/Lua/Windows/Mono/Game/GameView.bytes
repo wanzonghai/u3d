@@ -1,0 +1,543 @@
+GameView = Class("GameView",WindowBase)
+local this = GameView
+
+local LuaUIUtils = CS.LuaUIUtils
+local ABDownLoader = CS.ABDownLoader
+local ABDLManager = CS.ABDLManager:GetInstance()
+local GameObject = CS.UnityEngine.GameObject
+local GroupLen = 12
+
+function this:ctor(transform,server)
+    this.super.ctor(self,transform,server)
+    local tf_top = transform:Find("Top")
+
+    tf_top:Find("btn_setting"):GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        WindowManager:GetInstance():Open(Windows.SettingView,WindowType.Stack)
+    end)
+
+    self.tf_middle = transform:Find("Middle")
+    self.obj_prefab = self.tf_middle:Find("Prefab").gameObject
+
+    local tf_bottom = transform:Find("Bottom")
+    local tf_btn_dealing = tf_bottom:Find("btn_dealing")
+    self.obj_dealing_disable = tf_btn_dealing:Find("img_icon_disable").gameObject
+    self.iceBtn_dealing = tf_btn_dealing:GetComponent("IceButton")
+    self.iceBtn_dealing.OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        if MainScene.Controling then return end
+        self:DealingChip()
+    end)
+    self.canDealing = true
+    self:OnDealingActive()
+
+    local tf_btn_combine = tf_bottom:Find("btn_combine")
+    self.obj_combine_disable = tf_btn_combine:Find("img_icon_disable").gameObject
+    self.iceBtn_combine = tf_btn_combine:GetComponent("IceButton")
+    self.iceBtn_combine.OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(2)
+        if MainScene.Controling then return end
+        self:CombineChipGroup()
+    end)
+    self.canCombine = false
+    self:OnCombineActive()
+
+    local tf_btn_shuffle = tf_bottom:Find("btn_shuffle")
+    tf_btn_shuffle:GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        if MainScene.Controling then return end
+        SceneManager:GetInstance().scene:PlayAdvertisement(function()
+            self:Shuffle()
+        end)
+    end)
+    self.obj_btn_shuffle = tf_btn_shuffle.gameObject
+    self.obj_btn_shuffle:SetActive(false)
+    self.tf_top = tf_top
+end
+
+function this:OnEnable()
+    this.super.OnEnable(self)
+    self.sceneObj = nil
+    self.chipGroupList = nil
+    self.tempSceneObj = nil
+    self.poolComponent = PoolComponent.New(self.tf_middle,self.obj_prefab)
+    self:StartRound(self.server.curLevelId)
+end
+
+function this:InitLevelData()
+    self.cfgLevel = SceneManager:GetInstance().scene.cfgLv
+    self.openGroupId = self.cfgLevel.d_m
+    self.levels = self.cfgLevel.levels
+    self.weight = self.cfgLevel.weight
+    self.refresh_num = self.cfgLevel.refresh_num
+    self.d_refresh_num = self.cfgLevel.d_refresh_num
+    self.num_time = self.cfgLevel.num_time
+
+    self.curTargetIdx = 1
+    self.curTargetNum = self.levels[1]
+    self.curWeight = self.weight[1]
+
+    self.rangMin = math.max(1,self.curTargetNum - 4)
+    self.rangMax = self.curTargetNum - 1
+end
+
+function this:StartRound(levelId)
+    if self.stop then
+        self.sceneObj:SetActive(true)
+        self.transform.gameObject:SetActive(true)
+        self.stop = false
+        return
+    end
+    self.levelId = levelId
+
+    self:InitLevelData()
+    if not self.progressBar then
+        self.progressBar = GameProgressBar.New(self.tf_top,self.levels,1)
+    else
+        self.progressBar:RefreshList(self.levels,1)
+    end
+
+    if IsNil(self.sceneObj) then
+        --直接生成3D物体放到屏幕
+        local abDownLoader = ABDownLoader("Slot/Prefabs/Slot_M.prefab",ABDLUtils.Inventory,true)
+        abDownLoader:Load(function(transform)
+            self.prefab = ABDLManager:GetAsset("Slot/Prefabs/Slot_M.prefab",ABDLUtils.Inventory)
+            self.sceneObj = GameObject.Instantiate(self.prefab)
+
+            self.tf_slot_list = {}
+            for i=1,GroupLen do
+                table.insert(self.tf_slot_list,self.sceneObj.transform:Find("Slot_" .. i))
+            end
+
+            self.chipGroupList = self:RefreshChipGroupList(self.tf_slot_list)
+            self:InitLevel(self.chipGroupList)
+        end)
+    else
+        --生成新的槽，放到屏幕右边，同时刷新关卡，然后两边一起移动
+        MainScene.Moving = true
+        local sceneObj = GameObject.Instantiate(self.prefab)
+        sceneObj.transform.position = GameUtils.Vector3(-0.7,0,0)
+
+        local tf_slot_list = {}
+        for i=1,GroupLen do
+            table.insert(tf_slot_list,sceneObj.transform:Find("Slot_" .. i))
+        end
+
+        local chipGroupList = self:RefreshChipGroupList(tf_slot_list)
+        self:InitLevel(chipGroupList)
+        self.tempGroupList = chipGroupList
+
+        self.tweener = LuaUIUtils.DoFloat(0.7,0,1,function(value)
+            self.sceneObj.transform.position = GameUtils.Vector3(0.7 - value,0,0)
+            sceneObj.transform.position = GameUtils.Vector3(- value,0,0)
+        end)
+        LuaUIUtils.OnComplete(self.tweener,function()
+            sceneObj.transform.localPosition = GameUtils.Vector3Zero
+            for _,groupUnit in ipairs(self.chipGroupList) do
+                groupUnit:Destroy()
+            end
+            GameObject.Destroy(self.sceneObj)
+
+            self.sceneObj = sceneObj
+            self.chipGroupList = chipGroupList
+            self.tf_slot_list = tf_slot_list
+            MainScene.Moving = false
+            self.tempGroupList = nil
+            self.curChipGroup = nil
+
+            self:CheckCanCombine()
+            self:CheckCanDealing()
+            self:CheckCanShuffle()
+        end)
+    end
+end
+
+--临时槽位专用
+function this:IsPreviousOneOpen(groupUnit)
+    local index = groupUnit.index
+    if index == 10 then return true
+    else
+        local isOpen = true
+        for i=10,index - 1 do
+            if self.chipGroupList[i].state ~= 2 then
+                isOpen = false break
+            end
+        end
+        return isOpen
+    end
+end
+
+function this:Update(time)
+    this.super.Update(self,time)
+    if not MainScene.Moving then return end
+    if self.chipGroupList then
+        for _,chipGroup in ipairs(self.chipGroupList) do
+            chipGroup:Update()
+        end
+    end
+    if self.tempGroupList then
+        for _,chipGroup in ipairs(self.tempGroupList) do
+            chipGroup:Update()
+        end
+    end
+end
+
+--点击组
+function this:OnGroupClick(chipGroup)
+    if chipGroup.state == 1 then
+        chipGroup:SetState(2)
+        self:CheckCanDealing()
+        self:CheckCanShuffle()
+        self.openGroupId = self.openGroupId + 1
+        if self.openGroupId + 1 <= self.cfgLevel.d_m + self.curTargetIdx - 1 then
+            self.chipGroupList[self.openGroupId + 1]:SetState(1)
+        end
+        return
+    elseif chipGroup.state == 0 and chipGroup.isTemp then
+        SceneManager:GetInstance().scene:PlayAdvertisement(function()
+            chipGroup:SetState(2)
+            self:CheckCanDealing()
+            self:CheckCanShuffle()
+        end)
+        return
+    end
+    if self.curChipGroup then
+        if chipGroup.index == self.curChipGroup.index then
+            chipGroup:OnClickMySelf()
+        else
+            local curNum = self.curChipGroup:GetSelectNum()
+            local selectNum = chipGroup:GetSelectNum()
+            local remainNum = chipGroup:GetRemainNum()
+            if remainNum > 0 and (curNum == selectNum or chipGroup:IsEmpty()) then
+                local list = self.curChipGroup:RelieveUnitListByNum(curNum,remainNum)
+                chipGroup:AddUnitListReverse(list)
+                self.curChipGroup:OnClickMySelf()
+                self:CheckCanCombine()
+                if not self.curChipGroup:CheckIsHasRandomChip() then self:CheckCanShuffle() end
+            else
+                self.curChipGroup:OnMoveUnright()
+            end
+            chipGroup.isSelected = false
+            self.curChipGroup.isSelected = false
+        end
+        self.curChipGroup = nil
+    else
+        if chipGroup:IsEmpty() then return end
+        chipGroup:OnClickMySelf()
+        self.curChipGroup = chipGroup
+    end
+end
+
+function this:RefreshChipGroupList(tf_slot_list)
+    local chipGroupList = {}
+    for i=1,GroupLen do
+        local chipGroup = ChipGroup.New(tf_slot_list[i],self.poolComponent:Take(self.tf_middle.gameObject).transform,self.tf_middle,i > 9,i)
+        table.insert(chipGroupList,chipGroup)
+    end
+    return chipGroupList
+end
+
+function this:InitLevel(chipGroupList)
+    for i=1,GroupLen do
+        chipGroupList[i]:SetState(i <= self.openGroupId and 2 or 0)
+    end
+
+    for i=1,self.openGroupId do
+        self:CreateChips(chipGroupList[i],self.curWeight,self.d_refresh_num,true,i)
+    end
+end
+
+function this:DealingChip()
+    if self.curChipGroup then
+        self.curChipGroup:OnClickMySelf()
+        self.curChipGroup = nil
+    end
+    local numRange = self.num_time[self.curTargetIdx]
+    if not numRange then
+        L.LogError(string.format("配置错误！   关卡ID:%s   当前目标：%s",self.cfgLevel.id,self.levels[self.curTargetNum]))
+        return
+    end
+
+    local maxNum = numRange[1]
+    if numRange[2] then maxNum = math.random(numRange[1],numRange[2]) end
+
+    local useNum = 0
+    for i=1,self.openGroupId do
+        if self.chipGroupList[i]:GetRemainNum() > 0 then
+            useNum = self:CreateChips(self.chipGroupList[i],self.curWeight,self.refresh_num,false,i)
+            maxNum = maxNum - useNum
+            if maxNum <= 0 then break end
+        end
+    end
+    self:CheckCanCombine()
+    self:CheckCanDealing()
+    self:CheckCanShuffle()
+end
+
+function this:CheckCanCombine()
+    self.canCombine = false
+    for i=1,MainScene.TotalGroupLen do
+        if self.chipGroupList[i].state == 2 and self.chipGroupList[i]:CanCombine() then
+            self.canCombine = true
+            break
+        end
+    end
+    self:OnCombineActive()
+end
+
+function this:OnCombineActive()
+    self.obj_combine_disable:SetActive(not self.canCombine)
+    self.iceBtn_combine.isActive = self.canCombine
+end
+
+function this:CheckCanDealing()
+    self.canDealing = false
+    for i=1,MainScene.TotalGroupLen do
+        if self.chipGroupList[i].state == 2 and self.chipGroupList[i]:GetRemainNum() > 0 then self.canDealing = true break end
+    end
+    self:OnDealingActive()
+end
+
+function this:OnDealingActive()
+    self.obj_dealing_disable:SetActive(not self.canDealing)
+    self.iceBtn_dealing.isActive = self.canDealing
+end
+
+function this:CheckCanShuffle()
+    self.canShuffle = true
+    --如果有槽是空的或者可合成，就不显示打乱按钮
+    for i =1,self.openGroupId do
+        if self.chipGroupList[i]:IsEmpty() or self.chipGroupList[i]:CanCombine() then self.canShuffle = false break end
+    end
+
+    --如果所有槽的数字都是相同的，则不显示
+    if self.canShuffle then
+        local isAllTheSame = true
+        for i=1,self.openGroupId do
+            if not self.chipGroupList[i]:IsAllTheSame() then isAllTheSame = false break end
+        end
+        if isAllTheSame then self.canShuffle = false end
+    end
+
+    --新增规则：如果还有超过6个筹码位置，则不显示洗牌
+    if self.canShuffle then
+        local remainCnt = 0
+        for i=1,self.openGroupId do
+            remainCnt = remainCnt + self.chipGroupList[i]:GetRemainNum()
+        end
+        if remainCnt > 6 then
+            self.canShuffle = false
+        end
+    end
+
+    --如果两两能交换，并且交换完有效(最后的数字发生变化)，则判断为不显示打乱
+    local num1,num2,remainNum1,remainNum2
+    if self.canShuffle then
+        for i=1,self.openGroupId - 1 do
+            num1 = self.chipGroupList[i]:GetSelectNum()
+            remainNum1 = self.chipGroupList[i]:GetRemainNum()
+            for j=i+1,self.openGroupId do
+                num2 = self.chipGroupList[j]:GetSelectNum()
+                if num1 == num2 then
+                    if remainNum1 > 0 then
+                        local chipUnit = self.chipGroupList[j]:GetChipUnitAtLastIndex(remainNum1,num1)
+                        if not chipUnit or (chipUnit.num ~= num1) then
+                            self.canShuffle = false
+                            break
+                        end
+                    end
+
+                    remainNum2 = self.chipGroupList[j]:GetRemainNum()
+                    if remainNum2 > 0 then
+                        local chipUnit1 = self.chipGroupList[i]:GetChipUnitAtLastIndex(remainNum2,num1)
+                        if not chipUnit1 or (chipUnit1.num ~= num1) then self.canShuffle = false break end
+                    end
+                end
+            end
+            if not self.canShuffle then break end
+        end
+    end
+    self.obj_btn_shuffle:SetActive(self.canShuffle)
+end
+
+function this:OnNewNum(newNum)
+    if newNum == self.levels[self.curTargetIdx] then
+        if self.curTargetIdx == #self.levels then
+            SceneManager:GetInstance().scene:OnEndRound()
+            return false
+        end
+        self.curTargetIdx = self.curTargetIdx + 1
+        self.curTargetNum = self.levels[self.curTargetIdx]
+        self.curWeight = self.weight[self.curTargetIdx] or 0
+        self.rangMax = self.curTargetNum - 1
+
+        self.progressBar:SetCurGroupIdx(self.curTargetIdx)
+        if self.openGroupId < MainScene.MaxGroup then
+            self.chipGroupList[self.openGroupId + 1]:SetState(1)
+        end
+        return true
+    end
+    return true
+end
+
+--获取能移动到的槽(给临时槽专用，其他槽不能调用) num:数字  count:需要的位置
+function this:GetCanMoveGroup(num,count)
+    --1.优先找可移动并且够位置的槽去放
+    for i=self.openGroupId,1,-1 do
+        if self.chipGroupList[i]:GetSelectNum() == num then
+            if self.chipGroupList[i]:GetRemainNum() >= count then return self.chipGroupList[i] end
+        end
+    end
+
+    --2.然后找空槽放
+    for i=self.openGroupId,1,-1 do
+        if self.chipGroupList[i]:IsEmpty() then return self.chipGroupList[i] end
+    end
+end
+
+function this:CreateChips(chipGroup,weight,refresh_num,isInit,idx)
+    local remainNumm = chipGroup:GetRemainNum()
+    local createdNum = 0
+    --先刷新随机筹码
+    math.randomseed(os.time() + idx)
+    local refreshNum = math.random(refresh_num[1],refresh_num[2])
+    refreshNum = math.min(refreshNum,remainNumm)
+    if not isInit and refreshNum > 2 and weight > 0 then
+        local val = math.random(1,100)
+        if val <= weight then
+            --随机生成随机筹码
+            local randomCount = math.random(2,4)
+            local createRandomCount = math.min(randomCount,refreshNum - 1)
+            chipGroup:CreateChips(0,createRandomCount,true)
+            createdNum = createdNum + createRandomCount
+            refreshNum = refreshNum - createRandomCount
+        end
+    end
+
+    local randomCount,randomNum
+    --剩下的随机普通筹码
+    while(refreshNum > 2) do
+        --随机区间数量
+        randomCount = math.random(2,refreshNum)
+        randomNum = math.random(self.rangMin,self.rangMax)
+        chipGroup:CreateChips(randomNum,randomCount,not isInit)
+        createdNum = createdNum + randomCount
+        refreshNum = refreshNum - randomCount
+    end
+
+    if refreshNum > 0 then
+        randomNum = math.random(self.rangMin,self.rangMax)
+        chipGroup:CreateChips(randomNum,refreshNum,not isInit)
+        createdNum = createdNum + refreshNum
+    end
+    return createdNum
+end
+
+function this:CombineChipGroup()
+    local canCombineList = {}
+    for i=1,MainScene.TotalGroupLen do
+        if self.chipGroupList[i].state == 2 and self.chipGroupList[i]:CanCombine() then
+            table.insert(canCombineList,self.chipGroupList[i])
+        end
+    end
+
+    if self.curChipGroup then
+        self.curChipGroup:OnClickMySelf()
+        self.curChipGroup = nil
+    end
+    if #canCombineList > 0 then
+        for i=1,#canCombineList do
+            if i == #canCombineList then
+                MainScene.Controling = true
+                canCombineList[i]:Combine(function ()
+                    MainScene.Controling = false
+                    self:CheckCanDealing()
+                    self:CheckCanCombine()
+                end)
+            else
+                canCombineList[i]:Combine()
+            end
+        end
+    end
+end
+
+function this:GetRandomNum()
+    return math.random(self.rangMin,self.rangMax)
+end
+
+function this:Close()
+    if self.progressBar then self.progressBar:Destroy() self.progressBar = nil end
+    if self.timer then self.timer:OnDestroy() self.timer = nil end
+    if self.chipGroupList then
+        for _,chipGroup in ipairs(self.chipGroupList) do
+            chipGroup:Destroy()
+        end
+        self.chipGroupList = nil
+    end
+    this.super.Close(self)
+end
+
+function this:Stop()
+    if self.curChipGroup then
+        self.curChipGroup:OnClickMySelf()
+        self.curChipGroup = nil
+    end
+    self.stop = true
+    if not IsNil(self.sceneObj) then
+        self.sceneObj:SetActive(false)
+    end
+    if not IsNil(self.transform) then
+        self.transform.gameObject:SetActive(false)
+    end
+end
+
+function this:Shuffle()
+    MainScene.Controling = true
+    --有随机筹码的，先处理随机筹码（无动画）
+    for i=1,self.openGroupId do
+        self.chipGroupList[i]:RefreshAllQuestUnit()
+    end
+
+    local numDic = {}
+    local allChipList = {}
+    for i=1,self.openGroupId do
+        local list = self.chipGroupList[i].chipUnitList
+        for _,chipUnit in ipairs(list) do
+            numDic[chipUnit.num] = true
+
+            if not allChipList[chipUnit.num] then
+                allChipList[chipUnit.num] = {}
+            end
+            table.insert(allChipList[chipUnit.num],chipUnit)
+        end
+    end
+    local numList = {}
+    for key,_ in pairs(numDic) do
+        table.insert(numList,key)
+    end
+    table.sort(numList)
+
+    local idx = 0
+    if #numList > self.openGroupId then
+        idx = #numList - self.openGroupId
+    end
+    for i=1,self.openGroupId do
+        self.chipGroupList[i]:Shuffle(allChipList[numList[i + idx]] or {})
+    end
+
+    if idx > 0 then
+        for i=1,idx do
+            for _,unit in ipairs(allChipList[numList[i]]) do
+                unit:Destroy()
+            end
+        end
+    end
+
+    self.timer = Timer.New(self,MainScene.ShuffleTime + 0.05,function()
+        self:CheckCanCombine()
+        self:CheckCanDealing()
+        self:CheckCanShuffle()
+        self.timer = nil
+        MainScene.Controling = false
+    end,1)
+end

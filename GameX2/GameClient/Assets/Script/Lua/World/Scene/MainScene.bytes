@@ -1,0 +1,175 @@
+MainScene = Class("MainScene",SceneBase)
+local this = MainScene
+
+--开关控制，当切换场景动画的时候，点击操作无效
+MainScene.Moving = false
+--开关控制，当操作筹码时候，不能做其他操作
+MainScene.Controling = false
+--总槽数
+MainScene.TotalGroupLen = 12
+--筹码X坐标
+MainScene.ChipPosX = 0
+--筹码的间距
+MainScene.ChipInterval = 0.017
+--可解锁组
+MainScene.MaxGroup = 9
+--每组最多有多少个筹码
+MainScene.GroupLen = 10
+--筹码默认高度
+MainScene.PosYDown = 0.006
+--筹码选中高度
+MainScene.PosYUp = 0.04
+--合成一组之后生成几个
+MainScene.CombineCreateNum = 2
+--洗牌动画时间
+MainScene.ShuffleTime = 0.35
+
+MainScene.ScaleList = {
+	[1] = 0.031,
+	[2] = 0.025,
+	[3] = 0.022,
+	[4] = 0.018,
+	[5] = 0.015,
+}
+
+MainScene.GetColor = function(num)
+    if num == 0 then return MainScene.ColorTable[num] end
+    local num = num % 50
+    if num == 0 then num = 50 end
+    return MainScene.ColorTable[num]
+end
+
+MainScene.ColorTable = 
+{
+    [0] = GameUtils.color(174/255,171/255,172/255,1),
+    [1] = GameUtils.color(1,130/255,196/255,1),
+    [2] = GameUtils.color(166/255,192/255,33/255,1),
+    [3] = GameUtils.color(254/255,153/255,0,1),
+    [4] = GameUtils.color(168/255,117/255,117/255,1),
+    [5] = GameUtils.color(119/255,187/255,214/255,1),
+    [6] = GameUtils.color(1,215/255,91/255,1),
+    [7] = GameUtils.color(1,85/255,0,1),
+    [8] = GameUtils.color(248/255,211/255,187/255,1),
+    [9] = GameUtils.color(248/255,7/255,155/255,1),
+    [10] = GameUtils.color(114/255,201/255,169/255,1),
+    [11] = GameUtils.color(181/255,151/255,213/255,1),
+    [12] = GameUtils.color(0,102/255,164/255,1),
+    [13] = GameUtils.color(1,139/255,152/255,1),
+    [14] = GameUtils.color(29/255,111/255,0,1),
+    [15] = GameUtils.color(208/255,0,0,1),
+    [16] = GameUtils.color(1,146/255,90/255,1),
+    [17] = GameUtils.color(255/255,193/255,47/255,1),
+    [18] = GameUtils.color(144/255,176/255,106/255,1),
+    [19] = GameUtils.color(192/255,98/255,189/255,1),
+    [20] = GameUtils.color(0,129/255,134/255,1),
+    [21] = GameUtils.color(251/255,194/255,144/255,1),
+    [22] = GameUtils.color(197/255,224/255,242/255,1),
+    [23] = GameUtils.color(0,171/255,209/255,1),
+    [24] = GameUtils.color(186/255,132/255,117/255,1),
+    [25] = GameUtils.color(169/255,206/255,175/255,1),
+    [26] = GameUtils.color(100/255,161/255,123/255,1),
+    [27] = GameUtils.color(242/255,110/255,130/255,1),
+    [28] = GameUtils.color(235/255,222/255,190/255,1),
+    [29] = GameUtils.color(205/255,173/255,60/255,1),
+    [30] = GameUtils.color(162/255,28/255,61/255,1),
+    [31] = GameUtils.color(112/255,243/255,98/255,1),
+    [32] = GameUtils.color(193/255,173/255,210/255,1),
+    [33] = GameUtils.color(123/255,89/255,127/255,1),
+    [34] = GameUtils.color(246/255,175/255,95/255,1),
+    [35] = GameUtils.color(56/255,78/255,184/255,1),
+    [36] = GameUtils.color(87/255,99/255,44/255,1),
+    [37] = GameUtils.color(105/255,186/255,195/255,1),
+    [38] = GameUtils.color(207/255,68/255,110/255,1),
+    [39] = GameUtils.color(226/255,229/255,158/255,1),
+    [40] = GameUtils.color(239/255,183/255,30/255,1),
+    [41] = GameUtils.color(252/255,142/255,148/255,1),
+    [42] = GameUtils.color(1,129/255,47/255,1),
+    [43] = GameUtils.color(252/255,236/255,221/255,1),
+    [44] = GameUtils.color(146/255,207/255,192/255,1),
+    [45] = GameUtils.color(25/255,190/255,141/255,1),
+    [46] = GameUtils.color(1,241/255,43/255,1),
+    [47] = GameUtils.color(228/255,85/255,107/255,1),
+    [48] = GameUtils.color(191/255,87/255,159/255,1),
+    [49] = GameUtils.color(95/255,112/255,216/255,1),
+    [50] = GameUtils.color(63/255,1,79/255,1),
+}
+
+local LuaUIUtils = CS.LuaUIUtils
+local LevelConfig = require "Config/Level"
+local SoundConfig = require "Config/Sound"
+local GameObject = CS.UnityEngine.GameObject
+
+--start  Y:0.004 Z:0.007
+--Interval   0.017
+
+function this:ctor(id)
+	this.super.ctor(self, id)
+	self.curLevelId = 0
+    self.lvLen = #LevelConfig
+    self.maxLevel = LevelConfig[self.lvLen].levels[#LevelConfig[self.lvLen].levels]
+end
+
+function this:Start()
+    this.super.Start(self)
+    self.mainCamera = CS.UnityEngine.GameObject.Find("Main Camera"):GetComponent("Camera")
+    self.mainCamera.orthographicSize = 0.48 * SceneManager:GetInstance().rate
+
+    local scaleValue = 0.7 * SceneManager:GetInstance().rate
+    GameObject.Find("Fama_Beijing_Mo").transform.localScale = GameUtils.Vector3(scaleValue,scaleValue,scaleValue)
+    WindowManager:GetInstance():Open(Windows.MainView)
+end
+
+function this:StartGame()
+	self:StartRound(self:GetNextLvId())
+end
+
+function this:GetNextLvId()
+    return PlayerPrefsUtils.GetCurLevelId() + 1
+end
+
+function this:StartNext()
+    self:StartRound(self:GetNextLvId())
+end
+
+function this:GetNextLvCfg()
+    local id = self:GetNextLvId()
+    local cfg = LevelConfig[id]
+    if cfg then return cfg end
+    cfg = LevelConfig[self.lvLen]
+    cfg.levels = {}
+    local num = self.maxLevel + (self:GetNextLvId() - self.lvLen - 1) * 6
+    for i=1,5 do
+        if i == 5 then
+            table.insert(cfg.levels,num + i + 1)
+        else
+            table.insert(cfg.levels,num + i)
+        end
+    end
+    return cfg
+end
+
+function this:StartRound(levelId)
+	self.curLevelId = levelId
+    self.cfgLv = self:GetNextLvCfg()
+	WindowManager:GetInstance():GetServerByName(Windows.GameView):StartRound(self.curLevelId)
+end
+
+function this:OnEndRound()
+    PlayerPrefsUtils.SetCurLevelId(self.curLevelId)
+    WindowManager:GetInstance():Open(Windows.AccountView,WindowType.Stack,nil,self.curLevelId)
+end
+
+function this:Restart()
+    WindowManager:GetInstance():GetServerByName(Windows.GameView):StartRound(self.curLevelId)
+end
+
+function this:OnDestroy()
+    this.super.OnDestroy(self)
+end
+
+--播放广告
+function this:PlayAdvertisement(cb)
+    if cb then
+        cb(true)
+    end
+end

@@ -1,0 +1,21 @@
+--G_规则：公共参数.xlsx
+local team = {}
+local config = 
+{
+	[1] =
+	{
+		id = 1,
+		value = 5400,
+	},
+}
+local _default_values =
+{
+	id = 0,
+	value = 0,
+	param = team,
+}
+local base = { __index = _default_values }
+for _, v in pairs(config) do
+	setmetatable( v, base )
+end
+return config, _default_values

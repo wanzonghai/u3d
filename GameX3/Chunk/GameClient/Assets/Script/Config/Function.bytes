@@ -1,0 +1,62 @@
+--J_界面规则.xlsx
+local team = {}
+local config = 
+{
+	["LoadingView"] =
+	{
+		id = "LoadingView",
+		path = "Windows/Loading/LoadingView.prefab",
+	},
+	["JoystickView"] =
+	{
+		id = "JoystickView",
+		path = "Windows/Joystick/JoystickView.prefab",
+	},
+	["MainView"] =
+	{
+		id = "MainView",
+		path = "Windows/Main/MainView.prefab",
+	},
+	["GameView"] =
+	{
+		id = "GameView",
+		path = "Windows/Game/GameView.prefab",
+	},
+	["AccountPassView"] =
+	{
+		id = "AccountPassView",
+		path = "Windows/Account/AccountPassView.prefab",
+	},
+	["AccountFailView"] =
+	{
+		id = "AccountFailView",
+		path = "Windows/Account/AccountFailView.prefab",
+	},
+	["SettingView"] =
+	{
+		id = "SettingView",
+		path = "Windows/Setting/SettingView.prefab",
+	},
+	["ItemTIpsView"] =
+	{
+		id = "ItemTIpsView",
+		path = "Windows/ItemTIps/ItemTIpsView.prefab",
+	},
+	["TimeUpTipsView"] =
+	{
+		id = "TimeUpTipsView",
+		path = "Windows/TimeUpTips/TimeUpTipsView.prefab",
+	},
+}
+local _default_values =
+{
+	id = "",
+	path = "",
+	openMusic = false,
+	closeMusic = false,
+}
+local base = { __index = _default_values }
+for _, v in pairs(config) do
+	setmetatable( v, base )
+end
+return config, _default_values

@@ -1,0 +1,406 @@
+CupboardUnit = Class("CupboardUnit")
+local this = CupboardUnit
+
+function this:ctor(transform,index,scene)
+    self.transform = transform
+    self.index = index
+    self.scene = scene
+    self.state = -1   --0:代表不显示   1：代表已解锁  2：代表未解锁
+    self.config = nil
+
+    self.itemRootList = {}
+    self.itemData = {}          --物品数据，分层，每一层是一个table
+    self.objList = {}
+    self.curGroup = 1
+end
+
+function this:Init()
+    local tf_huojia = self.transform:Find("huojia01_4_2")
+    for i=1,3 do
+        self.itemRootList[i] = tf_huojia:Find("Huowu" .. i)
+    end
+
+    self.tf_root = tf_huojia:Find("root")
+
+    local pos = self.transform.localPosition
+    self.minX = pos.x + MainScene.PosX
+    self.minY = pos.y
+    self.maxX = pos.x
+    self.maxY = pos.y + MainScene.PosY
+end
+
+function this:GetParent(idx)
+    return self.itemRootList[idx]
+end
+
+function this:SetConfig(cfg)
+    self.config = cfg
+    if not cfg or #cfg == 0 then
+        self:SetState(0)
+    elseif cfg[1] == 1 then
+        self:SetState(1)
+    elseif cfg[1] == 2 then
+        self:SetState(2)
+        EventDispatcher:GetInstance():AddEventListener(self,EventID.LevelScoreChange,self.OnLevelScoreChange)
+    elseif cfg[1] == 3 then
+        self:SetState(2)
+        WindowManager:GetInstance():GetServerByName(Windows.GameView):ShowLock(self)
+    end
+end
+
+function this:SetState(state)
+    if self.state == state then return end
+    self.state = state
+    if state == 0 then
+        self:SetActive(false)
+    elseif state == 1 then
+        self:SetActive(true)
+        if self.config[1] == 2 then
+            self:HideBenDai()
+        end
+    elseif state == 2 then
+        self:SetActive(true)
+        if self.config[1] == 2 then
+            self:ShowBenDai(self.config[2])
+        end
+    end
+end
+
+function this:ShowBenDai(number)
+    if not self.obj_bendai then
+        self.scene:LoadBenDai(function(obj)
+            self.obj_bendai = obj
+            self.objBenDaiList = {}
+            local tf_root = obj.transform:Find("bendai1_4_1")
+            for i=1,5 do
+                table.insert(self.objBenDaiList,tf_root:Find(i).gameObject)
+            end
+
+            for i=1,5 do
+                self.objBenDaiList[i]:SetActive(i <= number)
+            end
+
+            obj.transform:SetParent(self.transform)
+            obj.transform.localScale = GameUtils.Vector3One
+            obj.transform.localPosition = GameUtils.Vector3Zero
+        end)
+    else
+        self.obj_bendai:SetActive(true)
+        for i=1,5 do
+            self.objBenDaiList[i]:SetActive(i <= number)
+        end
+    end
+end
+
+function this:HideBenDai()
+    if IsNil(self.obj_bendai) then return end
+    self.obj_bendai:SetActive(false)
+end
+
+--检测状态
+function this:CheckState()
+    if self.state == 0 or self.state == 1 then return end
+    if self.config[1] == 2 then         --消除多少组解锁
+        if self.scene:GetClearUpCount() >= self.config[1] then self:SetState(1) end
+    elseif self.config[1] == 3 then     --看广告解锁
+    end
+end
+
+function this:SetActive(isActive)
+    if IsNil(self.transform) then return end
+    self.transform.gameObject:SetActive(isActive)
+end
+
+--柜子开始关卡是否刷道具
+function this:IsCreateItemInCtor()
+    if self.state == 0 then return false end            --该规则不显示，则不刷道具
+    if self.config[1] == 3 then return false end        --如果是播放广告解锁的柜子，则不刷道具
+    return true
+end
+
+--groupIdx:第几层   data:{itemid,itemid,itemid}
+function this:SetData(groupIdx,data)
+end
+
+--groupIdx：第几层  itemId:物品ID
+function this:CanAdd(groupIdx,itemId)
+    if not self.itemData[groupIdx] then return true end
+    local len = table.nums(self.itemData[groupIdx])
+    if len == 3 then return false end
+    if len == 1 then return true end
+    if len == 2 then
+        for _,tempId in pairs(self.itemData[groupIdx]) do
+            if tempId ~= itemId then return true end
+        end
+        return false
+    end
+    return true
+end
+
+--groupIdx：第几层  idx:第几个位置  itemId:物品ID
+function this:AddData(groupIdx,idx,itemId)
+    if not self.itemData[groupIdx] then self.itemData[groupIdx] = {} end
+    self.itemData[groupIdx][idx] = itemId
+end
+
+function this:AddItemUnit(itemUnit,dontCheck)
+    if not self.objList[itemUnit.group] then self.objList[itemUnit.group] = {} end
+    if self.curGroup ~= itemUnit.group then
+        L.LogError("组不一致，当前组是" .. self.curGroup .. "    增加的组是" .. itemUnit.group)
+    end
+    self.objList[itemUnit.group][itemUnit.index] = itemUnit
+    self:AddData(itemUnit.group,itemUnit.index,itemUnit.itemId)
+    if not dontCheck then
+        self:Check()
+    end
+end
+
+function this:AddDataWithNoIdx(groupIdx,itemId)
+    if not self.itemData[groupIdx] then self.itemData[groupIdx] = {} end
+    local idxList = {}
+    for i=1,3 do
+        if not self.itemData[groupIdx][i] or self.itemData[groupIdx][i] == 0 then
+            table.insert(idxList,i)
+        end
+    end
+    math.randomseed(os.time() + itemId)
+    local randomIdx = math.random(1,#idxList)
+    self:AddData(groupIdx,idxList[randomIdx],itemId)
+end
+
+function this:RemoveItemUnit(itemUnit,dontCheck)
+    if not self.objList[itemUnit.group] then return end
+    self.objList[itemUnit.group][itemUnit.index] = nil
+    if not self.itemData[itemUnit.group] then return end
+    self.itemData[itemUnit.group][itemUnit.index] = nil
+    if not dontCheck then
+        self:Check()
+    end
+end
+
+function this:AddItemUnitWithIndex(itemUnit,index)
+    itemUnit:SetParent(self.curGroup,index,self.itemRootList[index])
+    self:AddItemUnit(itemUnit)
+end
+
+function this:CreateItemObjs()
+    if self.state ~= 1 then return end
+    if not self.itemData[1] then return end
+    self.objList[1] = {}
+    --第一层
+    local data = self.itemData[1]
+    for i=1,MainScene.NumberThree do
+        if data[i] and data[i] > 0 then
+            local unit = ItemUnit.New(data[i],MainScene.PosFront,false,self.itemRootList[i],1,i)
+            self.objList[1][i] = unit
+        end
+    end
+
+    --第二层
+    self.objList[2] = {}
+    local data = self.itemData[2]
+    if data then
+        for i=1,MainScene.NumberThree do
+            if data[i] and data[i] > 0 then
+                local unit = ItemUnit.New(data[i],MainScene.PosBehive,true,self.itemRootList[i],2,i)
+                self.objList[2][i] = unit
+            end
+        end
+    end
+end
+
+function this:IsInRange(pos)
+    return pos.x > self.minX and pos.x < self.maxX and pos.y > self.minY and pos.y < self.maxY
+end
+
+function this:GetNearItemUnit(pos)
+    local index = self:GetNearItemIndex(pos)
+    return self.objList[self.curGroup] and self.objList[self.curGroup][index] or nil
+end
+
+function this:GetItemUnit(pos)
+    local index = self:GetNearItemUnitIndex(pos)
+    if not index then return nil end
+    return self.objList[self.curGroup][index]
+end
+
+function this:GetNearItemIndex(pos)
+    local index
+    local dist = 2
+    local temp
+    for i=1,MainScene.NumberThree do
+        temp = math.abs(pos.x - self.itemRootList[i].position.x)
+        if temp < dist then
+            index = i
+            dist = temp
+        end
+    end
+    return index
+end
+
+function this:GetNearEmptyIndex(pos)
+    local index
+    local dist = 2
+    local temp
+    for i=1,MainScene.NumberThree do
+        temp = math.abs(pos.x - self.itemRootList[i].position.x)
+        if temp < dist and self.objList[self.curGroup] and not self.objList[self.curGroup][i] then
+            index = i
+            dist = temp
+        end
+    end
+    return index
+end
+
+function this:GetNearItemUnitIndex(pos)
+    local index
+    local dist = 2
+    local temp
+    for i=1,MainScene.NumberThree do
+        temp = math.abs(pos.x - self.itemRootList[i].position.x)
+        if temp < dist and self.objList[self.curGroup] and self.objList[self.curGroup][i] then
+            index = i
+            dist = temp
+        end
+    end
+    return index
+end
+
+function this:Check()
+    local isAllEmpty = true
+    for i=1,MainScene.NumberThree do
+        if self.objList[self.curGroup][i] then isAllEmpty = false break end
+    end
+    if isAllEmpty then
+        self.curGroup = self.curGroup + 1
+        self:RefreshNextGroup()
+        return
+    end
+
+    local isSame = true
+    local id
+    for i=1,MainScene.NumberThree do
+        if  self.itemData[self.curGroup][i] then
+            if id then
+                if id ~= self.itemData[self.curGroup][i] then
+                    isSame = false
+                    break
+                end
+            else
+                id = self.itemData[self.curGroup][i]
+            end
+        else
+            isSame = false
+            break
+        end
+    end
+    if isSame then
+        self.curGroup =self.curGroup + 1
+        self:RefreshNextGroup(true)
+    end
+end
+
+function this:GetEmptyCount()
+    if not self.objList[self.curGroup] then return MainScene.NumberThree end
+    local count = 0
+    for i=1,MainScene.NumberThree do
+        if not self.objList[self.curGroup][i] then count = count + 1 end
+    end
+    return count
+end
+
+function this:Clear()
+    if self.objList then
+        for _,list in pairs(self.objList) do
+            if list then
+                for _,unit in pairs(list) do
+                    unit:Destroy()
+                end
+            end
+        end
+    end
+    self.objList = {}
+    self.itemData = {}
+    self.curGroup = 1
+end
+
+function this:RefreshNextGroup(isEliminate)
+    if self.objList[self.curGroup] then
+        for i=1,MainScene.NumberThree do
+            if self.objList[self.curGroup][i] then
+                self.objList[self.curGroup][i]:ShowFront()
+            end
+        end
+    end
+
+    local nextGroup = self.curGroup + 1
+    if self.itemData[nextGroup] then
+        self.objList[nextGroup] = {}
+        local data = self.itemData[nextGroup]
+        for i=1,MainScene.NumberThree do
+            if data[i] and data[i] > 0 then
+                local unit = ItemUnit.New(data[i],MainScene.PosBehive,true,self.itemRootList[i],nextGroup,i)
+                self.objList[nextGroup][i] = unit
+            end
+        end
+    end
+
+    if isEliminate then
+        local lastGroup = self.curGroup - 1
+        for i=1,MainScene.NumberThree do
+            if self.objList[lastGroup][i] then
+                self.objList[lastGroup][i]:Eliminate()
+            end
+        end
+        self.objList[lastGroup] = {}
+        self.itemData[lastGroup] = nil
+        self.scene:OnItemEliminate()
+    end
+end
+
+--num是离第一层多少层  例如：传0代表拿当前第一层（self.curGroup）  1代表拿下一层（self.curGroup - 1） 以此类推
+function this:GetItemData(num)
+    return self.itemData[self.curGroup + num]
+end
+
+--num是离第一层多少层  例如：传0代表拿当前第一层（self.curGroup）  1代表拿下一层（self.curGroup - 1） 以此类推
+function this:GetItemUnitList(itemId,num,len)
+    if not self.itemData[self.curGroup + num] then return end
+    local list = {}
+    for i=1,MainScene.NumberThree do
+        if self.itemData[self.curGroup + num][i] == itemId then
+            if self.objList[self.curGroup + num] and self.objList[self.curGroup + num][i] then
+                table.insert(list,self.objList[self.curGroup + num][i])
+                self.objList[self.curGroup + num][i] = nil
+            else
+                local unit = ItemUnit.New(self.itemData[self.curGroup + num][i],MainScene.PosFront,false,self.itemRootList[i],1,i)
+                table.insert(list,unit)
+            end
+            self.itemData[self.curGroup + num][i] = nil
+            if #list >= len then break end
+        end
+    end
+    return list
+end
+
+function this:OnLevelScoreChange(score)
+    if score >= self.config[2] then
+        self:SetState(1)
+    else
+        self:ShowBenDai(self.config[2] - score)
+    end
+end
+
+function this:IsAllEmpty()
+    for _,list in pairs(self.objList) do
+        if table.nums(list) > 0 then return false end
+    end
+    return true
+end
+
+function this:OnDestroy()
+    self:Clear()
+    if self.config[1] and self.config[1] == 2 then
+        EventDispatcher:GetInstance():RemoveEventListener(self,EventID.LevelScoreChange)
+    end
+end

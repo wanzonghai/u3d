@@ -1,0 +1,112 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: GameAtlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings:
+    - serializedVersion: 3
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 1024
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 1
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 0
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: a1fccccffe37f3e4d8651bb7e44a7bfc, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 461aa510362c8f844bc3dbf3b5e4ccd7, type: 3}
+  - {fileID: 21300000, guid: 4ce894700bb2e6c4ca0d58287d192d3b, type: 3}
+  - {fileID: 21300000, guid: 851e639075717434981dc828f5cf64ba, type: 3}
+  - {fileID: 21300000, guid: 15cf4ba0f3f75504e9135f2b668edaff, type: 3}
+  - {fileID: 21300000, guid: a30f5693436c3f24483f3d8fd97df337, type: 3}
+  - {fileID: 21300000, guid: ca05a1d344f87684f8844ee5268b523d, type: 3}
+  - {fileID: 21300000, guid: 5d348f44222c53646b76c189a31d3c89, type: 3}
+  - {fileID: 21300000, guid: 0733e89717ed75d4da6cc0e012e611a9, type: 3}
+  - {fileID: 21300000, guid: c7d659c7dce7f6a4ab3721b2d5984c69, type: 3}
+  - {fileID: 21300000, guid: 024aa608378af6c48afbfdadb82d946b, type: 3}
+  - {fileID: 21300000, guid: 8230390840ae33f42ad4ffcf2623695e, type: 3}
+  - {fileID: 21300000, guid: 97f9d348b6fa00d42a18f1d94fb55cf6, type: 3}
+  - {fileID: 21300000, guid: 1c9dec78347516445ad6bf2d21df3372, type: 3}
+  - {fileID: 21300000, guid: b43692b8b781fbc4b95fe835f58d7aa9, type: 3}
+  - {fileID: 21300000, guid: 613357f8a9382884c8dd66d6da5d9189, type: 3}
+  - {fileID: 21300000, guid: 1531daf829da52947a553a56ff924df6, type: 3}
+  - {fileID: 21300000, guid: b7bbc5195364a404c87ec9b4fa104e02, type: 3}
+  - {fileID: 21300000, guid: adb09699d9290f447af6ad668c8743e6, type: 3}
+  - {fileID: 21300000, guid: db55e0b9d1a04284ca96f59a9f2579ae, type: 3}
+  - {fileID: 21300000, guid: 718d1e7a784c25d46a9cf5252328b780, type: 3}
+  - {fileID: 21300000, guid: a3d5ef8a01a88ed43acef9b2417fa232, type: 3}
+  - {fileID: 21300000, guid: acc6d5baf9be1354385ff016e7d8a9bd, type: 3}
+  - {fileID: 21300000, guid: f3bc205c9d2e26947b11c59b1b5860a2, type: 3}
+  - {fileID: 21300000, guid: 5301e97d00fcc964997a01b72207d3a2, type: 3}
+  - {fileID: 21300000, guid: 07173bcdfefbe15428ca987fc2cb8015, type: 3}
+  - {fileID: 21300000, guid: a916d03eac074ff4d9e2269939559128, type: 3}
+  - {fileID: 21300000, guid: fd95ca1f6e1e03c46822a5b987030973, type: 3}
+  - {fileID: 21300000, guid: 400e0b5f374b29247a26e2daa681f764, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - Fama_kaiguanjian_baikai
+  - FAma_shizhijian
+  - Fama_weiwanchenguanqia_Hui
+  - Fama_tongguoguang_lv
+  - Fama_kaiguanjian_baiguan
+  - Fama_chahao
+  - Fama_kaiguanjian_hongkai
+  - Fama_jindutiao
+  - Fama_tuichuguanqiajian
+  - Fama_jiantou
+  - Fama_guanqiadise_Bai
+  - Fama_chongxikaishijian
+  - Fama_yinxiao
+  - Fama_pai-fa-jian
+  - Fama_yinyue
+  - Fama_kejiesuo
+  - Fama_guanqiadise_huang
+  - FAma_jijiangjiesuo
+  - Fama_linshicaowei
+  - Fama_bukehechenjian
+  - Fama_Feijijiangjiesuo
+  - Fama_bu-ke-pai-fa-jian
+  - Fama_hechenjian
+  - Fama_shezhi
+  - Fama_Kaishiyouxi_Hui
+  - Fama_xipaijian
+  - Fama_kaiguanjian_hongguan
+  - Fama_wangguang
+  m_RenderDataMap: {}
+  m_Tag: GameAtlas
+  m_IsVariant: 0

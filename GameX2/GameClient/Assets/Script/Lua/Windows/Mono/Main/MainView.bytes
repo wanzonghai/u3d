@@ -1,0 +1,18 @@
+MainView = Class("MainView",WindowBase)
+local this = MainView
+
+function this:ctor(transform,server)
+    this.super.ctor(self,transform,server)
+    transform:Find("btn_setting"):GetComponent("IceButton").OnClick:AddListener(function()
+        WindowManager:GetInstance():Open(Windows.SettingView,WindowType.Stack,nil,true)
+    end)
+
+    local tf_btn_enter = transform:Find("btn_enter")
+    tf_btn_enter:GetComponent("IceButton").OnClick:AddListener(function()
+        SceneManager:GetInstance().scene:StartGame()
+        WindowManager:GetInstance():Close(Windows.MainView)
+    end)
+    local cfgLv = SceneManager:GetInstance().scene:GetNextLvCfg()
+    tf_btn_enter:Find("img_icon"):GetComponent("Image").color = MainScene.GetColor(cfgLv.levels[1])
+    tf_btn_enter:Find("txt_num"):GetComponent("Text").text = cfgLv.levels[1]
+end

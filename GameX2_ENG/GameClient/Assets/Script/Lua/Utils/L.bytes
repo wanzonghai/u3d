@@ -1,0 +1,64 @@
+--打印类
+L = {}
+local language = require "Config/Language"
+local isLog = CS.AssetDataPath.IsLog
+local log = CS.UnityEngine.Debug.Log
+local logError = CS.UnityEngine.Debug.LogError
+local ScreenLog = CS.FPS.Log--20191022  屏幕打印
+
+--活动
+---白字打印
+function L.Log(l)
+	if not isLog then return end
+	log(l)
+
+	--20191022  屏幕打印
+	--ScreenLog(l)
+end
+---红字打印
+function L.LogError(l)
+	if l == nil then logError(l) 
+	else
+		local sError = debug.traceback(l)
+		logError(sError)
+
+		--20191022  屏幕打印
+		--ScreenLog(sError)
+	end
+end
+---xpcall(v.Update,function(err) L.XPCall(debug.traceback(err)) end,v, time)
+function L.XPCall(l)
+	logError(l)
+
+	--20191022  屏幕打印
+	--ScreenLog(l)
+end
+
+--翻译活动
+function L.Language(id,...)
+	local params = { ... }
+
+	--20190318  防没语种
+	local data = language[id]
+	if data == nil then
+		L.LogError("Unity.Lua.L.Language:没id="..id)
+		return ""
+	end
+
+	local str = data.content
+	for i = 1, #params do
+    	str = String_Replace(str, "$" .. i , params[i])
+	end
+	return str
+end
+function L.Language_Replace(str,param_arr)
+    for i = 1, #param_arr do
+		local strL = string.split(str,"$".. i)
+		if strL == nil or #strL < 2 then
+			break
+		end
+        str = strL[1] .. param_arr[i] .. strL[2]
+    end
+
+    return str
+end

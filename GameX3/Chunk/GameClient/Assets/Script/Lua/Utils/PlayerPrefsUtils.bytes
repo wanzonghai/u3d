@@ -1,0 +1,23 @@
+PlayerPrefsUtils = {}
+
+--PlayerPrefsUtils.Save = function() PlayerPrefs.Save() end
+local GameUtils = CS.GameUtils
+
+--音效设置
+PlayerPrefsUtils.GetClipVolume = function() return GameUtils.GetFloat("ClipVolume3", 1) end
+PlayerPrefsUtils.SetClipVolume = function(value) return GameUtils.SetFloat("ClipVolume3", value) end
+--背景音量设置
+PlayerPrefsUtils.GetGroundVolume = function() return GameUtils.GetFloat("GroundVolume3", 0.3) end
+PlayerPrefsUtils.SetGroundVolume = function(value) return GameUtils.SetFloat("GroundVolume3", value) end
+
+PlayerPrefsUtils.GetCurLevelId = function() return GameUtils.GetInt("CurLevelId3",0) end
+PlayerPrefsUtils.SetCurLevelId = function(value) return GameUtils.SetInt("CurLevelId3",value) end
+
+PlayerPrefsUtils.GetCurFreezeCount = function() return GameUtils.GetInt("FreezeCount3",0) end
+PlayerPrefsUtils.SetCurFreezeCount = function(value) GameUtils.SetInt("FreezeCount3",value) end
+
+PlayerPrefsUtils.GetCurDisorderCount = function() return GameUtils.GetInt("DisorderCount3",0) end
+PlayerPrefsUtils.SetCurDisorderCount = function(value) GameUtils.SetInt("DisorderCount3",value) end
+
+PlayerPrefsUtils.GetCurTipsCount = function() return GameUtils.GetInt("TipsCount3",0) end
+PlayerPrefsUtils.SetCurTipsCount = function(value) GameUtils.SetInt("TipsCount3",value) end

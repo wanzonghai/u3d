@@ -1,0 +1,33 @@
+Assets/Settings/SampleSceneProfile.asset
+Packages/com.unity.render-pipelines.universal/Runtime/UniversalAdditionalCameraData.cs
+Assets/RPG Character Animation Pack/Animations/Unarmed/RPG-Character@Unarmed-Walk.FBX
+Assets/RPG Character Animation Pack/Animations/Unarmed/RPG-Character@Unarmed-Run-Forward.FBX
+Assets/RPG Character Animation Pack/Animations/Unarmed/RPG-Character@Unarmed-Idle.FBX
+Assets/RPG Character Animation Pack/Animations/Unarmed/RPG-Character@Unarmed-Activate.FBX
+Assets/RPG Character Animation Pack/Animations/Unarmed/RPG-Character@Unarmed-Run-Backward.FBX
+Assets/RPG Character Animation Pack/Models/Characters/RPG-Character.FBX
+Assets/RPG Character Animation Pack/Animations/Unarmed/RPG-Character@Unarmed-Jump.FBX
+Assets/RPG Character Animation Pack/Animations/Unarmed/RPG-Character@Unarmed-GetHit-F1.FBX
+Packages/com.unity.render-pipelines.core/Editor/Volume/Icons/VolumeProfileAsset.png
+Assets/RPG Character Animation Pack/Animations/Unarmed/RPG-Character@Unarmed-Attack-R1.FBX
+Assets/RPG Character Animation Pack/Animations/Unarmed/RPG-Character@Unarmed-Attack-Kick-R1.FBX
+Assets/RPG Character Animation Pack/Animations/Unarmed/RPG-Character@Unarmed-Attack-L1.FBX
+Packages/com.unity.render-pipelines.core/Editor/Volume/Icons/Volume.png
+Assets/RPG Character Animation Pack/Animations/Unarmed/RPG-Character@Unarmed-Revive1.FBX
+Packages/com.unity.render-pipelines.universal/Editor/AssetVersion.cs
+Packages/com.unity.render-pipelines.universal/Runtime/Overrides/Bloom.cs
+Assets/RPG Character Animation Pack/Animations/Unarmed/RPG-Character@Unarmed-GetHit-B1.FBX
+Packages/com.unity.render-pipelines.core/Runtime/Volume/VolumeProfile.cs
+Packages/com.unity.render-pipelines.universal/Runtime/Overrides/Tonemapping.cs
+Assets/RPG Character Animation Pack/Animations/Unarmed/RPG-Character@Unarmed-Stunned.FBX
+Packages/com.unity.render-pipelines.core/Runtime/Volume/Volume.cs
+Packages/com.unity.render-pipelines.universal/Runtime/UniversalAdditionalLightData.cs
+Assets/RPG Character Animation Pack/Animations/Unarmed/RPG-Character@Unarmed-Death1.FBX
+Packages/com.unity.render-pipelines.universal/Runtime/Overrides/Vignette.cs
+Packages/com.unity.render-pipelines.universal/Runtime/Materials/Lit.mat
+Assets/RPG Character Animation Pack/Animations/Unarmed/RPG-Character@Unarmed-Pickup.FBX
+Assets/RPG Character Animation Pack/Animations/Unarmed/RPG-Character@Unarmed-Block.FBX
+Packages/com.unity.render-pipelines.universal/Shaders/Lit.shader
+Assets/RPG Character Animation Pack/Animations/Unarmed/RPG-Character@Unarmed-Attack-Kick-L1.FBX
+
+资源分析来自场景：Assets/Scenes/animation_test.unity

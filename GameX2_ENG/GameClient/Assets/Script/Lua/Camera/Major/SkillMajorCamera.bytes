@@ -1,0 +1,25 @@
+SkillMajorCamera = Class("SkillMajorCamera", MajorCameraBase)
+
+function SkillMajorCamera:ctor(camera, normCamera)
+	SkillMajorCamera.super.ctor(self, camera)
+	
+	self.normCamera = normCamera
+end
+
+function SkillMajorCamera:Play(object)
+	SkillMajorCamera.super.Play(self)
+	self.fxCamera = object.boneClothes:GetMountByName(Mounts.Camera)
+end
+
+function SkillMajorCamera:LateUpdate()
+	if not self.playing then return end
+	self.camera.position = self.fxCamera.position
+	self.camera.rotation = self.fxCamera.rotation
+
+	SkillMajorCamera.super.LateUpdate(self)
+end
+
+function SkillMajorCamera:Stop()
+	SkillMajorCamera.super.Stop(self)
+	self.normCamera:OnReviseCamera()
+end

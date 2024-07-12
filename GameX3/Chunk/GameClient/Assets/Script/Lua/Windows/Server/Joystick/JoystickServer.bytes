@@ -1,0 +1,11 @@
+ JoystickServer = Class("JoystickServer", WindowServerBase)
+
+ function JoystickServer:ctor()
+	JoystickServer.super.ctor(self)
+	self.assetPath = { Windows.GetViewPathByName(Windows.JoystickView)}
+end
+
+function JoystickServer:Init()
+	JoystickServer.super.Init(self)
+	self.view = JoystickView.New(self.root.transform, self)
+end

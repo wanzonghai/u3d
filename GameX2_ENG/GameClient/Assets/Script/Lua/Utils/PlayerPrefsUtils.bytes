@@ -1,0 +1,14 @@
+PlayerPrefsUtils = {}
+
+--PlayerPrefsUtils.Save = function() PlayerPrefs.Save() end
+local GameUtils = CS.GameUtils
+
+--音效设置
+PlayerPrefsUtils.GetClipVolume = function() return GameUtils.GetFloat("ClipVolume", 1) end
+PlayerPrefsUtils.SetClipVolume = function(value) return GameUtils.SetFloat("ClipVolume", value) end
+--背景音量设置
+PlayerPrefsUtils.GetGroundVolume = function() return GameUtils.GetFloat("GroundVolume", 0.3) end
+PlayerPrefsUtils.SetGroundVolume = function(value) return GameUtils.SetFloat("GroundVolume", value) end
+
+PlayerPrefsUtils.GetCurLevelId = function() return GameUtils.GetInt("CurLevelId",0) end
+PlayerPrefsUtils.SetCurLevelId = function(value) return GameUtils.SetInt("CurLevelId",value) end

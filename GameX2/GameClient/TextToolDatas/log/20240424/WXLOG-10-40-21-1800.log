@@ -1,0 +1,424 @@
+﻿<wxlog>
+  <threadId>#main</threadId>
+  <timestamp>10:40:21:2193</timestamp>
+  <msgtype>MsgWXLogLaunch</msgtype>
+  <content>[The WXLogger is launched!]</content>
+  <stackFrames>
+[CALL STACK][0]: Method:WXTextureTools.Application.Options.OptionsConfig..ctor; File:.0
+[CALL STACK][1]: Method:WXTextureTools.Application.App..ctor; File:.0
+[CALL STACK][2]: Method:WXTextureTools.Program.Main; File:.0
+</stackFrames>
+</wxlog>
+<wxlog>
+  <threadId>#main</threadId>
+  <timestamp>10:40:21:2293</timestamp>
+  <msgtype>MsgMixture</msgtype>
+  <content>string|String[]
+OptionsConfig,-option=text
+-do=assetListInfo
+-sourceDir=D:/Work/WeChatProject/GameX1_0422\webgl
+-dataDir=D:/Work/Project/GameX1/GameClient/TextToolDatas
+</content>
+  <stackFrames>
+[CALL STACK][0]: Method:WXTextureTools.Application.App..ctor; File:.0
+[CALL STACK][1]: Method:WXTextureTools.Program.Main; File:.0
+</stackFrames>
+</wxlog>
+<wxlog>
+  <threadId>#main</threadId>
+  <timestamp>10:40:21:2303</timestamp>
+  <msgtype>MsgMixture</msgtype>
+  <content>string|string
+UnityBridgeHandler - SetDataDir,D:/Work/Project/GameX1/GameClient/TextToolDatas\temp</content>
+  <stackFrames>
+[CALL STACK][0]: Method:WXTextureTools.Program.Main; File:.0
+</stackFrames>
+</wxlog>
+<wxlog>
+  <threadId>#main</threadId>
+  <timestamp>10:40:21:2363</timestamp>
+  <msgtype>MsgString</msgtype>
+  <content>WXTextureMinExec</content>
+  <stackFrames>
+[CALL STACK][0]: Method:WXTextureTools.Application.App..ctor; File:.0
+[CALL STACK][1]: Method:WXTextureTools.Program.Main; File:.0
+</stackFrames>
+</wxlog>
+<wxlog>
+  <threadId>#main</threadId>
+  <timestamp>10:40:21:2392</timestamp>
+  <msgtype>MsgMixture</msgtype>
+  <content>string|string
+IgnoreHandler,D:/Work/Project/GameX1/GameClient/TextToolDatas\bundlerIgnore.txt</content>
+  <stackFrames>
+[CALL STACK][0]: Method:WXTextureTools.Application.AppCmdExec.WXTextureMinExec..ctor; File:.0
+[CALL STACK][1]: Method:WXTextureTools.Application.App.process; File:.0
+[CALL STACK][2]: Method:WXTextureTools.Application.App..ctor; File:.0
+</stackFrames>
+</wxlog>
+<wxlog>
+  <threadId>#main</threadId>
+  <timestamp>10:40:21:2412</timestamp>
+  <msgtype>MsgMixture</msgtype>
+  <content>string|String[]
+WXTextureMinExec files,D:\Work\WeChatProject\GameX1_0422\webgl\3774ffc2a7d9412c.webgl.wasm.code.unityweb.wasm.br
+D:\Work\WeChatProject\GameX1_0422\webgl\45215de2db478eaa.webgl.data.unityweb.bin.txt
+D:\Work\WeChatProject\GameX1_0422\webgl\Build\webgl.data
+D:\Work\WeChatProject\GameX1_0422\webgl\Build\webgl.framework.js
+D:\Work\WeChatProject\GameX1_0422\webgl\Build\webgl.loader.js
+D:\Work\WeChatProject\GameX1_0422\webgl\Build\webgl.symbols.json
+D:\Work\WeChatProject\GameX1_0422\webgl\Build\webgl.wasm
+D:\Work\WeChatProject\GameX1_0422\webgl\index.html
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\03740a1fff484d20968ef8970bac91fc.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\045e42df3153ff4521fd096d072b4737.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\04d35b5f488bbb77854fd5358772a71f.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\05717c2f73ebbb21847b8425e3f28e7e.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\06ec51f3eaf5a216b664180b91c225f4.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\07979b5ff9e103f595642a6c714bc86b.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\07bdf34f2f7062f731db6162ef94b749.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\08763adf0a4026c2d22fea6193361531.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\08c04085252b0427027456657f7be939.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\09af6e0333cc115adba5544f2456efd1.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\0d24b7a0fee0507fa532725783ab7e9b.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\0e49b41be427cbd2210945f9450650b1.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\12dbd5d1065966be54ef15bb7a65c4b2.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\1455be8361546c244b0b35bb7823e9e3.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\17d30856ef660ae1f9c3250c3d02b6f8.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\1ce52925d20ca02c7bd8e107029a1455.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\1efcf7d13970e7a78a944728d1ca9dea.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\209b362f908afb02703a7bf5f8318cc4.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\214fb0735c6fe46d60140a936a355fb1.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\2285444b6b2f5c330ea79cb2d6d3a797.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\25acba245535ce669b10ab074cc7ff43.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\2879c399c7c4f40a05807297c2463045.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\2af72f100c356273d46284f6fd1dfc08.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\2cfd5d8ccc66950c3e3a3c045e8b2331.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\2df8e24d9ecb57a3ac4582dba68409e2.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\2e77447f93fb81ce5069261e83edc30e.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\2eebda5156a55b94036edfacd80226ae.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\3072235097a88a386ff945376085b8c3.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\312e5118669da54f3d9a60965a5fe8f0.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\3274f547b3000e3104f489354b9d1dba.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\34992d79e306f4e21878d6d53dfe0e32.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\34dc31369570e435793c47b4d0349feb.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\36067410ed91cc1f4322cd64180ca3b9.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\371b06fe81c2a3be5bf7ff2312b56930.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\386475796aaffe93e87038d98eb67f03.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\3bde99bf16bcd6ec577bc18498841a01.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\3c143631afe964150005fe17c49a3783.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\3c1540acd8bac218febde81c54680546.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\3ebdf303577890ff1225e52debe0ba54.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\40b8572fa8485e5ff27750f2f3f93629.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\41a22715ff1a68d8700fdd47cfc95d1e.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\478e998589fb472f02c159d62c46fe54.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\49624a82302b3077932b58fd451571f0.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\49bc0d11c076146ec8c475aa23a7dad9.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\4a4fefec7d405bdeb1c9c0748ee59b7d.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\4b89289f7b40669d75f9e9abc1f6180e.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\50d7e0a66d8ffa06db9b576e7e111f03.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\5491d76467c10521afcc77f179f64f86.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\58b73c31544ee461fe93b151fd5e07a7.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\594d686970c4d437535f9d03eae2f1d4.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\5ae05e83ca7a4c7feb4b0a2116fabc16.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\5db0a75bc334bdafc02bc83a524832e7.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\5e41d5868018a1105f372d10b5f8d172.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\6039977058f9ad5d5ce3153a025e8643.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\63f537b1d494cbb722768cbd26fa229b.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\65294f39eb96f0b5fdf3cc81be9ecb95.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\65c600a2ec454e9fd629901eb1601295.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\68b822cba500ddcec3bad7b6e9307895.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\691e82bae9df3e1672993c758c9d0985.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\6968cda2b4369d5a5d7b0b727bf818ea.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\6cfd077259a3c49aad074251076276dd.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\70574edafc0afc1ac4075db97f343dd6.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\70f8b2b6ed9bf045cf16c1b59e65f554.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\71ae0a284749df01572fc42bdf11869e.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\734739f5cc386f422a3c651df925ab28.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\78a7edf8cfe13c575f322731a60a8c53.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\79fcec6d9afb42527cd402b06fc886cc.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\7a3dbe5d2693323b10fd716ffb1f0f1a.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\7d1e95d29ee8fa9b52d8a45c5f63e043.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\802d5f7d126bbe687980c44ca6d63b67.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\82f521d3ac4e29ebd56b6330610d41fb.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\87c7d892948884cfb7209ded5773af1e.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\880e20f5570c1aaca3b6446e15622d73.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\8c6b743048e4571eed0047135d45fe5e.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\8dcb70c0c9149b79865909a0d65dc9ae.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\9047414819015c56ec21260a691bdd6b.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\90d49f7791094ae516c41a3911a25b9d.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\93d92711ff9471ed00b297300b46b83d.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\971fcaa717dff9f874a23cadfe2f2b94.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\99b5706745ae6a6d082499dfb98598c7.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\99eaade25f8b020e19060a71e14f4506.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\99ecfc5fb63d2ebc96765a06027a32cc.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\9b91f5aabd49e318ecbfc0ec13a3c89c.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\9f6e1a7f859b27d62990d51842825076.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\a22dc68cf97b12097f78d4eb4b00bacd.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\a2fc31484c7b8a7ee13062cc36ae3847.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\aa4b271bf9341dd92b6c8fb20f2e6fd4.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\af5daab0c4cfd29e1a5d1e8bb1e9e6a5.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\b085188435db3177cc66204226b5d271.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\b0a6dd1eb6d789cf4ddc49d81e42416c.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\b1e30367745971dc6284b2148414f448.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\b23dda37770f24cb1f219f82e1b27696.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\b3b9eb91e1047679984d1ab060ea770b.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\b3de3955f6d4b06f3d4375820526798b.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\b81baef35f81edbe3ade52ef9aef57a1.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\b87d5de16ec69a666776f69c5e381554.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\b8f4c3d663764881ff30f0ef8cecd079.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\bd06ed4c3f466e58fe8755648679a27e.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\bfb7c60cc96878a1e849a274ee1fc632.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\c332d53c2109c492ede2777cab280b39.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\c3522067869f071ca35a43b4cdf2cca1.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\c94a3c288af989dc18eac5fc29d200b8.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\c958db57b9b2e0b1dc2aa44ae90fbcf0.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\ca0297b9b34393161d54fc8d2adc2150.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\ccd7228798fddfae45b173f30fc808b3.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\cd7e9d9e45c9a8c2dd21c6bdd3b42e83.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\ce8eb2153292092a9183516894494b6b.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\cfddf561e70fdc22cee95deafcad1dbe.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\d5c56afd746c6ada4465019cc9e03d17.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\d7a85f6f6ed7ddf2ef3d471915911b18.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\d826f85c733bb7870b63e93fee608800.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\d86d3db92cf793295b9d3079c2594bcf.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\da368a47b5feaf93f6ad89ca21c709e5.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\dd7a352bd8de023e638ea151a1ca520c.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e152654de405f6e8072d7fccf7f99544.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e243626afd6337e51477c2f4fd0c8dca.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e35b5ce92080389b07a7730c20025c07.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e65ff22db5ede77f0f316c3972b9bd6f.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e73a5d6928baefd75c50d7d71a855327.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e7b24113ab685612e8a3e89855b66b04.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e7b61cf21107ac0383ff5cd7fdb0e760.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e8120af28b29f0630c111498714895af.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e8c0ac4dddb6c6b453a424bfd176d6e4.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e9af04d0b6b87b94bf824d38ba411967.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\ea4b67e1cdf30ccc337a8e7e57c6e558.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\ead31415cf5828be6ebecf955efbe14a.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\ebdf8b5d0f67fccd76c902b39e25e05e.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\f07bb4afb0b727e9ddf513b5c3908025.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\f09ae9cdc7476492c9f46b212f61a37f.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\f39e90cc8c4d220e2942cb7246891cd5.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\f6a5aab177e96dcb65f2133a86e48c10.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\f8f7bd2b3dc473cad54962b206da10f5.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\fb94370db6bf58a3175129aeec63b43f.bytes
+</content>
+  <stackFrames>
+[CALL STACK][0]: Method:WXTextureTools.Application.App.process; File:.0
+[CALL STACK][1]: Method:WXTextureTools.Application.App..ctor; File:.0
+[CALL STACK][2]: Method:WXTextureTools.Program.Main; File:.0
+</stackFrames>
+</wxlog>
+<wxlog>
+  <threadId>#main</threadId>
+  <timestamp>10:40:21:2412</timestamp>
+  <msgtype>MsgMixture</msgtype>
+  <content>string|String[]
+WXTextureMinExec filesAB,</content>
+  <stackFrames>
+[CALL STACK][0]: Method:WXTextureTools.Application.App.process; File:.0
+[CALL STACK][1]: Method:WXTextureTools.Application.App..ctor; File:.0
+[CALL STACK][2]: Method:WXTextureTools.Program.Main; File:.0
+</stackFrames>
+</wxlog>
+<wxlog>
+  <threadId>#main</threadId>
+  <timestamp>10:40:21:2452</timestamp>
+  <msgtype>MsgMixture</msgtype>
+  <content>string|String[]
+WXTextureMinExec copyFiles,D:\Work\WeChatProject\GameX1_0422\webgl\3774ffc2a7d9412c.webgl.wasm.code.unityweb.wasm.br
+D:\Work\WeChatProject\GameX1_0422\webgl\Build\webgl.data
+D:\Work\WeChatProject\GameX1_0422\webgl\Build\webgl.framework.js
+D:\Work\WeChatProject\GameX1_0422\webgl\Build\webgl.loader.js
+D:\Work\WeChatProject\GameX1_0422\webgl\Build\webgl.symbols.json
+D:\Work\WeChatProject\GameX1_0422\webgl\Build\webgl.wasm
+D:\Work\WeChatProject\GameX1_0422\webgl\index.html
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\2af72f100c356273d46284f6fd1dfc08.bytes
+</content>
+  <stackFrames>
+[CALL STACK][0]: Method:WXTextureTools.Application.App.process; File:.0
+[CALL STACK][1]: Method:WXTextureTools.Application.App..ctor; File:.0
+[CALL STACK][2]: Method:WXTextureTools.Program.Main; File:.0
+</stackFrames>
+</wxlog>
+<wxlog>
+  <threadId>#main</threadId>
+  <timestamp>10:40:21:2452</timestamp>
+  <msgtype>MsgMixture</msgtype>
+  <content>string|String[]
+WXTextureMinExec assetBundles,D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\03740a1fff484d20968ef8970bac91fc.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\045e42df3153ff4521fd096d072b4737.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\04d35b5f488bbb77854fd5358772a71f.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\05717c2f73ebbb21847b8425e3f28e7e.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\06ec51f3eaf5a216b664180b91c225f4.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\07979b5ff9e103f595642a6c714bc86b.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\07bdf34f2f7062f731db6162ef94b749.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\08763adf0a4026c2d22fea6193361531.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\08c04085252b0427027456657f7be939.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\09af6e0333cc115adba5544f2456efd1.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\0d24b7a0fee0507fa532725783ab7e9b.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\0e49b41be427cbd2210945f9450650b1.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\12dbd5d1065966be54ef15bb7a65c4b2.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\1455be8361546c244b0b35bb7823e9e3.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\17d30856ef660ae1f9c3250c3d02b6f8.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\1ce52925d20ca02c7bd8e107029a1455.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\1efcf7d13970e7a78a944728d1ca9dea.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\209b362f908afb02703a7bf5f8318cc4.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\214fb0735c6fe46d60140a936a355fb1.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\2285444b6b2f5c330ea79cb2d6d3a797.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\25acba245535ce669b10ab074cc7ff43.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\2879c399c7c4f40a05807297c2463045.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\2cfd5d8ccc66950c3e3a3c045e8b2331.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\2df8e24d9ecb57a3ac4582dba68409e2.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\2e77447f93fb81ce5069261e83edc30e.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\2eebda5156a55b94036edfacd80226ae.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\3072235097a88a386ff945376085b8c3.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\312e5118669da54f3d9a60965a5fe8f0.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\3274f547b3000e3104f489354b9d1dba.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\34992d79e306f4e21878d6d53dfe0e32.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\34dc31369570e435793c47b4d0349feb.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\36067410ed91cc1f4322cd64180ca3b9.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\371b06fe81c2a3be5bf7ff2312b56930.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\386475796aaffe93e87038d98eb67f03.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\3bde99bf16bcd6ec577bc18498841a01.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\3c143631afe964150005fe17c49a3783.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\3c1540acd8bac218febde81c54680546.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\3ebdf303577890ff1225e52debe0ba54.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\40b8572fa8485e5ff27750f2f3f93629.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\41a22715ff1a68d8700fdd47cfc95d1e.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\478e998589fb472f02c159d62c46fe54.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\49624a82302b3077932b58fd451571f0.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\49bc0d11c076146ec8c475aa23a7dad9.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\4a4fefec7d405bdeb1c9c0748ee59b7d.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\4b89289f7b40669d75f9e9abc1f6180e.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\50d7e0a66d8ffa06db9b576e7e111f03.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\5491d76467c10521afcc77f179f64f86.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\58b73c31544ee461fe93b151fd5e07a7.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\594d686970c4d437535f9d03eae2f1d4.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\5ae05e83ca7a4c7feb4b0a2116fabc16.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\5db0a75bc334bdafc02bc83a524832e7.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\5e41d5868018a1105f372d10b5f8d172.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\6039977058f9ad5d5ce3153a025e8643.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\63f537b1d494cbb722768cbd26fa229b.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\65294f39eb96f0b5fdf3cc81be9ecb95.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\65c600a2ec454e9fd629901eb1601295.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\68b822cba500ddcec3bad7b6e9307895.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\691e82bae9df3e1672993c758c9d0985.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\6968cda2b4369d5a5d7b0b727bf818ea.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\6cfd077259a3c49aad074251076276dd.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\70574edafc0afc1ac4075db97f343dd6.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\70f8b2b6ed9bf045cf16c1b59e65f554.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\71ae0a284749df01572fc42bdf11869e.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\734739f5cc386f422a3c651df925ab28.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\78a7edf8cfe13c575f322731a60a8c53.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\79fcec6d9afb42527cd402b06fc886cc.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\7a3dbe5d2693323b10fd716ffb1f0f1a.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\7d1e95d29ee8fa9b52d8a45c5f63e043.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\802d5f7d126bbe687980c44ca6d63b67.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\82f521d3ac4e29ebd56b6330610d41fb.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\87c7d892948884cfb7209ded5773af1e.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\880e20f5570c1aaca3b6446e15622d73.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\8c6b743048e4571eed0047135d45fe5e.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\8dcb70c0c9149b79865909a0d65dc9ae.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\9047414819015c56ec21260a691bdd6b.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\90d49f7791094ae516c41a3911a25b9d.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\93d92711ff9471ed00b297300b46b83d.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\971fcaa717dff9f874a23cadfe2f2b94.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\99b5706745ae6a6d082499dfb98598c7.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\99eaade25f8b020e19060a71e14f4506.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\99ecfc5fb63d2ebc96765a06027a32cc.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\9b91f5aabd49e318ecbfc0ec13a3c89c.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\9f6e1a7f859b27d62990d51842825076.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\a22dc68cf97b12097f78d4eb4b00bacd.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\a2fc31484c7b8a7ee13062cc36ae3847.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\aa4b271bf9341dd92b6c8fb20f2e6fd4.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\af5daab0c4cfd29e1a5d1e8bb1e9e6a5.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\b085188435db3177cc66204226b5d271.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\b0a6dd1eb6d789cf4ddc49d81e42416c.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\b1e30367745971dc6284b2148414f448.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\b23dda37770f24cb1f219f82e1b27696.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\b3b9eb91e1047679984d1ab060ea770b.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\b3de3955f6d4b06f3d4375820526798b.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\b81baef35f81edbe3ade52ef9aef57a1.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\b87d5de16ec69a666776f69c5e381554.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\b8f4c3d663764881ff30f0ef8cecd079.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\bd06ed4c3f466e58fe8755648679a27e.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\bfb7c60cc96878a1e849a274ee1fc632.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\c332d53c2109c492ede2777cab280b39.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\c3522067869f071ca35a43b4cdf2cca1.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\c94a3c288af989dc18eac5fc29d200b8.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\c958db57b9b2e0b1dc2aa44ae90fbcf0.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\ca0297b9b34393161d54fc8d2adc2150.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\ccd7228798fddfae45b173f30fc808b3.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\cd7e9d9e45c9a8c2dd21c6bdd3b42e83.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\ce8eb2153292092a9183516894494b6b.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\cfddf561e70fdc22cee95deafcad1dbe.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\d5c56afd746c6ada4465019cc9e03d17.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\d7a85f6f6ed7ddf2ef3d471915911b18.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\d826f85c733bb7870b63e93fee608800.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\d86d3db92cf793295b9d3079c2594bcf.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\da368a47b5feaf93f6ad89ca21c709e5.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\dd7a352bd8de023e638ea151a1ca520c.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e152654de405f6e8072d7fccf7f99544.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e243626afd6337e51477c2f4fd0c8dca.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e35b5ce92080389b07a7730c20025c07.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e65ff22db5ede77f0f316c3972b9bd6f.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e73a5d6928baefd75c50d7d71a855327.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e7b24113ab685612e8a3e89855b66b04.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e7b61cf21107ac0383ff5cd7fdb0e760.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e8120af28b29f0630c111498714895af.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e8c0ac4dddb6c6b453a424bfd176d6e4.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\e9af04d0b6b87b94bf824d38ba411967.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\ea4b67e1cdf30ccc337a8e7e57c6e558.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\ead31415cf5828be6ebecf955efbe14a.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\ebdf8b5d0f67fccd76c902b39e25e05e.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\f07bb4afb0b727e9ddf513b5c3908025.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\f09ae9cdc7476492c9f46b212f61a37f.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\f39e90cc8c4d220e2942cb7246891cd5.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\f6a5aab177e96dcb65f2133a86e48c10.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\f8f7bd2b3dc473cad54962b206da10f5.bytes
+D:\Work\WeChatProject\GameX1_0422\webgl\StreamingAssets\fb94370db6bf58a3175129aeec63b43f.bytes
+</content>
+  <stackFrames>
+[CALL STACK][0]: Method:WXTextureTools.Application.App.process; File:.0
+[CALL STACK][1]: Method:WXTextureTools.Application.App..ctor; File:.0
+[CALL STACK][2]: Method:WXTextureTools.Program.Main; File:.0
+</stackFrames>
+</wxlog>
+<wxlog>
+  <threadId>#main</threadId>
+  <timestamp>10:40:21:2462</timestamp>
+  <msgtype>MsgMixture</msgtype>
+  <content>string|String[]
+WXTextureMinExec firstBundles,D:\Work\WeChatProject\GameX1_0422\webgl\45215de2db478eaa.webgl.data.unityweb.bin.txt
+</content>
+  <stackFrames>
+[CALL STACK][0]: Method:WXTextureTools.Application.App.process; File:.0
+[CALL STACK][1]: Method:WXTextureTools.Application.App..ctor; File:.0
+[CALL STACK][2]: Method:WXTextureTools.Program.Main; File:.0
+</stackFrames>
+</wxlog>
+<wxlog>
+  <threadId>#main</threadId>
+  <timestamp>10:40:21:2462</timestamp>
+  <msgtype>MsgMixture</msgtype>
+  <content>string|String[]
+WXTextureMinExec copyFiles2,</content>
+  <stackFrames>
+[CALL STACK][0]: Method:WXTextureTools.Application.App.process; File:.0
+[CALL STACK][1]: Method:WXTextureTools.Application.App..ctor; File:.0
+[CALL STACK][2]: Method:WXTextureTools.Program.Main; File:.0
+</stackFrames>
+</wxlog>
+<wxlog>
+  <threadId>#main</threadId>
+  <timestamp>10:40:21:2462</timestamp>
+  <msgtype>MsgMixture</msgtype>
+  <content>string|String[]
+WXTextureMinExec assetBundles2,</content>
+  <stackFrames>
+[CALL STACK][0]: Method:WXTextureTools.Application.App.process; File:.0
+[CALL STACK][1]: Method:WXTextureTools.Application.App..ctor; File:.0
+[CALL STACK][2]: Method:WXTextureTools.Program.Main; File:.0
+</stackFrames>
+</wxlog>

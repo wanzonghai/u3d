@@ -1,0 +1,90 @@
+require 'XLua/xlua/util'
+require "Utils/Class"
+require "Utils/L"
+
+Require = {}
+
+local ScriptPath = 
+{
+	--#Utils
+	"World/Component/EnumGather",
+	"Utils/L",
+	"Utils/ABDLUtils",
+	"Utils/cs_coroutine",
+	"Utils/Delegate",
+	"Utils/GameUtils",
+	"Utils/ProtoUtils",
+	"Utils/PlayerPrefsUtils",
+	"Utils/TimeUtils",
+	"Utils/PlayerPrefsUtils",
+	"Utils/StringUtils",
+	"Utils/TableUtils",
+	"Utils/Utils",
+	"Utils/QualityUtils",
+
+	"Camera/Major/MajorCameraBase",
+	"Camera/Major/SkillMajorCamera",
+	"Camera/NormCamera",
+	"Camera/CameraManager",
+
+	--World
+	"World/Scene/SceneBase",
+	"World/Scene/LaunchScene",
+	"World/Scene/ItemUnit",
+	"World/Scene/CupboardUnit",
+	"World/Scene/LevelMgr",
+	"World/Scene/MainScene",
+	"World/SceneManager",
+
+	"World/Pool/Pool/PoolAudioClip",
+	"World/Pool/Pool/PoolTransform",
+	"World/Pool/TransPool/TransPool",
+	"World/Pool/TransPool/EffectPool",
+	"World/Pool/PoolUnit",
+	"World/Pool/PoolManager",
+
+	--Manager
+	"Manager/EventDispatcher",
+	"Manager/SoundManager",
+	"Manager/TimerManager",
+
+	--Windows
+	"Windows/Utils/NGUITools",
+	"Windows/Utils/NumberUnit",
+	"Windows/Utils/PoolComponent",
+	"Windows/Utils/ScrollRectItem",
+	"Windows/Utils/ScrollRectView",
+
+	"Windows/Manager/ViewData",
+	"Windows/Manager/Windows",
+	"Windows/Manager/WindowManager",
+
+	--Mono
+	"Windows/Mono/Base/WindowBase",
+	"Windows/Mono/Loading/LoadingView",
+	"Windows/Mono/Joystick/JoystickView",
+	"Windows/Mono/Main/MainView",
+	"Windows/Mono/Game/GameView",
+	"Windows/Mono/Account/AccountPassView",
+	"Windows/Mono/Account/AccountFailView",
+	"Windows/Mono/Setting/SettingView",
+	"Windows/Mono/ItemTips/ItemTipsView",
+	"Windows/Mono/TimeUpTips/TimeUpTipsView",
+
+	--Server
+	"Windows/Server/Base/WindowServerBase",
+	"Windows/Server/Loading/LoadingServer",
+	"Windows/Server/Joystick/JoystickServer",
+	"Windows/Server/Main/MainServer",
+	"Windows/Server/Game/GameServer",
+	"Windows/Server/Account/AccountPassServer",
+	"Windows/Server/Account/AccountFailServer",
+	"Windows/Server/Setting/SettingServer",
+	"Windows/Server/ItemTips/ItemTipsServer",
+	"Windows/Server/TimeUpTips/TimeUpTipsServer",
+}
+
+for i = 1,#ScriptPath do
+	require (ScriptPath[i])
+end
+L.Log("Require Finish")

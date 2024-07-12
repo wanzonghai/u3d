@@ -1,0 +1,81 @@
+JoystickView = Class("JoystickView", WindowBase)
+
+local RectTransformUtility = CS.UnityEngine.RectTransformUtility
+local Input = CS.UnityEngine.Input
+local OS = CS.AssetDataPath.OS
+local WINDOWS = CS.OperatingSystem.Editor
+local Physics = CS.UnityEngine.Physics
+local UIEventListener = CS.UIEventListener
+
+JoystickView.layerMask = CS.LuaUtils.LeftOperation(Layers.Road)
+JoystickView.pointList = nil
+
+function JoystickView:ctor(transform, server)
+	self.onDrag = false
+	self.lastPoint = nil
+	self.go = nil
+	self.camera = nil
+	self.pressCount = 0
+	JoystickView.super.ctor(self, transform, server)
+
+	local obj_mask = self.transform:Find("Mask").gameObject
+	UIEventListener.Get(obj_mask).onDrag = function(GameObject, PointerEventData) self:OnMaskDrag(GameObject, PointerEventData) end
+	UIEventListener.Get(obj_mask).onDown = function(GameObject, PointerEventData) self:OnMaskDown(GameObject, PointerEventData) end
+	UIEventListener.Get(obj_mask).onUp = function(GameObject, PointerEventData) self:OnMaskUp(GameObject, PointerEventData) end
+end
+
+function JoystickView:OnMaskDown(gameObject,pointerEventData)
+	self.pressCount = self.pressCount + 1
+	if self.pressCount > 1 then self:OnMaskUp() return end
+	self.onDrag = true
+	JoystickView.pointList = {}
+	local pos = GameUtils.Vector3(pointerEventData.position.x,pointerEventData.position.y,0)
+	self.lastPoint = pos
+	local hit = CS.LuaUtils.CameraToRay(pos,self:GetCamera(),JoystickView.layerMask,100)
+	table.insert(JoystickView.pointList,hit.point)
+	EventDispatcher:GetInstance():DispatchEvent(EventID.MouseDown)
+end
+
+function JoystickView:OnMaskUp()
+	self.onDrag = false
+	JoystickView.pointList = nil
+	self.pressCount = 0
+	EventDispatcher:GetInstance():DispatchEvent(EventID.MouseUp)
+end
+
+function JoystickView:OnMaskDrag(gameObject,pointerEventData)
+	if not self.onDrag then return end
+	JoystickView.delta = pointerEventData.delta
+	local pos = GameUtils.Vector3(pointerEventData.position.x,pointerEventData.position.y,0)
+	if self.lastPoint and CS.UnityEngine.Vector3.Distance(self.lastPoint,pos) < 1 then
+		self.lastPoint = pos
+		return
+	end
+	self.lastPoint = pos
+	local hit = CS.LuaUtils.CameraToRay(pos,self:GetCamera(),JoystickView.layerMask,100)
+	table.insert(JoystickView.pointList,hit.point)
+	EventDispatcher:GetInstance():DispatchEvent(EventID.MouseDrag)
+end
+
+function JoystickView:GetCamera()
+	if not self.camera then
+		self.go = CS.UnityEngine.GameObject.Find("Main Camera")
+		if self.go then self.camera = self.go:GetComponent("Camera") end
+	end
+	return self.camera
+end
+
+function JoystickView:Close()
+	JoystickView.super.Close(self)
+end
+
+function JoystickView.GetPoint(idx)
+	if not JoystickView.pointList then return nil end
+	idx = idx or 0
+	return JoystickView.pointList[#JoystickView.pointList - idx]
+end
+
+function JoystickView.GetPointListLen()
+	if not JoystickView.pointList then return 0 end
+	return #JoystickView.pointList
+end

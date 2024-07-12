@@ -1,0 +1,28 @@
+TimeUpTipsView = Class("TimeUpTipsView",WindowBase)
+local this = TimeUpTipsView
+
+function this:ctor(transform,server)
+    this.super.ctor(self,transform,server)
+    local tf_bg = transform:Find("Bg")
+   
+    tf_bg:Find("btn_close"):GetComponent("IceButton").OnClick:AddListener(function()
+        SceneManager:GetInstance().scene:FinishLevel(false)
+        WindowManager:GetInstance():Close(Windows.TimeUpTipsView)
+    end)
+
+    tf_bg:Find("btn_check"):GetComponent("IceButton").OnClick:AddListener(function()
+        local scene = SceneManager:GetInstance().scene
+        scene:PlayAdvertisement(function()
+            WindowManager:GetInstance():Close(Windows.TimeUpTipsView)
+            scene:AddTime(MainScene.AdditionTime)
+        end)
+    end)
+end
+
+function this:OnEnable(label)
+    this.super.OnEnable(self,label)
+end
+
+function this:Close()
+    this.super.Close(self)
+end

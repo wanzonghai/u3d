@@ -1,0 +1,18 @@
+MajorCameraBase = Class("MajorCameraBase")
+
+function MajorCameraBase:ctor(camera)
+	self.playing = false
+	self.canShake = false
+	self.camera = camera.transform
+end
+
+function MajorCameraBase:Play()
+	self.playing = true
+end
+
+function MajorCameraBase:Stop()
+	self.playing = false
+end
+
+
+function MajorCameraBase:LateUpdate() end

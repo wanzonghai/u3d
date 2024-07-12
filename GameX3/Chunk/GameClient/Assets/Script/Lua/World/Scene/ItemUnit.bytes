@@ -1,0 +1,115 @@
+ItemUnit = Class("ItemUnit")
+local this = ItemUnit
+
+local LuaUtils = CS.LuaUtils
+local ItemConfig = require "Config/Item"
+local LuaUIUtils = CS.LuaUIUtils
+
+function this:ctor(id,pos,isGray,parent,group,idx)
+    self.itemId = id
+    self.pos = pos
+    self.isGray = isGray
+    self.parent = parent
+    self.group = group
+    self.index = idx
+    self.cfgItem = ItemConfig[id]
+
+    self.transform = nil
+    self:OnCreate()
+end
+
+function this:OnCreate()
+    PoolManager:GetInstance():Take(self.cfgItem.path,self,function(transform)
+        self.transform = transform
+        self:SetGray(self.isGray)
+        transform:SetParent(self.parent)
+        self:SetLocalPosition(self.pos)
+    end)
+end
+
+function this:SetGray(isGray)
+    LuaUtils.SetMeshRendererColor(self.transform,"_BaseColor",isGray and MainScene.GrayColor or MainScene.NormalColor)
+end
+
+function this:SetParent(group,idx,parent)
+    self.parent = parent
+    self.group = group
+    self.index = idx
+    self.transform:SetParent(self.parent)
+    self:SetLocalPosition(MainScene.PosFront)
+end
+
+function this:SetLocalPosition(pos)
+    self.transform.localPosition = pos
+end
+
+function this:GetPosY()
+    return self.transform.position.x
+end
+
+function this:GetDistance(pos)
+    return math.abs(self.transform.position.x - pos.x)
+end
+
+function this:OnMouseDown(pos)
+    self:FollowTarget(pos)
+end
+
+function this:OnMouseDrag(pos)
+    self:FollowTarget(pos)
+end
+
+function this:OnMouseUp()
+    self:SetLocalPosition(MainScene.PosFront)
+end
+
+function this:FollowTarget(pos)
+    self.transform.position = GameUtils.Vector3(pos.x,pos.y,MainScene.FollowPosZ)
+end
+
+function this:Eliminate()
+    self:DestroyTweener()
+    self.tweener = LuaUIUtils.DoScale(self.transform,GameUtils.Vector3(1.2,1.2,1.2),0.1)
+    LuaUIUtils.OnComplete(self.tweener,function()
+        self.tweener = LuaUIUtils.DoScale(self.transform,GameUtils.Vector3(0.7,0.7,0.7),0.05)
+        LuaUIUtils.OnComplete(self.tweener,function()
+            self.tweener = nil
+            self:Destroy()
+        end)
+    end)
+end
+
+function this:ShowFront()
+    if not self.isGray then return end
+    self:SetGray(false)
+    self:DestroyTweener()
+    self.tweener = LuaUIUtils.DoLocalMoveZ(self.transform,MainScene.PosZ,0.1)
+    LuaUIUtils.OnComplete(self.tweener,function()
+        self.tweener = nil
+    end)
+end
+
+function this:DestroyTweener()
+    if self.tweener then LuaUIUtils.Kill(self.tweener) self.tweener = nil end
+end
+
+--提示消除
+function this:OnTips(idx)
+    self.transform:SetParent(nil)
+    self:SetGray(false)
+    self.transform.position = GameUtils.Vector3(self.transform.position.x,self.transform.position.y,0.03)
+    self:DestroyTweener()
+    self.tweener = LuaUIUtils.DoMove(self.transform,MainScene.TipsPos[idx],0.2)
+    LuaUIUtils.OnComplete(self.tweener,function()
+        self.timer = Timer.New(self,0.2,function()
+            self.timer = nil
+            self:Destroy()
+        end,1)
+    end)
+end
+
+function this:Destroy()
+    self:DestroyTweener()
+    if self.timer then self.timer:OnDestroy() self.timer = nil end
+    PoolManager:GetInstance():Back(self)
+end

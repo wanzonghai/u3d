@@ -1,0 +1,12 @@
+MainServer = Class("MainServer",WindowServerBase)
+local this = MainServer
+
+function this:ctor()
+    this.super.ctor(self)
+    self.assetPath = { Windows.GetViewPathByName(Windows.MainView)}
+end
+
+function this:Init()
+    this.super.Init(self)
+	self.view = MainView.New(self.root.transform, self)
+end

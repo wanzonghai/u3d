@@ -1,0 +1,63 @@
+--单个界面的数据
+ViewData = Class("ViewData")
+
+--活动
+---构造(name界面名,manager界面管理器)
+function ViewData:ctor(name,manager)
+	self.name = name
+    self.winType = WindowType.Normal
+	self.closeType = true
+	
+	--单个界面的数据管理器
+	self.winServer = manager:GetServerByName(name)
+	self.winServer.winName = name
+end
+
+---开界面(winType打开方式,layer显示层级,label跳转参数)
+function ViewData:Open(winType,layer,label, ...)
+	if self.winServer.isOpening and self.winServer.isShowing then return end
+	self.winType = winType or self.winType
+	if not self.winServer.isOpening then
+		self.winServer:Open(layer,label,...)
+	elseif not self.closeType then
+		self.winServer:Show(layer,label,...)
+	end
+end
+
+---界面实例的清理
+function ViewData:Close()
+	if not self.winServer.isOpening then return end
+	if self.closeType then
+		self.winServer:Close()
+	else
+		self.winServer:Hide()
+	end
+end
+
+---是否已加载界面
+function ViewData:IsOpened()
+	if self.winServer.isOpening then
+		if self.closeType then return true end
+		if self.winServer.isShowing then return true end
+	end
+	return false
+end
+
+---是否正加载界面
+function ViewData:IsOpening()
+	local open = self:IsOpened()
+	if not open then return false end
+	if self.winServer.root==nil then return false end
+	return true
+end
+
+---退场景
+function ViewData:ExitScene()
+	
+end
+
+---清理
+function ViewData:OnDestroy()
+	if not self.winServer.isOpening then return end
+	self.winServer:Close()
+end

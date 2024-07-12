@@ -1,0 +1,23 @@
+ProtoUtils = {}
+local Vector3 = CS.UnityEngine.Vector3
+
+ProtoUtils.GetVector3 = function(position)
+	if type(position) == "table" then
+		return Vector3(tonumber(position.x), tonumber(position.y), tonumber(position.z))
+    end
+    return position
+end
+
+ProtoUtils.GetPBVector3 = function(position)
+	if type(position) ~= "table" then
+		return { x = position.x, y = position.y, z = position.z }
+    end
+    return position
+end
+
+ProtoUtils.GetPBPoint = function(position, forward)
+	local msg = {}
+	msg.pos = ProtoUtils.GetPBVector3(position)
+	msg.face = ProtoUtils.GetPBVector3(forward)
+	return msg
+end

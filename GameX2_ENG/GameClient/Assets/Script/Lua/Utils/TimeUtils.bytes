@@ -1,0 +1,256 @@
+TimeUtil = {}
+
+--判断两个时间戳是否为同一天,
+function TimeUtil.is_same_day(stamp1, stamp2)
+    if not stamp1 or stamp1 <= 0 or not stamp2 or stamp2 <= 0 then
+        return false
+    end
+    local dayb = tonumber(os.date("%y%m%d", stamp1))
+    local daya = tonumber(os.date("%y%m%d", stamp2))
+    if dayb == daya then
+        return true
+    else
+        return false
+    end
+end
+
+--判断两个时间戳是否为同一周,
+function TimeUtil.is_same_week(stamp1, stamp2, offset_day)
+    local offset_sec = (offset_day or 0) * 24 * 3600
+    local year1 = os.date("%Y", stamp1 + offset_sec)
+    local year2 = os.date("%Y", stamp2 + offset_sec)
+    if year1 ~= year2 then
+        return false
+    end
+
+    local week1 = os.date("%W", stamp1)
+    local week2 = os.date("%W", stamp2)
+    return week1 == week2
+end
+
+--判断两个时间戳是否为同一月,
+function TimeUtil.is_same_month(stamp1, stamp2)
+    local year1 = os.date("%Y", stamp1)
+    local year2 = os.date("%Y", stamp2)
+    if year1 ~= year2 then
+        return false
+    end
+
+    local month1 = os.date("%m", stamp1)
+    local month2 = os.date("%m", stamp2)
+    return month1 == month2
+end
+
+-- 获取当天0点时间戳
+function TimeUtil.get_today_0sec(timestamp)
+    local date = os.date("*t", timestamp or os.time())
+    local tmp_date = {}
+    tmp_date.year = date.year
+    tmp_date.month = date.month
+    tmp_date.day = date.day
+    tmp_date.hour = 0
+    tmp_date.min = 0
+    tmp_date.sec = 0
+    return os.time(tmp_date)
+end
+
+--获取今天过去多少秒
+function TimeUtil.get_today_sec(timestamp)
+    local date = os.date("*t", timestamp or os.time())
+    return date.hour * 3600 + date.min * 60 + date.sec
+end
+
+--获取本周过去多少秒
+function TimeUtil.get_week_sec(timestamp)
+    local data = os.date("*t", timestamp or os.time())
+    local weekday = data.wday
+    if weekday == 1 then
+        weekday = 7
+    else
+        weekday = weekday - 1
+    end --从星期1到星期7
+
+    return (weekday - 1) * 24 * 3600 + TimeUtil.get_today_sec(timestamp)
+end
+
+--获取本周剩余多少秒
+function TimeUtil.get_week_lastsec()
+    return 24 * 3600 * 7 - TimeUtil.get_week_sec()
+end
+
+--获取本月剩余多少秒
+function TimeUtil.get_month_lastsec()
+    --这个月总天数
+    local all_day = TimeUtil.get_month_day()
+    local cur_day = os.date("%d", os.time())
+    return (all_day - cur_day + 1) * 24 * 3600 - TimeUtil.get_today_sec()
+end
+
+--获取当前月有多少天
+function TimeUtil.get_month_day()
+    return os.date("%d", os.time({year = os.date("%Y"), month = os.date("%m") + 1, day = 0}))
+end
+
+--获取当前是这个月的第几天
+function TimeUtil.get_month_cur_day(timestamp)
+    return tonumber(os.date("%d", timestamp or os.time()))
+end
+
+--获取一个时间点相对另一个时间点的天数
+function TimeUtil.get_relative_day(time1, time2)
+    local interval_time = math.abs(TimeUtil.GetDayStartTime(time1) - TimeUtil.GetDayStartTime(time2))
+    return interval_time // (24 * 3600) + 1
+end
+
+--获取现在小时
+function TimeUtil.GetHour()
+    return os.date("*t").hour
+end
+
+-- 星期一，星期天   1，7
+function TimeUtil.GetWeekDay(timestamp)
+    local wday = tonumber(os.date("%w", timestamp or os.time()))
+    return wday == 0 and 7 or wday
+end
+
+--获取距离下个hour点的毫秒数
+function TimeUtil.GetOffsetMSec(hour)
+    local passed_sec = TimeUtil.get_today_sec()
+    local check_sec = hour * 3600
+    if passed_sec < check_sec then
+        return (check_sec - passed_sec) * 1000
+    else
+        return (check_sec - passed_sec + 86400) * 1000
+    end
+end
+
+--获取距离下个hour点的秒数
+function TimeUtil.GetWdayAndHourOffsetSec(wday, hour)
+    local passed_sec = TimeUtil.get_today_sec()
+    local check_sec = hour * 3600
+    if passed_sec < check_sec then
+        return (check_sec - passed_sec) * 1000
+    else
+        return (86400 - passed_sec + hour * 3600) * 1000
+    end
+end
+
+--获取今天XX点时间戳(整点)
+function TimeUtil.GetTodayHourSec(hour)
+    local tbl_now = os.date("*t", os.time())
+    tbl_now.hour = hour
+    tbl_now.min = 0
+    tbl_now.sec = 0
+    return os.time(tbl_now)
+end
+
+function TimeUtil.GetTodayTimeSec(hour, min, sec)
+    local tbl_now = os.date("*t", os.time())
+    tbl_now.hour = hour or 0
+    tbl_now.min = min or 0
+    tbl_now.sec = sec or 0
+    return os.time(tbl_now)
+end
+
+function TimeUtil.GetDayStartTime(input_time)
+    if not input_time or input_time == 0 then
+        input_time = os.time()
+    end
+
+    local d = os.date("*t", input_time)
+    d.hour = 0
+    d.min = 0
+    d.sec = 0
+    local day_start_time = os.time(d)
+
+    return day_start_time
+end
+
+-- get next weekday time, if alreay pass in this week, will get next week time
+function TimeUtil.GetNextWeekdayTime(weekday, hour, min, sec)
+    local now_time = os.time()
+    local now_weekday = tonumber(os.date("%w", os.time())) -- %w: monday is 1, wday: sunday is 1
+    local day_start_time = TimeUtil.GetDayStartTime(now_time)
+
+    local dtime = hour * 60 * 60 + min * 60 + sec
+
+    if weekday > now_weekday then
+        local next_time = day_start_time + (weekday - now_weekday) * 86400 + dtime
+        return next_time, next_time - os.time()
+    end
+
+    if weekday < now_weekday then
+        local next_time = day_start_time + (weekday + 7 - now_weekday) * 86400 + dtime
+        return next_time, next_time - os.time()
+    end
+
+    -- same weekday
+    local next_time = day_start_time + dtime
+    if next_time < now_time then
+        next_time = next_time + 7 * 86400
+    end
+    return next_time, next_time - os.time()
+end
+
+--获取距离下一个整点的剩余秒数,比如现在是09:59:00,则返回60(还剩1分钟)
+function TimeUtil.get_nexthour_leftsec()
+    local curr_time = os.time()
+    local next_hour_time = (curr_time // 3600 * 3600) + 3600
+    return next_hour_time - curr_time
+end
+
+function TimeUtil.get_time_string(t)
+    return os.date("%Y-%m-%d %H:%M:%S", t or os.time())
+end
+
+-- 获取偏移的秒数
+function TimeUtil.get_offset_second(strTime)
+    if strTime == nil then
+        return nil
+    end
+    local iterator = string.gmatch(strTime, "(%d+)")
+    local hour_str = iterator()
+    local hour = 0
+    if hour_str then
+        hour = tonumber(hour_str)
+        assert(0 <= hour and hour <= 23, "hour is wrong")
+    end
+
+    local min_str = iterator()
+    local min = 0
+    if min_str then
+        min = tonumber(min_str)
+        assert(0 <= min and min <= 59, "min is wrong")
+    end
+
+    local sec_str = iterator()
+    local sec = 0
+    if sec_str then
+        sec = tonumber(sec_str)
+        assert(0 <= sec and sec <= 59, "second is wrong")
+    end
+    return (hour * 60 + min) * 60 + sec
+end
+
+-- 字符串日期 转换成 时间戳
+function TimeUtil.str2time(strtime)
+    local pattern = "(%d+)-(%d+)-(%d+)"
+    if string.find(strtime, ":") then
+        pattern = pattern  .. "%s*(%d+):(%d+):(%d+)"
+    end
+
+    strtime = string.gsub(strtime, "：", ":") -- 防止出现中文冒号
+    local _,_, year, month, day, hour, min, sec = string.find(strtime, pattern)
+    if year and month and day then
+        return os.time({
+            year = year,
+            month = month,
+            day = day,
+            hour = hour or 0,
+            min = min or 0,
+            sec = sec or 0,
+            })
+    else
+        Log.err("时间格式错误:%s", strtime)
+    end
+end

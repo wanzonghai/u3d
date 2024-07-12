@@ -1,0 +1,90 @@
+EffectPool = Class("EffectPool", TransPool)
+
+local Animator = typeof(CS.UnityEngine.Animator)
+local LineRenderer = typeof(CS.UnityEngine.LineRenderer)
+local ParticleSystemRenderer = typeof(CS.UnityEngine.ParticleSystemRenderer)
+local EffectDelay = typeof(CS.EffectDelay)
+local SpriteMaskInteractionNone = CS.UnityEngine.SpriteMaskInteraction.None
+local SpriteMaskInteractionVisibleInsideMask = CS.UnityEngine.SpriteMaskInteraction.VisibleInsideMask
+local SpriteMaskInteractionVisibleOutsideMask = CS.UnityEngine.SpriteMaskInteraction.VisibleOutsideMask
+function EffectPool:ctor(transform)
+	EffectPool.super.ctor(self, transform)
+
+	self.ar = nil
+	self.line = nil
+	self.delay = nil
+	self.speed = 1
+	self.spriteMaskInteraction = 0
+	self.particleSystemRenderer = nil
+end
+
+function EffectPool:SetShow(value)
+	if self.show == value then return end
+	self.show = value
+
+	if self.delay == nil then
+		self.delay = self.transform:GetComponentInChildren(EffectDelay)
+	end
+	local v = nil
+	local length = self.renderers.Length - 1
+	for i = 0, length do
+		v = self.renderers[i]
+		v.enabled = value
+	end
+	if self.show then
+		if self.delay ~= nil then
+			length = self.delay.GameObjects.Count - 1
+			for i = 0, length do
+				v = self.delay.GameObjects[i]
+				v:SetActive(false)
+			end
+		end
+	end
+end
+
+function EffectPool:SetSpeed(value)
+	if self.speed == value then return end
+	self.speed = value
+
+	local length = self.ps.Length - 1
+	for i = 0, length do
+		self.ps[i].main.simulationSpeed = value
+	end
+	if self.ar == nil then self.ar = self.transform:GetComponentsInChildren(Animator, true) end
+	length = self.ar.Length - 1
+	for i = 0, length do
+		self.ar[i].speed = value
+	end
+end
+
+--坐标组
+function EffectPool:LinePosition(positions)
+	if self.line == nil then
+		self.line = self.transform:GetComponentInChildren(LineRenderer)
+	end
+	if self.line == nil then return end
+	for i = 1, #positions do
+		self.line:SetPosition(i - 1, positions[i])
+	end
+end
+
+--0显示 1遮罩内显示 2遮罩外显示
+function EffectPool:SetMaskInteraction(value)
+	if self.spriteMaskInteraction == value then return end
+	self.spriteMaskInteraction = value
+	if self.particleSystemRenderer == nil then self.particleSystemRenderer = self.transform:GetComponentsInChildren(ParticleSystemRenderer, true) end
+	local length = self.particleSystemRenderer.Length - 1
+	if value == 0 then
+		for i = 0, length do
+			self.particleSystemRenderer[i].maskInteraction = SpriteMaskInteractionNone
+		end
+	elseif value == 1 then 
+		for i = 0, length do
+			self.particleSystemRenderer[i].maskInteraction = SpriteMaskInteractionVisibleInsideMask
+		end
+	elseif value == 2 then 
+		for i = 0, length do
+			self.particleSystemRenderer[i].maskInteraction = SpriteMaskInteractionVisibleOutsideMask
+		end
+	end
+end

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "703847274548",
+    "project_id": "numbers2-e0077",
+    "storage_bucket": "numbers2-e0077.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:703847274548:android:de0beeb9e952e961ead261",
+        "android_client_info": {
+          "package_name": "com.DracoDigitalTechnology.Numbers2"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCt5rrz6-xJDezjWCTXb8Cu84NIi9_o1IU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

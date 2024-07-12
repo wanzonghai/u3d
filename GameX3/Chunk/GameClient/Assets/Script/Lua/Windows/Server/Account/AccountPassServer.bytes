@@ -1,0 +1,12 @@
+AccountPassServer = Class("AccountPassServer",WindowServerBase)
+local this = AccountPassServer
+
+function this:ctor()
+    this.super.ctor(self)
+    self.assetPath = { Windows.GetViewPathByName(Windows.AccountPassView)}
+end
+
+function this:Init()
+    this.super.Init(self)
+	self.view = AccountPassView.New(self.root.transform, self)
+end

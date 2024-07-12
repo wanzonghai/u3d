@@ -1,0 +1,92 @@
+SceneManager =Class("SceneManager")
+local this = SceneManager
+
+local SceneVO = require "Config/SceneVO"
+
+function this:GetInstance()
+    if nil == self.m_Instance then
+        self.m_Instance = self:New()
+    end
+    return self.m_Instance
+end
+
+function this:OnDestroy()
+	self.class.m_Instance = nil
+end
+
+function this:ctor()
+	self.id = -2
+	self.sceneVO = nil
+	self.lastPath = nil
+	self.path = nil		--场景路径
+	self.paths = nil 	--场景需要加载的所有内容
+	self.scene = nil
+
+	--计算分辨率缩放
+	self.rate = 1
+	local targetWidth = 1080;
+	local targetHeight = 1920;
+	local height = CS.UnityEngine.Screen.height
+	local width = CS.UnityEngine.Screen.width
+	if targetWidth*height > targetHeight*width then
+		targetHeight = targetWidth*height/width
+		local rate = targetHeight / 1920
+		self.rate = (rate - self.rate) * 0.677 + self.rate
+	end
+end
+
+function this:OnMapEnter(id)
+	if not SceneVO[id] then 
+		L.LogError("找不到关卡配置：" .. tostring(id))
+		return
+	end
+	self:LoadLevel(id)
+end
+
+function this:LoadLevel(id)
+	if self.scene then self.scene:OnDestroy() end
+	self.sceneVO = SceneVO[id]
+	self.id = id
+	self.lastPath = self.path
+	if id == -1 then
+		self.path = nil
+		self.scene = LaunchScene.New(id)
+	elseif id == 0 then 
+		self.path = nil
+		self.scene = nil
+		L.LogError("暂时没有设计该场景")
+	else
+		self.path = self.sceneVO.Path
+		self.paths = ABDLUtils.GetWorldDependencies(id)
+		self.scene = MainScene.New(id)
+		local loading = WindowManager:GetInstance():GetServerByName(Windows.LoadingView)
+		loading:EnterScene(self.paths,self.path,ABDLUtils.KeepStartsWith .. self.path,nil,true)
+	end
+end
+
+function this:LoadFinish()
+	if not self.scene then return end
+	self.scene:Start()
+end
+
+function this:EditorSkill(...)
+	local name, playerId, SkillId, func = ...
+	local x = self.scene.player
+	if playerId ~= 0 then x = self.scene:GetObject(playerId) end
+	if x == nil then return end
+	x.object.skills:PlayEditor(SkillId, func)
+end
+
+function this:SwitchScene(level)
+	return CS.UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(level)
+end
+
+function this:IsSameScene()
+	return self.path == self.lastPath
+end
+
+function this:Update(time)
+end
+
+function this:LateUpdate(time)
+end

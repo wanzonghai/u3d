@@ -1,0 +1,17 @@
+MainView = Class("MainView",WindowBase)
+local this = MainView
+
+function this:ctor(transform,server)
+    this.super.ctor(self,transform,server)
+
+    transform:Find("btn_enter"):GetComponent("IceButton").OnClick:AddListener(function()
+        SceneManager:GetInstance().scene:StartRound(PlayerPrefsUtils.GetCurLevelId() + 1)
+        WindowManager:GetInstance():Close(Windows.MainView)
+    end)
+
+    transform:Find("btn_setting"):GetComponent("IceButton").OnClick:AddListener(function()
+        WindowManager:GetInstance():Open(Windows.SettingView,WindowType.Stack,nil,true)
+    end)
+
+    transform:Find("Level/txt_level"):GetComponent("Text").text = PlayerPrefsUtils.GetCurLevelId() + 1
+end

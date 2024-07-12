@@ -1,0 +1,22 @@
+AccountView = Class("AccountView",WindowBase)
+local this = AccountView
+
+local LevelConfig = require "Config/Level"
+
+function this:ctor(transform,server)
+    this.super.ctor(self,transform,server)
+    local cfg = SceneManager:GetInstance().scene.cfgLv
+    local num = cfg.levels[#cfg.levels]
+    transform:Find("img_level_bg"):GetComponent("Image").color = MainScene.GetColor(num)
+    transform:Find("txt_level"):GetComponent("Text").text = num
+    transform:Find("btn_continue"):GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        MainScene.Moving = false
+        MainScene.Controling = false
+        SceneManager:GetInstance().scene:StartNext()
+        WindowManager:GetInstance():Close(Windows.AccountView)
+    end)
+
+    MainScene.Moving = true
+    MainScene.Controling = true
+end

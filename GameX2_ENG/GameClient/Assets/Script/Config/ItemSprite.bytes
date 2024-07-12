@@ -1,0 +1,378 @@
+--J_界面规则.xlsx
+local team = {}
+local config = 
+{
+	[1] =
+	{
+		id = 1,
+		path = "Atlas/Dynamic/AssetIconAtlas.png",
+		idRange = {{1,100}},
+	},
+	[2] =
+	{
+		id = 2,
+		path = "Atlas/Dynamic/SkillIcon1Atlas.png",
+		idRange = {{1000000,1999999}},
+	},
+	[3] =
+	{
+		id = 3,
+		path = "Atlas/Dynamic/SkillIcon2Atlas.png",
+		idRange = {{2000000,2009999}},
+	},
+	[4] =
+	{
+		id = 4,
+		path = "Atlas/Dynamic/SkillIcon2_1Atlas.png",
+		idRange = {{2010000,2019999}},
+	},
+	[5] =
+	{
+		id = 5,
+		path = "Atlas/Dynamic/SkillIcon2_2Atlas.png",
+		idRange = {{2020000,2029999}},
+	},
+	[6] =
+	{
+		id = 6,
+		path = "Atlas/Dynamic/SkillIcon2_3Atlas.png",
+		idRange = {{2030000,2032999}},
+	},
+	[7] =
+	{
+		id = 7,
+		path = "Atlas/Dynamic/SkillIcon2_31Atlas.png",
+		idRange = {{2033000,2033999}},
+	},
+	[8] =
+	{
+		id = 8,
+		path = "Atlas/Dynamic/SkillIcon2_32Atlas.png",
+		idRange = {{2034000,2038999}},
+	},
+	[9] =
+	{
+		id = 9,
+		path = "Atlas/Dynamic/SkillIcon2_39Atlas.png",
+		idRange = {{2039000,2999999}},
+	},
+	[10] =
+	{
+		id = 10,
+		path = "Atlas/Dynamic/SkillIcon2_5Atlas.png",
+		idRange = {{2050000,2999999}},
+	},
+	[11] =
+	{
+		id = 11,
+		path = "Atlas/Dynamic/SkillIcon3Atlas.png",
+		idRange = {{3000000,3019999}},
+	},
+	[12] =
+	{
+		id = 12,
+		path = "Atlas/Dynamic/SkillIcon3_2Atlas.png",
+		idRange = {{3020000,3049999}},
+	},
+	[13] =
+	{
+		id = 13,
+		path = "Atlas/Dynamic/SkillIcon3_5Atlas.png",
+		idRange = {{3050000,3050999}},
+	},
+	[14] =
+	{
+		id = 14,
+		path = "Atlas/Dynamic/SkillIcon3_51Atlas.png",
+		idRange = {{3051000,3059999}},
+	},
+	[15] =
+	{
+		id = 15,
+		path = "Atlas/Dynamic/SkillIcon3_9Atlas.png",
+		idRange = {{3060000,3099999}},
+	},
+	[16] =
+	{
+		id = 16,
+		path = "Atlas/Dynamic/SkillIcon3_100Atlas.png",
+		idRange = {{3100000,3999999}},
+	},
+	[17] =
+	{
+		id = 17,
+		path = "Atlas/Dynamic/SkillIcon4Atlas.png",
+		idRange = {{4000001,4999999}},
+	},
+	[18] =
+	{
+		id = 18,
+		path = "Atlas/Dynamic/SkillIcon5Atlas.png",
+		idRange = {{5000001,5999999}},
+	},
+	[19] =
+	{
+		id = 19,
+		path = "Atlas/Dynamic/SkillIcon6Atlas.png",
+		idRange = {{5000001,5999999}},
+	},
+	[20] =
+	{
+		id = 20,
+		path = "Atlas/Dynamic/HeadIcon1Atlas.png",
+		idRange = {{500000,509999}},
+	},
+	[21] =
+	{
+		id = 21,
+		path = "Atlas/Dynamic/HeadIconAtlas.png",
+		idRange = {{510000,599999}},
+	},
+	[22] =
+	{
+		id = 22,
+		path = "Atlas/Dynamic/EmojiIconAtlas.png",
+		idRange = {{200000,200099}},
+	},
+	[23] =
+	{
+		id = 23,
+		path = "Atlas/Dynamic/MountRassiveAtlas.png",
+		idRange = {{200100,210000}},
+	},
+	[24] =
+	{
+		id = 24,
+		path = "Atlas/Dynamic/FashionIconSuitAtlas.png",
+		idRange = {{1000001,1000099}},
+	},
+	[25] =
+	{
+		id = 25,
+		path = "Atlas/Dynamic/FashionIconClothes_big1Atlas.png",
+		idRange = {{9110000,9119999}},
+	},
+	[26] =
+	{
+		id = 26,
+		path = "Atlas/Dynamic/FashionIconClothes_small1Atlas.png",
+		idRange = {{9010000,9019999}},
+	},
+	[27] =
+	{
+		id = 27,
+		path = "Atlas/Dynamic/FashionIconWeapon_big1Atlas.png",
+		idRange = {{9120000,9129999}},
+	},
+	[28] =
+	{
+		id = 28,
+		path = "Atlas/Dynamic/FashionIconWeapon_small1Atlas.png",
+		idRange = {{9020000,9029999}},
+	},
+	[29] =
+	{
+		id = 29,
+		path = "Atlas/Dynamic/FashionIconBubble_big1Atlas.png",
+		idRange = {{9130011,9130471}},
+	},
+	[30] =
+	{
+		id = 30,
+		path = "Atlas/Dynamic/FashionIconBubble_small1Atlas.png",
+		idRange = {{9030011,9030471}},
+	},
+	[31] =
+	{
+		id = 31,
+		path = "Atlas/Dynamic/FashionIconBubble_show1Atlas.png",
+		idRange = {{9230011,9230161}},
+	},
+	[32] =
+	{
+		id = 32,
+		path = "Atlas/Dynamic/FashionIconBubble_show2Atlas.png",
+		idRange = {{9230171,9230321}},
+	},
+	[33] =
+	{
+		id = 33,
+		path = "Atlas/Dynamic/FashionIconBubble_show3Atlas.png",
+		idRange = {{9230331,9230471}},
+	},
+	[34] =
+	{
+		id = 34,
+		path = "Atlas/Dynamic/FashionIconAvatar_big1Atlas.png",
+		idRange = {{9140011,9140471}},
+	},
+	[35] =
+	{
+		id = 35,
+		path = "Atlas/Dynamic/FashionIconAvatar_small1Atlas.png",
+		idRange = {{9040011,9040471}},
+	},
+	[36] =
+	{
+		id = 36,
+		path = "Atlas/Dynamic/FashionIconAvatar_show1Atlas.png",
+		idRange = {{9240011,9240161}},
+	},
+	[37] =
+	{
+		id = 37,
+		path = "Atlas/Dynamic/FashionIconAvatar_show2Atlas.png",
+		idRange = {{9240171,9240321}},
+	},
+	[38] =
+	{
+		id = 38,
+		path = "Atlas/Dynamic/FashionIconAvatar_show3Atlas.png",
+		idRange = {{9240331,9240471}},
+	},
+	[39] =
+	{
+		id = 39,
+		path = "Atlas/Dynamic/EquipIconAtlas.png",
+		idRange = {{10000000,10042099}},
+	},
+	[40] =
+	{
+		id = 40,
+		path = "Atlas/Dynamic/EquipIcon1Atlas.png",
+		idRange = {{10042100,10070010}},
+	},
+	[41] =
+	{
+		id = 41,
+		path = "Atlas/Dynamic/EquipIcon2Atlas.png",
+		idRange = {{10070011,19999999}},
+	},
+	[42] =
+	{
+		id = 42,
+		path = "Atlas/Dynamic/MaterialIconAtlas.png",
+		idRange = {{20000000,20199999}},
+	},
+	[43] =
+	{
+		id = 43,
+		path = "Atlas/Dynamic/Material1_1IconAtlas.png",
+		idRange = {{20200000,20299999}},
+	},
+	[44] =
+	{
+		id = 44,
+		path = "Atlas/Dynamic/Material2_1IconAtlas.png",
+		idRange = {{20300000,20309999}},
+	},
+	[45] =
+	{
+		id = 45,
+		path = "Atlas/Dynamic/Material3_1IconAtlas.png",
+		idRange = {{20310000,20329999}},
+	},
+	[46] =
+	{
+		id = 46,
+		path = "Atlas/Dynamic/Material4_1IconAtlas.png",
+		idRange = {{20330000,20339999}},
+	},
+	[47] =
+	{
+		id = 47,
+		path = "Atlas/Dynamic/Material5_1IconAtlas.png",
+		idRange = {{20400000,20499999}},
+	},
+	[48] =
+	{
+		id = 48,
+		path = "Atlas/Dynamic/Material6_1IconAtlas.png",
+		idRange = {{20500000,20509999}},
+	},
+	[49] =
+	{
+		id = 49,
+		path = "Atlas/Dynamic/Material7_1IconAtlas.png",
+		idRange = {{20510000,20609999}},
+	},
+	[50] =
+	{
+		id = 50,
+		path = "Atlas/Dynamic/Material10_1IconAtlas.png",
+		idRange = {{20610000,20629999}},
+	},
+	[51] =
+	{
+		id = 51,
+		path = "Atlas/Dynamic/Material10_10IconAtlas.png",
+		idRange = {{20630000,20630399}},
+	},
+	[52] =
+	{
+		id = 52,
+		path = "Atlas/Dynamic/Material10_11IconAtlas.png",
+		idRange = {{20630400,20630699}},
+	},
+	[53] =
+	{
+		id = 53,
+		path = "Atlas/Dynamic/Material10_12IconAtlas.png",
+		idRange = {{20630700,20631999}},
+	},
+	[54] =
+	{
+		id = 54,
+		path = "Atlas/Dynamic/Material11_1IconAtlas.png",
+		idRange = {{20632000,20659999}},
+	},
+	[55] =
+	{
+		id = 55,
+		path = "Atlas/Dynamic/GirtBagAtlas.png",
+		idRange = {{21000000,21030000}},
+	},
+	[56] =
+	{
+		id = 56,
+		path = "Atlas/Dynamic/GirtBag1Atlas.png",
+		idRange = {{21030001,21499999}},
+	},
+	[57] =
+	{
+		id = 57,
+		path = "Atlas/Dynamic/KylinIconAtlas.png",
+		idRange = {{21500000,21509999}},
+	},
+	[58] =
+	{
+		id = 58,
+		path = "Atlas/Dynamic/GemIconAtlas.png",
+		idRange = {{22000000,22999999}},
+	},
+	[59] =
+	{
+		id = 59,
+		path = "Atlas/Dynamic/WuDaoAtlas.png",
+		idRange = {{23000000,23000099}},
+	},
+	[60] =
+	{
+		id = 60,
+		path = "Atlas/Dynamic/EquipIcon3Atlas.png",
+		idRange = {{24999999,30999999}},
+	},
+	[61] =
+	{
+		id = 61,
+		path = "Atlas/Dynamic/EquipIcon4Atlas.png",
+		idRange = {{31000000,40050011}},
+	},
+	[62] =
+	{
+		id = 62,
+		path = "Atlas/Dynamic/EquipIcon4Atlas.png",
+		idRange = {{40050012,70000000}},
+	},
+}
+return config

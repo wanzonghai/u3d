@@ -1,0 +1,16 @@
+AccountServer = Class("AccountServer",WindowServerBase)
+local this = AccountServer
+
+function this:ctor()
+    this.super.ctor(self)
+    self.assetPath = { Windows.GetViewPathByName(Windows.AccountView)}
+end
+
+function this:Init()
+    this.super.Init(self)
+	self.view = AccountView.New(self.root.transform, self)
+end
+
+function this:SetParam(...)
+    self.levelId = ...
+end

@@ -1,0 +1,76 @@
+NormCamera = Class("NormCamera")
+
+local Time = CS.UnityEngine.Time
+local Vector3 = CS.UnityEngine.Vector3
+local Quaternion = CS.UnityEngine.Quaternion
+local ViewOffset = Vector3(0, 1.4, 0)
+local fixAngle = 50
+
+function NormCamera:ctor(camera, distance, parallelLerp)
+	self.camera = camera
+	self.myTransform = self.camera.transform
+	self.distance = distance
+	self.eulerAngles = Vector3(self:GetAngle(), 0, 0)
+	self.parallelLerp = parallelLerp or 1
+
+	self.standardPoint = nil
+	self.point = nil
+	self.viewPoint = nil
+	self.latePoint = nil
+	self.lateViewPoint = nil
+
+	--震屏相关
+	self.shakeTime = 0
+	self.amplitude = 0
+
+	self.playing = true
+	self.scene = SceneManager:GetInstance().scene
+end
+
+function NormCamera:Run()
+	self:OnReviseCamera(true)
+end
+
+function NormCamera:OnReviseCamera(forward)
+	if self.scene.player == nil then return end
+	self:OnTwoDCamera()
+	self.latePoint = self.point
+	self.lateViewPoint = self.viewPoint
+end
+
+function NormCamera:LateUpdate()
+	self:OnShakeCamera(Time.deltaTime)
+end
+
+function NormCamera:OnTwoDCamera()
+	self.viewPoint = self:GetViewPosition()
+	self.point = self.viewPoint - Quaternion.Euler(self.eulerAngles) * Vector3.forward * self.distance
+	if not self.standardPoint then self.standardPoint = self.point end
+end
+
+function NormCamera:GetViewPosition()
+	return self.scene.player.object.root.position + ViewOffset
+end
+
+function NormCamera:GetAngle()
+	return fixAngle
+end
+
+function NormCamera:ShakeCamera(time, amplitude)
+	self.shakeTime = time
+	self.amplitude = amplitude or 0.2
+end
+
+function NormCamera:OnShakeCamera(time)
+	if self.shakeTime <= 0 then return end
+
+	self.shakeTime = self.shakeTime - time
+	local offset = Vector3(
+		self.amplitude * math.random(5, 10) / 10,
+        self.amplitude * math.random(0, 10) / 20,
+        self.amplitude * math.random(5, 10) / 10)
+	if math.random(0, 1) > 0 then offset.x = -offset.x end
+	if math.random(0, 1) > 0 then offset.y = -offset.y end
+	if math.random(0, 1) > 0 then offset.z = -offset.z end
+	self.myTransform.position = self.myTransform.position + offset
+end

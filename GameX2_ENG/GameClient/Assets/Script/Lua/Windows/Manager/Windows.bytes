@@ -1,0 +1,52 @@
+local Function = require"Config/Function"
+
+--窗口打开的类型
+--Normal正常，一般打开UI界面 没有任何UI规则
+--Replace替换，新打开的界面将替换已打开的界面，关闭新界面后重新打开旧界面
+--Stack堆叠，新打开的界面将叠盖到旧界面上面，多用于子界面
+--Remove移除，新打开的界面将已打开的界面清除掉，但在关闭时并不会重新打开旧界面，多用于一级界面
+WindowType =
+{
+	Normal="Normal",Replace="Replace",Stack="Stack",
+	Remove="Remove"
+}
+
+FlyWordName =
+{
+	-- 只显示数字
+	None = "",				-- 普通飘字
+	Heal = "Heal",			-- 绿字
+	Injured = "Injured",	-- 被攻击
+	-- 显示文字跟数字
+	Crit =			GameUtils.Unicode2Str(200),	-- 暴击
+}
+
+Windows =
+{
+	LoadingView = "LoadingView",            	--加载界面
+	JoystickView = "JoystickView",				--摇杆界面
+	MainView = "MainView",
+	GameView = "GameView",
+	AccountView = "AccountView",
+	SettingView = "SettingView",
+}
+
+--MainUI(0-9) UI(10--199) (最大只能设置到399)
+WindowsLayer =
+{
+	--UI
+	[Windows.JoystickView] = 5,
+	[Windows.MainView] = 7,
+	[Windows.GameView] = 8,
+	--[Windows.AccountView] = 9,
+	--[Windows.SettingView] = 10,
+	[Windows.LoadingView] = 100,
+}
+
+
+Windows.GetViewPathByName = function (name)
+	if Function[name] ~= nil then return Function[name].path
+	else
+      	L.LogError("界面规则 不包含功能名为" .. name .. "的配置")
+	end
+end

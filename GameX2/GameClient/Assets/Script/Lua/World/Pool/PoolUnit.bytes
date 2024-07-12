@@ -1,0 +1,34 @@
+PoolUnit = Class("PoolUnit")
+
+local GameObject = CS.UnityEngine.GameObject
+function PoolUnit:ctor()
+	self.path = nil
+	self.event = nil
+	self.handler = nil
+end
+
+function PoolUnit:SetTransform(transform)
+	self.transform = transform
+	self.lossyScale = transform.lossyScale
+
+	if string.sub(self.path, 1, 7) == "Effect/" then 
+		self.handler = EffectPool.New(transform)
+	end
+end
+
+function PoolUnit:OnBack()
+	if not IsNil(self.transform) then
+		self.transform.localScale = self.lossyScale
+	end
+	if self.handler ~= nil then
+		self.handler:OnBack()
+	end
+end
+
+function PoolUnit:OnDestroy()
+	self.event = nil
+	if not IsNil(self.transform) then
+		GameObject.Destroy(self.transform.gameObject)
+		self.transform = nil
+	end
+end

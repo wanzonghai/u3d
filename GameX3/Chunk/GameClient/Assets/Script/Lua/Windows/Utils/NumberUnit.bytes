@@ -1,0 +1,27 @@
+NumberUnit = Class("NumberUnit")
+local this = NumberUnit
+
+function this:ctor(transform)
+    self.transform = transform
+    self.obj = transform.gameObject
+    self.isActive = true
+    self.list = {}
+    for i =0,9 do
+        self.list[i] = transform:Find(i).gameObject
+    end
+end
+
+function this:SetNum(number)
+    if not self.isActive then return end
+    for i=0,9 do
+        self.list[i].gameObject:SetActive(i == number)
+    end
+end
+
+function this:SetActive(isActive)
+    if self.isActive == isActive then return end
+    self.isActive = isActive
+    self.obj:SetActive(isActive)
+end
+
+function this:Destroy() end

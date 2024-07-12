@@ -1,0 +1,66 @@
+EventDispatcher = Class("EventDispatcher")
+
+local this = EventDispatcher
+
+function this:GetInstance()
+	if nil == self.m_Instance then
+		self.m_Instance = self:New()
+	end
+	return self.m_Instance
+end
+
+function this:ctor()
+	self.event = {}
+end
+
+function this:AddEventListener(t, evt, listener)
+	assert(listener)
+	if self.event[evt] == nil then
+		self.event[evt] = {}
+	end
+	if table.containKey(self.event[evt], t) then
+		L.LogError("EventDispatcher " .. evt .. " 相同实例回调多次侦听")
+	else
+		self.event[evt][t] = listener
+	end
+end
+
+function this:RemoveEventListener(t, evt)
+	if self.event[evt] == nil then return end
+	self.event[evt][t] = nil
+end
+
+function this:DispatchEvent(evt, ...)
+	if self.event[evt] == nil then return end
+	local func = {}
+	for k, v in pairs(self.event[evt]) do
+		func[k] = v
+	end
+	for k, v in pairs(func) do
+		v(k, ...)
+	end
+	
+end
+
+function this:OnDestroy()
+	self.event = {}
+end
+
+EventID =
+{
+	GameStart = "GameStart",
+	SceneEnter = "SceneEnter",
+	ExitScene = "ExitScene",
+	SceneObjectRemove = "SceneObjectRemove",
+	PlayerHandleChange = "PlayerHandleChange",
+	SceneAddNPC = "SceneAddNPC",
+	Joystick = "Joystick",
+
+	MouseDown = "MouseDown",
+	MouseUp = "MouseUp",
+	MouseDrag = "MouseDrag",
+	LevelScoreChange = "LevelScoreChange",
+	FreezeCountChange = "FreezeCountChange",
+	DisorderCountChange = "DisorderCountChange",
+	TipsCountChange = "TipsCountChange",
+}

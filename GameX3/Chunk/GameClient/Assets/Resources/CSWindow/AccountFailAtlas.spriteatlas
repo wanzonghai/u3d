@@ -1,0 +1,70 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: AccountFailAtlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings:
+    - serializedVersion: 3
+      m_BuildTarget: DefaultTexturePlatform
+      m_MaxTextureSize: 2048
+      m_ResizeAlgorithm: 0
+      m_TextureFormat: -1
+      m_TextureCompression: 1
+      m_CompressionQuality: 50
+      m_CrunchedCompression: 0
+      m_AllowsAlphaSplitting: 0
+      m_Overridden: 0
+      m_AndroidETC2FallbackOverride: 0
+      m_ForceMaximumCompressionQuality_BC6H_BC7: 0
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 0
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: 50c476acf1f50ac449254aaaca0970ea, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 4fcac4e1b79920b49875c22149f54adb, type: 3}
+  - {fileID: 21300000, guid: 1138eec23f330a14b8df8b3e2ac4408c, type: 3}
+  - {fileID: 21300000, guid: 4d7ee8432103c624582d518bdd0b9be3, type: 3}
+  - {fileID: 21300000, guid: c552716744892ff4583a1b2fe21b6d92, type: 3}
+  - {fileID: 21300000, guid: 7a6a131c65937ce4783440b6d7202eec, type: 3}
+  - {fileID: 21300000, guid: c724126c248ebe041ab81bd30deba6dd, type: 3}
+  - {fileID: 21300000, guid: 2eeb9d6c2f2da604b9e8c09585138299, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - GameX3_ShiBei_K
+  - GameX3_ShiBei_XiaoGuo_X
+  - txt_back1
+  - GameX3_ShiBei_beijing
+  - GameX3_ShiBei_XiaoGuo_Q
+  - GameX3_ShiBei_Z
+  - GameX3_ZaiLaiYiCi_Z
+  m_RenderDataMap: {}
+  m_Tag: AccountFailAtlas
+  m_IsVariant: 0

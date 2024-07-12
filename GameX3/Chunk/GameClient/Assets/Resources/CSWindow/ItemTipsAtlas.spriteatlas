@@ -1,0 +1,66 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: ItemTipsAtlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 0
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: 0a475d5decc784f4a94f2710fbf5e72c, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 71dc2761ef3a1bb4ea1145f5a12f6ed6, type: 3}
+  - {fileID: 21300000, guid: 246c21f138efbcc4fb176101de08d0ef, type: 3}
+  - {fileID: 21300000, guid: 700e91b8dd68436438f2686c98be56f9, type: 3}
+  - {fileID: 21300000, guid: 38f498c8020799140ae914aa8f60ad52, type: 3}
+  - {fileID: 21300000, guid: 2d8af02a04914524db9ca115c2f6c808, type: 3}
+  - {fileID: 21300000, guid: 588d2f4b36474d64fbd20f95e171a302, type: 3}
+  - {fileID: 21300000, guid: 96b4baab30f58a840b1aedef6e2ea98d, type: 3}
+  - {fileID: 21300000, guid: 70ca980ca88e9a24685315e833e6e1b9, type: 3}
+  - {fileID: 21300000, guid: a546672e501b1f748b60d01c4706ffa7, type: 3}
+  - {fileID: 21300000, guid: 63d6881f0406afb4abb7f05f26265c73, type: 3}
+  - {fileID: 21300000, guid: ba71307fd5d64e5408c77e95ac2100bb, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - GameX3_GongNengBeiJing_ChaHao
+  - GameX3_DaLuanSX
+  - GameX3_DongJieShiJian_Z
+  - GameX3_GongNengBeiJing
+  - GameX3_GongNengBeiJing_MianFei_Z
+  - GameX3_DaLuanSX_Z
+  - GameX3_GongNengBeiJing_SheXiangJi
+  - GameX3_GongNengBeiJing_K
+  - GameX3_DongJieShiJian
+  - GameX3_TiShiXiaoChu_Z
+  - GameX3_TiShiXiaoChu
+  m_RenderDataMap: {}
+  m_Tag: ItemTipsAtlas
+  m_IsVariant: 0

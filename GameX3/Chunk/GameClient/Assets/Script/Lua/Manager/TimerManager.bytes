@@ -1,0 +1,141 @@
+TimerManager = Class("TimerManager")
+
+local this = TimerManager
+local realTime = CS.UnityEngine.Time
+function this:GetInstance()
+    if nil == self.m_Instance then
+        self.m_Instance = self:New()
+    end
+    return self.m_Instance
+end
+
+function this:ctor()
+	self.timers = {}
+end
+
+function this:Update()
+	local time = realTime.realtimeSinceStartup
+	local func = {}
+	for _, v in pairs(self.timers) do
+		table.insert(func, 1, v)
+    end
+	for _, v in pairs(func) do
+		v:Update(time)
+    end
+end
+
+function this:ExitScene()
+	local func = {}
+	for _, v in pairs(self.timers) do
+		table.insert(func, 1, v)
+    end
+    for _, v in pairs(func) do
+		v:DestroyToScene()
+    end
+end	
+
+function this:AddTimer(timer)
+	table.insert(self.timers, 1, timer)
+end
+
+function this:RemoveTimer(timer)
+	table.removeValue(self.timers, timer)
+end
+
+function this:OnDestroy()
+	self.timers = {}
+end
+
+
+
+
+Timer = Class("Timer")
+--table 延时 回调 次数 随场景销毁
+function Timer:ctor(table, delay, func, time, destroyForExitScene)
+	self.table = table
+	self.isDestroy = false
+	assert(func)
+	if delay <= 0 then
+		self.isDestroy = true
+		func(self.table)
+		return
+	end
+	self.delay = delay
+	self.func = func
+	self.time = time or 0
+	self.destroyForExitScene = destroyForExitScene or false
+	self.nextTime = realTime.realtimeSinceStartup + delay
+
+	self.timerManager = TimerManager:GetInstance()
+	self.timerManager:AddTimer(self)
+
+	self.lsTime = 0
+end
+
+function Timer:Update(time)
+	if time >= self.nextTime then 
+		self.nextTime = self.nextTime + self.delay
+		if not self.isDestroy then self.func(self.table) end
+		if self.time > 0 then
+			self.time = self.time - 1
+			if self.time == 0 then self:OnDestroy() end
+		end
+	end
+end
+
+function Timer:DestroyToScene()
+	if self.destroyForExitScene then self:OnDestroy() end
+end
+
+function Timer:OnDestroy()
+	if self.isDestroy then return end
+	self.isDestroy = true
+	self.timerManager:RemoveTimer(self)
+end
+
+
+FrameTick = Class("FrameTick")
+--时长 回调(帧时长) 随场景销毁
+function FrameTick:ctor(time, func, destroyForExitScene)
+	self.isDestroy = false
+
+	assert(func)
+	if time <= 0 then
+		self.isDestroy = true
+		return
+	end
+	self.lsFrameTime = 0
+	self.nowTime = realTime.realtimeSinceStartup
+	self.func = func
+	self.time = time
+	if destroyForExitScene == nil then destroyForExitScene = false end
+	self.destroyForExitScene = destroyForExitScene
+
+	self.timerManager = TimerManager:GetInstance()
+	self.timerManager:AddTimer(self)
+end
+
+function FrameTick:Update(time)
+	self.lsFrameTime = (time - self.nowTime)
+	self.time = self.time - self.lsFrameTime
+	self.nowTime = time
+
+	if self.time < 0 then
+		self.lsFrameTime = self.lsFrameTime + self.time
+	end
+	self.func(self.lsFrameTime)
+	if self.time <= 0 then
+		self:OnDestroy()
+		return
+	end
+end
+
+function FrameTick:DestroyToScene()
+	if self.destroyForExitScene then self:OnDestroy() end
+end
+
+function FrameTick:OnDestroy()
+	if self.isDestroy then return end
+	self.isDestroy = true
+	self.timerManager:RemoveTimer(self)
+end

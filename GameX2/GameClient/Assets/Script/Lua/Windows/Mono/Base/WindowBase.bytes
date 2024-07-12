@@ -1,0 +1,26 @@
+WindowBase = Class("WindowBase")
+
+function WindowBase:ctor(transform,server)
+	self.transform = transform
+	self.server = server
+end
+
+function WindowBase:GetServer()
+	return self.server
+end
+
+function WindowBase:OnEnable(label)	
+	self.label = label
+end
+
+function WindowBase:OnDisable()
+end
+
+function WindowBase:Update(time)
+end
+
+function WindowBase:LateUpdate()
+end
+
+function WindowBase:Close()
+end

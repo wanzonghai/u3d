@@ -1,0 +1,161 @@
+collectgarbage('setpause', 100)
+collectgarbage('setstepmul', 1000)
+require "Utils/Require"
+
+local yield_return =(require 'Utils/cs_coroutine').yield_return
+
+local time = CS.UnityEngine.Time
+local LaunchGame = false
+local timerManager = nil
+local windowManager = nil
+local soundManager = nil
+local inScene = false
+local scene = nil
+local TotalManager = CS.UnityEngine.GameObject.Find('TotalManager')
+local screen = CS.UnityEngine.Screen
+local ScreenOrientation = CS.UnityEngine.ScreenOrientation
+local KeyCodeEscape = CS.UnityEngine.KeyCode.Escape
+AppFPS = TotalManager:AddComponent(typeof(CS.FPS))
+PersistentDataCachePath = CS.UnityEngine.Application.persistentDataPath .. "/Cache/"
+
+--竖版、pc都不能做横屏
+IsScreenLandscape = CS.AssetDataPath.OS ~= CS.OperatingSystem.WINDOWS
+
+
+function LaunchStart()
+	print("lua start...")
+	math.randomseed(os.time())
+	if not LaunchGame then
+		LaunchGame = true
+		if not CS.System.IO.Directory.Exists(PersistentDataCachePath) then CS.System.IO.Directory.CreateDirectory(PersistentDataCachePath) end
+		--CS.HotFixManager.GetInstance():LuaPlayAndDownEvent(function(code) PlayAndDownEvent(code) end)
+		
+		if GameUtils.HaveNotch() then
+			if IsScreenLandscape then
+				screen.orientation = ScreenOrientation.AutoRotation
+				screen.autorotateToLandscapeLeft = true
+				screen.autorotateToLandscapeRight = false
+				screen.autorotateToPortrait = false
+				screen.autorotateToPortraitUpsideDown = false
+			end
+		end
+	end
+	local mgr_Scene = SceneManager:GetInstance()
+	timerManager = TimerManager:GetInstance()
+	windowManager = WindowManager:GetInstance()
+	soundManager = SoundManager:GetInstance()
+	mgr_Scene:OnMapEnter(1)
+end
+
+function LaunchUpdate()
+	timerManager:Update()
+	windowManager:Update(time.deltaTime)
+	soundManager:Update(time.deltaTime)
+	if inScene then
+		scene:Update(time.deltaTime)
+	end
+end
+
+function LaunchLateUpdate()
+	windowManager:LateUpdate()
+	if inScene then
+		scene:LateUpdate()
+	end
+end
+
+function SceneOnDestroy()
+
+end
+
+function LaunchCommand(...)
+end
+
+function PlayAndDownEvent(code)
+	if code == 1 then						--磁盘空间不足
+		TipsUtils.ShowTextTips1(L.Language(115, ""), function()
+			--直接退出,满足pcSdk监控退出的需求
+			GameUtils.QuitNow()
+		end)
+	elseif code == 2 then					--下载失败
+		Timer.New(LaunchGame, 5, function()
+			CS.HotFixManager.GetInstance():StartPlayAndDown()
+		end, 1)
+	end
+end
+
+function OnLowMemory()
+	PoolManager:GetInstance():UnLoad()
+	CS.UnityEngine.Resources.UnloadUnusedAssets()
+	CS.System.GC.Collect()
+	L.Log("OnLowMemory")
+end
+
+function ReLaunch()
+	--if not LaunchGame then return end
+	--LaunchGame = false
+	
+	--Timer.New(LaunchGame, 0.5, OnExitLaunch, 1)
+	--SocketManager:GetInstance():Send("cs_login_logout", {})
+end
+
+function OnExitLaunch()
+	inScene = false
+	SceneManager:GetInstance().scene:OnDestroy()
+	TimerManager:GetInstance():OnDestroy()
+	EventDispatcher:GetInstance():OnDestroy()
+	--BUFFManager:GetInstance():OnDestroy()
+	--PlotManager:GetInstance():OnDestroy()
+	--SocketManager:GetInstance():OnDestroy()
+	WindowManager:GetInstance():OnDestroy()
+	--EffectManager:GetInstance():OnDestroy()
+	--NoticeManager:GetInstance():OnDestroy()
+	SceneManager:GetInstance():OnDestroy()
+	--GuideManager:GetInstance():OnDestroy()
+	--CameraManager:GetInstance():OnDestroy()
+	--DataManager:GetInstance():OnDestroy()
+	--GCloudVoiceManager:GetInstance():OnDestroy()
+	--LiveManager:GetInstance():OnDestroy()
+	--IMVoiceManager:GetInstance():OnDestroy()
+	--IMSoundRecordMgr:GetInstance():OnDestroy()
+	
+	local co = coroutine.create(function()
+		yield_return(CS.UnityEngine.SceneManagement.SceneManager.LoadSceneAsync(0))
+		LaunchStart()
+	end)
+	coroutine.resume(co)
+end
+
+function OnEnterSelect()
+	SceneManager:GetInstance().scene:OnDestroy()
+	TimerManager:GetInstance():OnDestroy()
+	EventDispatcher:GetInstance():OnDestroy()
+	--BUFFManager:GetInstance():OnDestroy()
+	--PlotManager:GetInstance():OnDestroy()
+	--SocketManager:GetInstance():OnDestroy1()
+	WindowManager:GetInstance():OnDestroy()
+	--EffectManager:GetInstance():OnDestroy()
+	--NoticeManager:GetInstance():OnDestroy()
+	--GuideManager:GetInstance():OnDestroy()
+	--CameraManager:GetInstance():OnDestroy()
+	--DataManager:GetInstance():OnDestroy()
+	--GCloudVoiceManager:GetInstance():OnDestroy()
+	--LiveManager:GetInstance():OnDestroy()
+	--IMVoiceManager:GetInstance():OnDestroy()
+	--IMSoundRecordMgr:GetInstance():OnDestroy()
+	
+	local co = coroutine.create(function()
+		yield_return(CS.UnityEngine.WaitForSeconds(0.1))
+		LaunchStart()
+	end)
+	coroutine.resume(co)
+end
+
+function SceneStart()
+	inScene = true
+	scene = SceneManager:GetInstance().scene
+	SceneManager:GetInstance():LoadFinish()
+end
+
+function SceneOnDestroy()
+	inScene = false
+end
