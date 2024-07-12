@@ -1,0 +1,10 @@
+MonsterObject = Class("MonsterObject",WorldObject)
+
+function MonsterObject:ctor(id)
+	MonsterObject.super.ctor(self, id)
+	
+end
+
+function MonsterObject:Start()
+	MonsterObject.super.Start(self)
+end

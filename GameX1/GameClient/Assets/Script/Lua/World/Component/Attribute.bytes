@@ -1,0 +1,23 @@
+Attribute = Class("Attribute")
+
+function Attribute:ctor(value)
+	self.event = Delegate.New()
+	self.value = value
+end
+
+function Attribute:Addition(value)
+	if value == 0 then return end
+	self.value = math.max(self.value + value, 0)
+	self.event:Function()
+end
+
+function Attribute:Equal(value)
+	if self.value == value then return end
+	self.value = math.max(value, 0)
+	self.event:Function()
+end
+
+function Attribute:ValueB()
+	if self.value > 0 then return true
+	else return false end
+end

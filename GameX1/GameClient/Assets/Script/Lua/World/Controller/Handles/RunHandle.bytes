@@ -1,0 +1,91 @@
+RunHandle = Class("RunHandle", HandleBase)
+
+local Quaternion = CS.UnityEngine.Quaternion
+local ClampForever = CS.UnityEngine.WrapMode.ClampForever
+function RunHandle:ctor(controller)
+	RunHandle.super.ctor(self, controller, Handles.Run)
+
+	self.position = nil
+	self.state = 0
+	self.idle = false
+	self.forward = nil
+	self.event = nil
+	self.action = nil
+
+	self.isComplete = false
+	self.navMeshAgents = self.controller.object.navMeshAgents
+	self.animation = self.controller.object.boneClothes.animation
+	self.attributes = self.controller.object.attributes
+	self.actionSpeed = 0
+	self.initPlayAnimation = false
+	self.isLoop = false
+end
+
+--目标点  移动方式(1寻路 2控制移动  3射线寻路) 到达切换idle 到达转向forward 到达距离 回调function
+function RunHandle:OnHandle(...)
+	RunHandle.super.OnHandle(self, ...)
+
+	if self.event ~= nil then
+		self.event(self.isComplete)
+	end
+	self.event = nil
+	self.isComplete = false
+	
+	self.position, self.state, self.idle, self.forward, self.dis, self.event = ...
+	self.idle = self.idle or false
+	self.navMeshAgents.stoppingDistance = self.dis or 0
+end
+
+function RunHandle:Run()
+	RunHandle.super.Run(self)
+	L.LogError("RunHandle")
+	if self.state == 1 then self.navMeshAgents:NavMeshMove(self.position)
+	elseif self.state == 2 then self.navMeshAgents:Move(self.position)
+	elseif self.state == 3 then self.navMeshAgents:MoveRay(self.position) end
+	self.navMeshAgents.navMeshRaycast.isDown = true
+
+	if not self.initPlayAnimation then
+		self.initPlayAnimation = true
+		self:OnPlayAnimation()
+	end
+end
+
+function RunHandle:Update(time)
+	RunHandle.super.Update(self, time)
+
+	if not self.isLoop and self.animation:Finish()  then self:OnPlayAnimation() end
+	if self.animation.action == Actions.Run then
+		if self.attributes.move_action_speed ~= self.actionSpeed then
+			self.actionSpeed = self.attributes.move_action_speed
+			self.animation:SetSpeed(self.actionSpeed)
+		end
+	end
+	if self.idle then
+		if not self.navMeshAgents:IsMove() then
+			self.isComplete = true
+			self.controller:OnHandles(Handles.Idle)
+			if self.forward ~= nil then self.controller.object.root.eulerAngles = Quaternion.LookRotation(self.forward).eulerAngles end
+		end
+	end
+end
+
+function RunHandle:OnPlayAnimation()
+	if self.action ~= nil then return end
+	self:OnRun()
+end
+
+function RunHandle:OnRun()
+	if self.animation.action == Actions.Run then return end
+	self.isLoop = true
+	self.animation:PlayRun()
+end
+
+function RunHandle:Destroy()
+	if self.isDestroy then return end
+
+	self.navMeshAgents.stoppingDistance = 0
+	self.navMeshAgents.navMeshRaycast.isDown = false
+	if not self.isComplete then self.controller.object.navMeshAgents:Stop() end
+	if self.event then self.event(self.isComplete) self.event = nil end
+	RunHandle.super.Destroy(self)
+end

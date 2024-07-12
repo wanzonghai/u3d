@@ -1,0 +1,130 @@
+WindowServerBase = Class("WindowServerBase")
+
+local ABDLManager = CS.ABDLManager:GetInstance()
+local GameObject = CS.UnityEngine.GameObject
+local Canvas = typeof(CS.UnityEngine.Canvas)
+local ABDownLoader = CS.ABDownLoader
+local labelDefault = {}
+
+function WindowServerBase:ctor()
+	self.assetPath = { }
+	self.asyncDownLoad = true
+	self.root = nil
+	self.sortingOrder = 0
+	self.winName = ""
+	self.downLoader = nil
+	self.downSign = ABDLUtils.Window
+	self.view = nil
+	self.label = labelDefault--显示标签页
+	self.isOpening = false
+	self.isShowing = false
+end
+
+function WindowServerBase:Open(sortingOrder,label,...)
+	if self.isOpening then return end
+	self.isOpening = true
+	self.isShowing = true
+	self.sortingOrder = sortingOrder
+	self.label = label or labelDefault
+	self:SetParam(...)
+	self.downLoader = ABDownLoader(self.assetPath,self.downSign,self.asyncDownLoad)
+	self.downLoader:Load(function()
+		if not self.isOpening then return end
+		if not self.isShowing then return end
+		xpcall(self.Init,function(err) L.XPCall(debug.traceback(err)) end,self)
+		if self.view ~= nil then
+			self.view:OnEnable(self.label)
+		end
+		EventDispatcher:GetInstance():DispatchEvent(EventID.OpenWin, self.winName)
+	end)
+end
+
+function WindowServerBase:Init()
+	local object = ABDLManager:GetAsset(self.assetPath[1])
+	self.root = GameObject.Instantiate(object)
+	GameObject.DontDestroyOnLoad(self.root)
+	self.root.name = object.name
+	self:SetLayerIndex(self.sortingOrder)
+end
+
+function WindowServerBase:Close()
+	if not self.isOpening then return end
+	self.secondPanel = {}
+	
+	if self.isShowing and self.view then self.view:OnDisable() end
+	self.isOpening = false
+	self.isShowing = false
+
+	if not IsNil(self.root) then
+		if self.view then
+			self.view:Close()
+    		self.view = nil
+		else
+			L.LogError("请检查" .. self.winName .. "的view是否正确")
+		end
+    	GameObject.Destroy(self.root)
+		self.root = nil
+		self.canvas = nil
+		self.canvasChildren = nil
+	 end
+	EventDispatcher:GetInstance():DispatchEvent(EventID.CloseWin, self.winName)
+end
+
+---显示打开窗体(用于开关窗体的一种方式)
+function WindowServerBase:Show(sortingOrder,label,...)
+	if not self.isOpening then return end
+	if self.isShowing then return end
+	self.isShowing = true
+	if self.root == nil then return end
+	self.sortingOrder = sortingOrder or self.sortingOrder
+	self.label = label or labelDefault
+	self:SetParam(...)
+	self:SetLayerIndex(self.sortingOrder)
+	if self.view ~= nil then self.view:OnEnable(self.label) end
+	EventDispatcher:GetInstance():DispatchEvent(EventID.OpenWin, self.winName)
+end
+
+---隐藏窗体(用于开关窗体的一种方式)
+function WindowServerBase:Hide()
+	if not self.isOpening then return end
+	if not self.isShowing then return end
+	self.isShowing = false
+
+	if self.root == nil then return end
+	self.canvas.planeDistance = -1000
+
+	if self.view ~= nil then self.view:OnDisable() end
+	EventDispatcher:GetInstance():DispatchEvent(EventID.CloseWin, self.winName)
+end
+
+function WindowServerBase:SetParam(...)
+end
+
+function WindowServerBase:Update(time)
+	if self.view == nil then return end
+	self.view:Update(time)
+end
+
+function WindowServerBase:LateUpdate()
+	if self.view == nil then return end
+	self.view:LateUpdate()
+end
+
+function WindowServerBase:SetLayerIndex(layer)
+	self.sortingOrder = layer
+	if self.root == nil then return end
+    self.canvas = self.root:GetComponent("Canvas")
+    self.canvasChildren = self.root:GetComponentsInChildren(Canvas)
+    if not IsNil(self.canvas) then
+		self.canvas.worldCamera = CameraManager:GetInstance().uiCamera
+    	local lastLayer = self.canvas.sortingOrder
+        if not self.isHideScreen then
+        	self.canvas.planeDistance = 1000 - layer * 2
+        end
+        local length = self.canvasChildren.Length - 1
+    	for i = 0, length do
+			self.canvasChildren[i].sortingOrder = layer + self.canvasChildren[i].sortingOrder - lastLayer
+		end
+	end
+	EventDispatcher:GetInstance():DispatchEvent(EventID.WinSetLayerIndex, self.winName)
+end

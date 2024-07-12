@@ -1,0 +1,22 @@
+ObjectBase = Class("ObjectBase")
+
+local GameObject = CS.UnityEngine.GameObject
+
+function ObjectBase:ctor(id)
+	self.id = id
+	self.root = GameObject(tostring(id)).transform
+	self.hTransform = GameObject("hTransform").transform
+	self.hTransform.parent = self.root
+end
+
+function ObjectBase:Start() end
+
+function ObjectBase:Run() end
+
+function ObjectBase:Update(time) end
+
+function ObjectBase:Destroy()
+	GameObject.Destroy(self.root.gameObject)
+	self.root = nil
+	self.hTransform = nil
+end

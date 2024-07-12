@@ -1,0 +1,27 @@
+--B-Buff.xlsx
+local team = {}
+local config = 
+{
+	[10001] =
+	{
+		id = 10001,
+		time = 2,
+		grideffect = 901,
+		effect = "addAttr:attrName=hp;attrvValue=50",
+	},
+	[10002] =
+	{
+		id = 10002,
+		time = 2,
+		grideffect = 902,
+		effect = "addAttr:attrName=def;attrvValue=20",
+	},
+	[10003] =
+	{
+		id = 10003,
+		time = 2,
+		grideffect = 903,
+		effect = "addSkill:skillId=1003;self=0;attrvValue=25",
+	},
+}
+return config

@@ -1,0 +1,95 @@
+PoolTransform = Class("PoolTransform")
+
+local DownLoaderState = CS.DownLoaderState
+local GameObject = CS.UnityEngine.GameObject
+local ABDLManager = CS.ABDLManager:GetInstance()
+local ABDownLoader = CS.ABDownLoader
+
+function PoolTransform:ctor(path, parent)
+	self.path = path
+	self.parent = parent
+	self.sign = ABDLUtils.KeepStartsWith .. path
+	self.downLoader = ABDownLoader(path, self.sign, true)
+
+	self.list = {}				--取出的所有对象
+	self.poolTakeList = {}		--加载等待缓存队列
+	self.cacheList = {}			--完整缓存队列
+	self.unload = true
+end
+
+--存放在op.pool(用意先赋值pool 然后回调 模拟C的out)
+function PoolTransform:Take(op, evt)
+	self.unload = false
+	if #self.cacheList > 0 then
+		op.pool = self.cacheList[1]
+		self.list[#self.list + 1] = self.cacheList[1]
+		table.remove(self.cacheList, 1)
+		if evt ~= nil then evt(op.pool.transform) end
+	else
+		op.pool = PoolUnit.New()
+		table.insert(self.list, 1, op.pool)
+		op.pool.path = self.path
+		op.pool.event = evt
+		table.insert(self.poolTakeList, 1, op.pool)
+		if evt ~= nil then
+			if self.downLoader.State == DownLoaderState.None then
+				self.downLoader:Load(function() self:DownLoaderTake() end)
+			elseif self.downLoader.State == DownLoaderState.Complete then
+				self:DownLoaderTake()
+			end
+		else
+			self:DownLoaderTake()
+		end
+	end
+end
+
+function PoolTransform:DownLoaderTake()
+	local obj = ABDLManager:GetAsset(self.path, self.sign)
+	local obj2 = nil
+	local pool = nil
+	while #self.poolTakeList > 0 do
+		pool = self.poolTakeList[1]
+		table.remove(self.poolTakeList, 1)
+		if obj ~= nil then
+			obj2 = GameObject.Instantiate(obj)
+			obj2.transform.name = string.sub(obj2.transform.name, 1, -8)
+			pool:SetTransform(obj2.transform)
+		end
+		local event = pool.event
+		pool.event = nil
+		if event ~= nil and obj2 ~= nil then event(obj2.transform) end
+	end
+end
+
+--返回存放的op.pool
+function PoolTransform:Back(op)
+	if op.pool == nil then return end
+	local pool = op.pool
+	op.pool = nil
+	local key = table.getKeyByValue(self.list, pool)
+	if key == nil then return end
+	table.remove(self.list, key) 
+	key = table.getKeyByValue(self.poolTakeList, pool)
+	if key ~= nil then table.remove(self.poolTakeList, key)  end
+
+	pool.event = nil
+	if not IsNil(pool.transform) then
+		table.insert(self.cacheList, 1, pool)
+		pool.transform.parent = self.parent
+		pool:OnBack()
+	end
+end
+
+function PoolTransform:UnLoad()
+	if self.unload then return true end
+	if #self.list > 0 then return false end
+	if #self.poolTakeList > 0 then return false end
+	for _, v in pairs(self.cacheList) do
+		v:OnDestroy()
+	end			
+	self.unload = true
+	self.poolTakeList = {}
+	self.cacheList = {}		
+	self.downLoader:UnLoad()
+	return true
+end

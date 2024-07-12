@@ -1,0 +1,40 @@
+SceneBase = Class("SceneBase")
+
+function SceneBase:ctor(id)
+	self.isDestroy = false
+	self.id = id
+
+	self.cameraManager = CameraManager:GetInstance()
+    self.timerManager = TimerManager:GetInstance()
+    self.poolManager = PoolManager:GetInstance()
+	self.windowManager = WindowManager:GetInstance()
+	self.effectManager = EffectManager:GetInstance()
+end
+
+function SceneBase:Start()
+	xpcall(self.AddComponent, function(err) L.XPCall(debug.traceback(err)) end, self)
+	xpcall(self.AddCharacter, function(err) L.XPCall(debug.traceback(err)) end, self)
+	xpcall(self.Run, function(err) L.XPCall(debug.traceback(err)) end, self)
+end
+
+function SceneBase:AddComponent() end
+
+function SceneBase:AddCharacter() end
+
+function SceneBase:Run() end
+
+function SceneBase:Update(time)
+	--self.effectManager:Update(time)
+end
+
+function SceneBase:LateUpdate() end
+
+function SceneBase:OnDestroy()
+	self.isDestroy = true
+	self.cameraManager:ExitScene()
+	self.timerManager:ExitScene()
+	self.windowManager:ExitScene()
+	self.effectManager:ExitScene()
+	self.gridManager:ExitScene()
+	SceneOnDestroy()
+end

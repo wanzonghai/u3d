@@ -1,0 +1,80 @@
+WorldScene = Class("WorldScene",NormScene)
+
+function WorldScene:ctor(id)
+    WorldScene.super.ctor(self, id)
+    self.curId = 2      --前端模拟后端生成唯一ID
+end
+
+--[[
+	自定义数据结构体
+	
+	必须：
+	info.id:唯一ID
+	info.UID:角色ID
+	info.Position:出生点
+	info.Forward:出生朝向
+
+	可有可无：
+	info.hp_cur:当前血量
+	info.hp_max:最大血量
+	info.move_speed:当前移动速度
+]]
+function WorldScene:AddPlayer(info)
+	local normVO = NormVO.New()
+	normVO:SetWorldInfo(info)
+	local object = PlayerObject.New(info.id)
+	object:Infuse(normVO, true)
+	object:Start()
+	self.player = PlayerController.New(object)
+	self.player:Run()
+	return object
+end
+
+function WorldScene:GetObjectId()
+    local id = self.curId
+    self.curId = self.curId + 1
+    return id
+end
+
+--添加触发器
+function WorldScene:AddTrigger(triggerVO)
+	SceneTrigger.New(triggerVO)
+end
+
+--添加NPC(单机)
+function WorldScene:AddNPC(info)
+	local normVO = NormVO.New()
+	normVO:SetConfigInfo(info)
+	--固定NPC(也能使用自动化 但是固定更省性能)
+    local c = nil
+    local worldTrigger = WorldTrigger.New("_NPC" .. tostring(info.UID), nil, info.Position, nil)
+    worldTrigger:Function(
+    function(obj)
+        if not GameUtils.IsMyPlayer(obj.controller) then return end
+        local object = NPCObject.New(info.UID)
+        object:Infuse(normVO)
+        object:Start()
+        c = NPCController.New(object, KindMode.NPC)
+        c:Run()
+        EventDispatcher:GetInstance():DispatchEvent(EventID.SceneAddNPC, c)
+    end,
+    function(obj)
+        if not GameUtils.IsMyPlayer(obj.controller) then return end
+        if c ~= nil then
+            c:Destroy()
+            c = nil
+        end
+    end)
+    worldTrigger:Radius(5)
+end
+
+function WorldScene:AddMonster(info,kindMode)
+    local normVO = NormVO.New()
+	normVO:SetWorldInfo(info)
+	local object = MonsterObject.New(info.id)
+	object:Infuse(normVO, true)
+	object:Start()
+	self.monster = MonsterController.New(object,kindMode)
+	self.monster:Run()
+	return object
+end

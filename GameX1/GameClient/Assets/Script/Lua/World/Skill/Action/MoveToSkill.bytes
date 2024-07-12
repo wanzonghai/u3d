@@ -1,0 +1,57 @@
+MoveToSkill = Class("MoveToSkill", SkillAcitonBase)
+
+local Vector3 = CS.UnityEngine.Vector3
+
+--移动 T时间 S速度比例 dir是否保持方向移动
+function MoveToSkill:ctor(skillUnit, p)
+	MoveToSkill.super.ctor(self, skillUnit, p)
+	self.t = tonumber(self.params["T"] or 0)
+    self.speed = tonumber(self.params["S"] or 0)
+    self.dir = tonumber(self.params["Dir"] or 0)
+    self.time = 0
+end
+
+function MoveToSkill:Play(target, position)
+	MoveToSkill.super.Play(self, target, position)
+    self.time = self.t
+    self.delayTime = 0
+    self.isMove = false
+	self.object.skills.isMoveTo = true
+    self.object.navMeshAgents:Speed(self.object.attributes.move_speed.value * self.speed)
+end
+
+function MoveToSkill:Update(time)
+	MoveToSkill.super.Update(self, time)
+	if self.time > 0 then
+		self.time = self.time - time
+        local joystickDir = self.object.controller.joystickDir
+        local isMove = true
+        if joystickDir == GameUtils.Vector3Zero then
+            if self.dir == 1 then joystickDir = self.object.root.forward
+            else isMove = false
+            end
+        end
+        if not isMove then
+            if self.isMove then self.object.navMeshAgents:Stop() end
+            self.isMove = false
+        else
+            self.delayTime = self.delayTime + time
+            if not self.isMove then 
+                self.object.navMeshAgents:NavMeshMove(self.object.root.position + joystickDir * 3)
+                self.delayTime = 0
+            elseif self.delayTime >= 0.05 then
+                self.object.navMeshAgents:NavMeshMove(self.object.root.position + joystickDir * 3)
+                self.delayTime = 0
+            end
+            self.isMove = true
+        end
+		if self.time <= 0 then self:Stop() end
+	end
+end
+
+function MoveToSkill:Stop()
+	MoveToSkill.super.Stop(self)
+    self.object.navMeshAgents:Speed(self.object.attributes.move_speed.value)
+    if self.isMove then self.object.navMeshAgents:Stop() end
+	self.object.skills.isMoveTo = false
+end

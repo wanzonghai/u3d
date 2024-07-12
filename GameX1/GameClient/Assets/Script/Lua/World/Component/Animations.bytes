@@ -1,0 +1,54 @@
+Animations = Class("Animations")
+						
+function Animations:ctor()
+	self.action = nil
+	self.animation = nil
+	self.speed = 1
+end
+
+function Animations:Infuse(animation)
+	self.animation = animation
+end
+
+function Animations:PlayRun()
+	self.animation:SetBool("run",true)
+	self.animation:SetBool("idle",false)
+end
+
+function Animations:PlayIdle()
+	if IsNil(self.animation) then return end
+	self.animation:SetBool("idle",true)
+	self.animation:SetBool("restart",true)
+	self.animation:SetBool("run",false)
+end
+
+function Animations:Play(action)
+	if action == Actions.Dead then self.animation:SetBool("restart",false) end
+	if action == Actions.Idle then 
+		self:PlayIdle()
+	elseif action == Actions.Run then 
+		self:PlayRun()
+	else
+		self.action = action
+		self.animation:Play(action)
+	end
+end
+
+function Animations:PlayFrameEnd(action)
+	self.animation:Play(action,0,1)
+end
+
+function Animations:SetSpeed(speed)
+	self.speed = speed
+	self.animation.speed = speed
+end
+
+function Animations:Update(time) end
+
+function Animations:Finish()
+	return false
+end
+
+function Animations:Destroy()
+	self.animation = nil
+end

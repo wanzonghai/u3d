@@ -1,0 +1,233 @@
+MyPlayerController = Class("MyPlayerController", PlayerController)
+
+local skillConfig = require "Config/Skill"
+local roleConfig = require "Config/Role"
+local config = require "Config/State"
+local Vector3 = CS.UnityEngine.Vector3
+local Vector3Zero = CS.UnityEngine.Vector3.zero
+local Time = CS.UnityEngine.Time
+local NoneTime = 0.1
+
+function MyPlayerController:ctor(object)
+	MyPlayerController.super.ctor(self, object, KindMode.Player)
+
+	self.scene = SceneManager:GetInstance().scene
+	self.normCamera = CameraManager:GetInstance().normCamera
+	self.position = self.object.root.position 		--目标位置
+
+	self.noneTime = NoneTime
+	--UI遥感输入
+	self.inputJoystickDir = CS.UnityEngine.Vector3(0, 0, 0)
+	--寻点参数
+	self.positionParam = {}
+	--动画参数
+	self.animParam = {}
+	--记录参数
+	self.playState = 1								--0无 1打怪AI 2遥感寻路 3nav寻点 修改状态使用SetPlayState
+	self.lastJoystickDir = Vector3Zero
+	self.mgrEvent = EventDispatcher:GetInstance()
+end
+
+function MyPlayerController:Run()
+	MyPlayerController.super.Run(self)
+	self.mgrEvent:AddEventListener(self, EventID.Joystick, self.OnJoystick)
+end
+
+--所有行为下帧执行 当前帧不做切换
+--0无 1技能 2遥感寻路 3nav寻点
+function MyPlayerController:Update(time)
+	MyPlayerController.super.Update(self, time)
+	if self.playState == 0 then 
+		--切换状态缓冲
+		self:OnNoneState(time)
+	elseif self.playState == 1 then 
+		if self:JudgeHandles(Handles.Skill) then 
+			self:OnAttackMonster()
+		end
+	elseif self.playState == 2 then 
+		if self:JudgeHandles(Handles.Run) then 
+			self:OnJoystickDir()
+		end
+	elseif self.playState == 3 then 
+		if self:JudgeHandles(Handles.Run) then 
+			self:OnPosition()
+		end
+	end
+
+	--选中目标判断
+	if self.attackTarget then
+		if not GameUtils.IsLife(self.attackTarget) then
+			self.attackTarget = nil
+		end
+	end
+end
+
+function MyPlayerController:OnNoneState(time)
+	self.noneTime = self.noneTime - time 
+	if self.noneTime <= 0 then self:SetPlayState(1) self.noneTime = NoneTime end
+end
+
+--获取攻击目标（目标类型，最小距离）  切换目标
+function MyPlayerController:SelectAttackTarget()
+	self.attackTarget = self:SelectOneShotAttackTarget()
+end
+
+function MyPlayerController:SelectOneShotAttackTarget()
+	local dist = 999
+	local temp
+	local target
+	for _,controller in pairs(self.scene.objects) do 
+		if controller.kindMode == KindMode.BOSS or controller.kindMode == KindMode.EMonster or controller.kindMode == KindMode.Monster then
+			temp = Vector3.Distance(controller.object.root.position,self.object.root.position)
+			if temp < dist then
+				target = controller
+				dist = temp
+			end
+		end
+	end
+	return target
+end
+
+--自动攻击怪物AttackMonster
+function MyPlayerController:OnAttackMonster()
+	if self.object.skills:Playing() then return end
+	if self.handle.handles == Handles.Anim then return end
+	self:OnAttackSkill()  --释放技能
+end
+
+function MyPlayerController:OnAttackSkill()
+	local attack = self:JudgeHandles(Handles.Skill)
+	if attack then 
+		self:SelectAttackTarget()
+		if not self.attackTarget then return end
+	end
+
+	local skillID = self:GetPlaySkill()
+	if skillID > 0 then
+		local play = false
+		local position = nil
+		if GameUtils.IsValidTarget(self.attackTarget) then 
+			position = self.attackTarget.object.root.position
+			local tPosition = position + (self.object.root.position - position).normalized * self.attackTarget.object.normVO.model.body_size
+			if  self.joystickDir == Vector3Zero then
+				if skillConfig[skillID].distance == 0 then play = true
+				elseif Vector3.Distance(tPosition, self.object.root.position) <= skillConfig[skillID].distance then play = true
+				else
+					self.position = tPosition
+					self:OnLocalHandles(Handles.Run, tPosition, 1)
+				end
+			else play = true end
+		else play = true end
+		if play then
+			self.object.root:LookAt(position)
+			self:OnPlaySkill(skillID, true)
+		end
+	end
+end
+
+function MyPlayerController:GetPlaySkill()
+	return self.object.normVO.role.skill_list[1] or 0
+end
+
+--播放技能
+function MyPlayerController:OnPlaySkill(skillID, findAttack)
+	if self:CanPlaySkill(skillID) then
+		local position = nil
+		local object = nil
+		if self.attackTarget then object = self.attackTarget.object end
+		self:OnLocalHandles(Handles.Skill, skillID, object,position)
+    end
+end
+
+--遥感移动
+function MyPlayerController:OnJoystickDir()
+	if self.joystickDir == Vector3Zero then
+		if self.handle.handles ~= Handles.Idle then
+			self:OnLocalHandles(Handles.Idle)
+		end
+		self:SetPlayState(0)
+	else
+		self.position = self.object.root.position + self.joystickDir * 3
+		self:OnLocalHandles(Handles.Run, self.position, 2)
+	end
+end
+
+--寻点移动,暂时用不到
+function MyPlayerController:OnPosition()
+
+end
+
+--遥感输入
+function MyPlayerController:OnJoystick(dir2)
+	self.inputJoystickDir = Vector3(dir2.x, 0, dir2.y)
+	if self.inputJoystickDir ~= Vector3Zero then
+		self.joystickDir = self.normCamera.myTransform.rotation * self.inputJoystickDir
+		self.joystickDir:Normalize()
+		self:SetPlayState(2)
+	else
+		self.joystickDir = self.inputJoystickDir
+	end
+end
+
+function MyPlayerController:ClearTarget()
+	self.attackTarget = nil
+end
+
+--停止
+function MyPlayerController:Stop()
+	self.joystickDir = Vector3(0, 0, 0)
+	self.inputJoystickDir = Vector3(0, 0, 0)
+	self:SetPlayState(0)
+	self:OnLocalHandles(Handles.Idle)
+end
+
+function MyPlayerController:SetPlayState(state)
+	self.playState = state
+	if state == 0 then self.noneTime = NoneTime end
+end
+
+function MyPlayerController:OnHandles(handle, ...)
+	self.mgrEvent:DispatchEvent(EventID.PlayerHandleChange, handle, ...)
+	MyPlayerController.super.OnHandles(self, handle, ...)
+end
+
+function MyPlayerController:Destroy()
+	if self.isDestroy then return end
+	self.mgrEvent:RemoveEventListener(self, EventID.Joystick)
+	MyPlayerController.super.Destroy(self)
+end
+
+
+--主角的状态规则
+function MyPlayerController:OnLocalHandles(handle, ...)
+	if not self:JudgeHandles(handle) then return end
+	self:OnHandles(handle, ...)
+end
+
+function MyPlayerController:JudgeHandles(handle)
+	if self.handle.handles == Handles.Dead then return false end
+	if handle == Handles.Dead then return true end
+	if table.containValue(config[handle].cut, self.handle.handles) then return false end
+	for _, v in pairs(config[handle].cut_attribute) do
+		if self.object.normVO:GetAttrByName(v) > 0 then return false end
+	end
+	if self.handle.handles == Handles.Anim then
+		if not self.handle.canCut then return false end
+	end
+	return true
+end
+
+function MyPlayerController:CanPlaySkill(id)
+	local skill = skillConfig[id]
+	if not skill then return false end
+	if table.containValue(skill.cut, self.handle.handles) then return false end
+	for _, v in pairs(skill.cut_attribute) do
+		if self.object.normVO:GetAttrByName(v) > 0 then return false end
+	end
+	return true
+end
+
+function MyPlayerController:MoveTo(position, eulerAngles)
+	self.object.navMeshAgents:MoveTo(position)
+	if eulerAngles then self.object.root.eulerAngles = eulerAngles end
+end

@@ -1,0 +1,71 @@
+NormController = Class("NormController")
+
+local Quaternion = CS.UnityEngine.Quaternion
+local Vector3 = CS.UnityEngine.Vector3
+local NavMeshSamplePosition = CS.LuaUtils.NavMeshSamplePosition
+
+function NormController:ctor(object, kindMode)
+    object.controller = self
+
+	self.object = object
+	self.id = object.id
+	self.kindMode = kindMode
+    self.handle = HandleBase.New(self, Handles.Same)
+    
+    self.joystickDir = Vector3.zero               --遥感方向
+    self.isDestroy = false
+
+    self.scene = SceneManager:GetInstance().scene
+    self.scene:AddObject(self)
+end
+
+function NormController:Run()
+    self.object:Run()
+    self:OnHandles(Handles.Idle)
+end
+
+function NormController:Update(time)
+    if self.isDestroy == true then return end
+    self.object:Update(time)
+    self.handle:Update(time)
+end
+
+function NormController:OnHandles(handle, ...)
+    if self.handle ~= nil and handle == self.handle.handles then
+    else
+        if self.handle then self.handle:Destroy() end
+        if handle == Handles.Run then
+      	    self.handle = RunHandle.New(self)
+     	elseif handle == Handles.Idle then
+     		self.handle = IdleHandle.New(self)
+        elseif handle == Handles.Skill then
+            self.handle = SkillHandle.New(self)
+     	elseif handle == Handles.Dead then
+            self.handle = DeadHandle.New(self)
+        elseif handle == Handles.Stun then
+            self.handle = StunHandle.New(self)
+        elseif handle == Handles.Frozen then
+            self.handle = FrozenHandle.New(self)
+     	elseif handle == Handles.Hit then
+     		self.handle = HitHandle.New(self)
+        elseif handle == Handles.Anim then
+            self.handle = AnimHandle.New(self)
+        end
+    end
+   	self.handle:OnHandle(...)
+    self.handle:Run()
+end
+
+function NormController:OnMove(msg)
+end
+
+function NormController:OnShow()
+end
+
+function NormController:Destroy()
+    if self.isDestroy then return end
+    self.object:Destroy()
+    self.scene:RemoveObject(self)
+    EventDispatcher:GetInstance():DispatchEvent(EventID.SceneObjectRemove, self)
+    self.isDestroy = true
+end

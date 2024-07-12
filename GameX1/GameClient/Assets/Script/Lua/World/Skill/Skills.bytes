@@ -1,0 +1,98 @@
+Skills = Class("Skills")
+
+local skillConfig = require "Config/Skill"
+
+function Skills:ctor(object)
+	self.object = object
+	
+	self.skillUnits = {}
+	self.nowSkill = nil 					--当前播放的技能(非被动)
+	self.isRotation = false
+	self.isMoveTo = false
+end
+
+function Skills:Add(id)
+	if id == nil or id == 0 then return end
+	if not skillConfig[id] then return end 
+	self.skillUnits[id] = SkillUnit.New(self.object, id)
+	return true
+end
+
+function Skills:GetSkillUnitByID(id)
+	for _, v in pairs(self.skillUnits) do
+		if v.id == id then
+			return v
+		end
+	end
+	return nil
+end
+
+function Skills:Equal(skill_list)
+	--增加技能
+	for k, v in pairs(skill_list) do
+		if v ~= nil and v > 0 then
+			local h = false
+			for _, value in pairs(self.skillUnits) do
+				if value.id == v then h = true break end
+			end
+			if not h then
+				self:Add(v)
+			end
+		end
+	end
+
+	--减少技能
+	for k, v in pairs(self.skillUnits) do
+		if not table.containValue(skill_list, k) then
+			if self.nowSkill == self.skillUnits[k] then
+				v:StopAndIdle()
+			end
+			self.skillUnits[k] = nil
+		end
+	end
+end
+
+function Skills:PlayEditor(id, func)
+	if skillConfig[id] == nil then self:Add(id) end
+	skillConfig[id].func = func
+	SkillUtils.ClearConfigVOByID(id)
+	self.skillUnits[id] = SkillUnit.New(self.object, id)
+	self:Play(id, nil, self.object.root.position + self.object.root.forward)
+end
+
+function Skills:Play(id, target, position)
+	if self.skillUnits[id] == nil then self:Add(id) end
+	if not self.skillUnits[id] then return end 
+	if self.nowSkill then self.nowSkill:Stop() end
+	self.nowSkill = self.skillUnits[id]
+	self.skillUnits[id]:Play(target, position)
+end
+
+function Skills:Stop()
+	if self.nowSkill then self.nowSkill:Stop() end
+end
+
+function Skills:StopAndIdle()
+	if self.nowSkill then self.nowSkill:StopAndIdle() end
+end
+
+function Skills:Playing()
+	if not self.nowSkill then return false end
+	return self.nowSkill.playing
+end
+
+function Skills:CanPlay(id)
+	if self.skillUnits[id] then
+		if self.skillUnits[id].nowCD > 0 then return false end
+		if self.nowSkill and self.nowSkill.playing then return false end
+	else
+		if self.nowSkill and self.nowSkill.playing then return false end
+	end
+	return true
+end
+
+function Skills:Update(time)
+	for _, v in pairs(self.skillUnits) do
+		v:Update(time)
+	end
+end 

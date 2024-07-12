@@ -1,0 +1,228 @@
+NavMeshAgents =  Class("NavMeshAgents")
+
+local NavMesh = CS.UnityEngine.AI.NavMesh
+local NavMeshPath = CS.UnityEngine.AI.NavMeshPath
+local NavMeshSamplePosition = CS.LuaUtils.NavMeshSamplePosition
+local NavMeshAgent = typeof(CS.UnityEngine.AI.NavMeshAgent)
+--local NavMeshObstacle = typeof(CS.UnityEngine.AI.NavMeshObstacle)
+local LowQualityObstacleAvoidance = CS.UnityEngine.AI.ObstacleAvoidanceType.LowQualityObstacleAvoidance
+local Vector3 = CS.UnityEngine.Vector3
+RaycastHitDistance = 30
+NavMeshAgents.areaMask = CS.LuaUtils.LeftOperation(0)
+
+function NavMeshAgents:ctor(object)
+	self.object = object
+
+	self.areaMask = -1
+	self.moveState = 0										--移动状态 1寻路 2射线
+	
+	self.isRotation	= true									--是否旋转
+	self.speed = 5											--移动速度
+	self.lsSpeed = nil 										--临时移动速度
+	self.endPosition = nil									--目的地
+	local position = self.object.root.position
+
+	--以下为代理寻路组件
+	self.navMeshAgentEnabled = true
+	self.navMeshAgent = self.object.root.gameObject:AddComponent(NavMeshAgent)
+	--self.object.root.gameObject:AddComponent(NavMeshObstacle)
+	self.navMeshAgent.obstacleAvoidanceType = LowQualityObstacleAvoidance
+	self.navMeshAgent.autoRepath = false
+	self.navMeshAgent.radius = self.object.normVO.model.radius
+    self.navMeshAgent.angularSpeed = 1000
+	self.navMeshAgent.acceleration = 9999999
+	if self.object.normVO.control_type == 1 then
+		self:NavMeshAgentEnabled(false)
+		self.object.root.position = position	--处理添加NavMeshAgent时自动修正坐标
+	elseif self.object.normVO.control_type == 2 then
+		self.navMeshAgent.autoTraverseOffMeshLink = false
+	end
+
+	self.stoppingDistance = 0								--目标距离(NavMeshMove用)
+	--射线寻路
+	self.navMeshRaycast = NavMeshRaycast.New(self, object)
+end
+
+function NavMeshAgents:Run()
+	self:UpdateNavMeshAreaMask()
+end
+
+function NavMeshAgents:Update(time)
+	if self.moveState == 1 then
+		if not self.navMeshAgent.isOnNavMesh then return end
+		if not self.navMeshAgent.pathPending then
+			if self.navMeshAgent.remainingDistance <= self.stoppingDistance then 
+				self:Stop() 
+				return
+			end
+		end
+	elseif self.moveState == 2 then
+		if Vector3.Distance(self.object.root.position, self.endPosition) <= self.stoppingDistance then self:Stop() 
+		else self.navMeshRaycast:Update(time)
+		end
+	end
+end
+
+--射线移动
+function NavMeshAgents:Move(position)
+	self:NavMeshAgentEnabled(false)
+	self:SetAutoMoveState(2)
+	self.endPosition = position
+end
+
+--寻路移动(自带寻路)
+function NavMeshAgents:NavMeshMove(position)
+	position = NavMeshSamplePosition(position)
+	self:NavMeshAgentEnabled(true)
+	self.endPosition = position
+	self.navMeshAgent:SetDestination(self.endPosition)
+	self:SetAutoMoveState(1)
+end
+  
+--带射线碰撞检测移动（自带寻路）
+function NavMeshAgents:MoveRay(position)
+	self.endPosition = NavMeshSamplePosition(position)
+	self:NavMeshAgentEnabled(true)
+	local hit = nil
+	local pass, hit1 = self.navMeshAgent:Raycast(self.endPosition, hit)
+	if pass then self.endPosition = hit1.position end
+	self.navMeshAgent:SetDestination(self.endPosition)
+	self:SetAutoMoveState(1)
+end
+
+--控制寻路方式update
+function NavMeshAgents:SetAutoMoveState(moveState)
+	self.moveState = moveState
+	if self.moveState == 0 then self.endPosition = nil end
+end
+
+--瞬移(带寻路)
+function NavMeshAgents:MoveTo(position)
+	self.endPosition = NavMeshSamplePosition(position)
+	self:NavMeshAgentEnabled(true)
+
+	self.navMeshAgent:Warp(self.endPosition)
+end
+
+--射线瞬移(带碰撞寻路)
+function NavMeshAgents:MoveToRay(position)
+	self.endPosition = NavMeshSamplePosition(position)
+	self:NavMeshAgentEnabled(true)
+
+	local hit = nil
+	local pass, hit1 = self.navMeshAgent:Raycast(self.endPosition, hit)
+	if pass then self.endPosition = hit1.position end
+	self.navMeshAgent:Warp(self.endPosition)
+end
+
+function NavMeshAgents:UpdateNavMeshAreaMask(areaMask)
+	self.navMeshAgent.areaMask = NavMeshAgents.areaMask
+end
+
+function NavMeshAgents:LookAt(position, tilt)
+	if not self.isRotation then return end
+	if tilt then self.object.root:LookAt(position)
+	else 
+		local lookAtPosition = Vector3(position.x, self.object.root.position.y, position.z)
+		self.object.root:LookAt(lookAtPosition)
+	end
+end
+
+--停止
+function NavMeshAgents:Stop()
+	if self.moveState == 0 then return end
+	if self.navMeshAgentEnabled then 
+		self.navMeshAgent:ResetPath() 
+	else
+		--方向修正
+		local eulerAngles = self.object.root.eulerAngles
+		eulerAngles.x = 0
+		self.object.root.eulerAngles = eulerAngles
+	end
+	self:SetAutoMoveState(0)
+end
+
+function NavMeshAgents:NavMeshAgentEnabled(enabled)
+	if self.navMeshAgentEnabled == enabled then return end
+	self.navMeshAgentEnabled = enabled
+	self.navMeshAgent.enabled = enabled
+	if enabled then
+		local count = 0
+		while count < 2 and (not self.navMeshAgent.isOnNavMesh) do
+			count = count + 1
+			self.navMeshAgent:Warp(NavMeshSamplePosition(self.object.root.position, -1, 5)) 
+		end
+	end
+end
+
+--开启旋转
+function NavMeshAgents:IsRotation(rotation)
+	self.isRotation = rotation
+	if rotation then self.navMeshAgent.angularSpeed = 1000
+	else self.navMeshAgent.angularSpeed = 0 end
+end
+
+--移动速度
+function NavMeshAgents:Speed(speed)
+	self.speed = speed
+	if self.lsSpeed == nil then self.navMeshAgent.speed = speed end
+end
+
+function NavMeshAgents:LsSpeed(speed)
+	if self.lsSpeed == speed then return end
+	self.lsSpeed = speed
+	if self.lsSpeed then self.navMeshAgent.speed = self.lsSpeed
+	else self.navMeshAgent.speed = self.speed
+	end
+end
+
+function NavMeshAgents:GetSpeed()
+	if self.lsSpeed then return self.lsSpeed
+	else return self.speed
+	end
+end
+
+--判断寻路射线是否通过
+function NavMeshAgents:IsMoveRay(position)
+	if self.navMeshAgentEnabled == false then return false end
+	position = NavMeshSamplePosition(position)
+	local hit = nil
+	local pass, hit1 = self.navMeshAgent:Raycast(position, hit)
+	if pass then return true, hit1.position end
+	return false
+end
+
+--计算通过路径
+function NavMeshAgents:CalculatePath(position)
+	local endPosition = NavMeshSamplePosition(position)
+	if endPosition.x ~= position.x then return false end
+	if endPosition.z ~= position.z then return false end
+	local startPosition = NavMeshSamplePosition(self.object.root.position)
+	local navMeshPath = NavMeshPath()
+	local pass = NavMesh.CalculatePath(startPosition, endPosition, self.areaMask, navMeshPath)
+	if not pass then return false end
+	return pass, navMeshPath.corners
+end
+
+--计算到达目标点的寻路路径长度
+function NavMeshAgents:CalculatePathLenght(position)	
+	local canGo,corners = self:CalculatePath(position)
+	if not canGo then return 9999 end 
+	if corners.Length <= 0 then return 9999 end 
+	local dis = 0
+	for i=1,corners.Length - 1 do 
+		dis = dis + Vector3.Distance(corners[i],corners[i - 1])
+	end
+	return dis
+end
+
+--计算通过路径
+function NavMeshAgents:NavMeshPath()
+	if self.moveState ~= 1 then return false end
+	return self.navMeshAgentEnabled, self.navMeshAgent.path.corners
+end
+
+function NavMeshAgents:IsMove()
+	if self.moveState > 0 then return true end
+	return false
+end

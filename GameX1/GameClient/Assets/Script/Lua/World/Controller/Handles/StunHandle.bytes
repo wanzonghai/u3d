@@ -1,0 +1,33 @@
+StunHandle = Class("StunHandle", HandleBase)
+
+function StunHandle:ctor(controller)
+	StunHandle.super.ctor(self, controller, Handles.Stun)
+end
+
+function StunHandle:OnHandle(...)
+	StunHandle.super.OnHandle(self, ...)
+
+	self.action, self.time = ...
+	self.animation = self.controller.object.boneClothes.animation
+end
+
+function StunHandle:Run()
+	StunHandle.super.Run(self)
+
+	if self.animation.action ~= self.action then
+		self.controller.object.boneClothes.animation:Play(self.action)
+	end
+end
+
+function StunHandle:Update(time)
+	StunHandle.super.Update(self, time)
+
+	self.time = self.time - time
+    if self.time <= 0 then
+        self.controller:OnHandles(Handles.Idle)
+    end
+end
+
+function StunHandle:Destroy()
+	StunHandle.super.Destroy(self)
+end

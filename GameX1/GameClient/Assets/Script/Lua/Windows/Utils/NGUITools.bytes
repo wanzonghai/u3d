@@ -1,0 +1,37 @@
+NGUITools = {}
+
+local Vector3Zero = CS.UnityEngine.Vector3.zero
+local Quaternionidentity = CS.UnityEngine.Quaternion.identity
+local Vector3one =CS.UnityEngine.Vector3.one
+local Application = CS.UnityEngine.Application
+local Object = CS.UnityEngine.Object
+NGUITools.AddChild = function(parent, prefab)
+	local go = CS.UnityEngine.GameObject.Instantiate(prefab)
+	if go ~= nil and parent ~= nil then
+		local t = go.transform
+		t:SetParent(parent.transform, false)
+		t.localPosition = Vector3Zero
+		t.localRotation = Quaternionidentity
+		t.localScale = Vector3one
+		go.layer = parent.layer
+	end
+	return go
+end
+
+NGUITools.DestroyChildren = function(t)
+	local isPlaying = Application.isPlaying
+	while(t.childCount ~= 0)
+	do
+		local child = t:GetChild(0)
+		if isPlaying then
+			child:SetParent(nil, false)
+			Object.Destroy(child.gameObject)
+		else
+			Object.DestroyImmediate(child.gameObject)
+		end
+	end
+end
+
+NGUITools.Destroy = function(obj)
+	if obj then Object.Destroy(obj) end
+end

@@ -1,0 +1,86 @@
+Attributes = Class("Attributes")
+
+function Attributes:ctor(object)
+	self.move_speed = nil			--移动速度
+	self.hp_max = nil				--最大生命
+	self.hp = nil					--生命
+	
+	self.dicAtt = {}
+	self.object = object
+
+	--写死角色ID为1
+	self.playerId = 1
+	self.isMyPlayer = (self.playerId == self.object.id)
+	self.attacker = nil
+
+	--self.hpBar =  WindowManager:GetInstance():GetServerByName(Windows.HpBarView)
+end
+
+function Attributes:Infuse()
+	local normVO = self.object.normVO
+	local info = normVO.worldInfo
+	self.move_speed = Attribute.New(normVO:GetAttrByName("move_speed"))
+	self.move_speed.event:Add(self, function()
+		--self.object.navMeshAgents:Speed(self.move_speed.value)
+	end)
+	self.move_speed.event:Function()
+	self.dicAtt["move_speed"] = self.move_speed
+
+	self.hp_max = Attribute.New(normVO:GetAttrByName("hp_max"))
+	self.dicAtt["hp_max"] = self.hp_max
+
+	self.hp = Attribute.New(normVO:GetAttrByName("hp"))
+	self.dicAtt["hp"] = self.hp
+
+	self.att = Attribute.New(normVO:GetAttrByName("att"))
+	self.dicAtt["att"] = self.att
+
+	self.def = Attribute.New(normVO:GetAttrByName("def"))
+	self.dicAtt["def"] = self.def
+end
+
+function Attributes:Addition(name, value)
+	local attr = self:Find(name)
+	attr:Addition(value)
+end
+
+function Attributes:Equal(name, value, type,number)
+	local attr = self:Find(name)
+	if name == "hp" then
+		self:ShowFlyWord(type, number)
+	end
+	attr:Equal(value)
+end
+
+function Attributes:EqualChange(name, value)
+	if self.dicAtt[name] == nil then return end
+	self.dicAtt[name]:Equal(value)
+end
+
+local FlyWordHandler = {}
+setmetatable(FlyWordHandler, {
+	__index = function(t, key)
+		return function(...) return FlyWordName.None end
+	end
+})
+FlyWordHandler.normal = function(value, isSelfUnit)									-- 普通伤害
+	if value > 0 then return FlyWordName.Heal
+	else
+		if isSelfUnit then return FlyWordName.Injured
+		else return FlyWordName.None end
+	end
+end
+FlyWordHandler.crit = function(...) return FlyWordName.Crit end						-- 暴击
+
+function Attributes:Find(name)
+	if not self.dicAtt[name] then
+		L.LogError("AttributesFindError: " .. name)
+	end
+	return self.dicAtt[name]
+end
+
+function Attributes:Destroy() end
+function Attributes:ShowFlyWord(type, value)
+	local flyWordName = FlyWordHandler[type](value, self.isMyPlayer)
+	--self.hpBar:ShowFlyWord(flyWordName, self.object.boneClothes:GetMountByName(Mounts.FlyWord).position, value, self.object.id, self.isMyPlayer)
+end

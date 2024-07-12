@@ -1,0 +1,252 @@
+MainScene = Class("MainScene",WorldScene)
+local this = MainScene
+
+local LuaUIUtils = CS.LuaUIUtils
+local LevelConfig = require "Config/Level"
+local SoundConfig = require "Config/Sound"
+local Params = require("Config/Params")
+MainScene.MaxPower = 3
+
+local StartFieldOfView = 102
+local EndFieldOfView = 75.6
+local RefreshInterval = Params[1].value
+
+function this:ctor(id)
+	this.super.ctor(self, id)
+
+	self.curPowerCount = 0
+	self:SetPower(PlayerPrefsUtils.GetPowerVolume())
+	self.levelId = 1
+	self.stop = true
+	self.levelNeedScore = 0
+	self.curScore = 0
+
+	self.disruptionState = 0
+	self.addTimeState = 0
+	self:SetDisruption(PlayerPrefsUtils.GetDisruptionState())
+	self:SetAddTime(PlayerPrefsUtils.GetAddTimeState())
+
+	self.sceneModel = nil
+
+	self.finishedGuide = PlayerPrefsUtils.GetGuideState() ~= 0
+	if self.finishedGuide then
+		for _,lvCfg in ipairs(LevelConfig) do
+			if lvCfg.level ~= 0 then 
+				self.levelId = lvCfg.id
+				self.levelCfg = lvCfg
+				break
+			end
+		end
+	else
+		self.levelCfg = LevelConfig[self.levelId]
+	end
+
+	self:CheckStartAddPower()
+
+	self.refreshTime = PlayerPrefsUtils.GetRefreshPowerTime()	--上次刷新的时间
+	self.refreshTimer = Timer.New(self,1,function()
+		if self:IsPowerMax() then return end
+		if os.time() - self.refreshTime >= RefreshInterval then
+			self:RefreshPower()
+		end
+	end)
+end
+
+function this:GetRefreshTime()
+	return self.refreshTime + RefreshInterval
+end
+
+function this:CanDisruption()
+	return self.disruptionState ~= 0
+end
+
+function this:SetDisruption(value)
+	if self.disruptionState == value then return end
+	self.disruptionState = value
+	PlayerPrefsUtils.SetDisruptionState(value)
+	EventDispatcher:GetInstance():DispatchEvent(EventID.DisruptionChange)
+end
+
+function this:CanAddTime()
+	return self.addTimeState ~= 0
+end
+
+function this:SetAddTime(value)
+	if self.addTimeState == value then return end
+	self.addTimeState = value
+	PlayerPrefsUtils.SetAddTimeState(value)
+	EventDispatcher:GetInstance():DispatchEvent(EventID.AddTimeChange)
+end
+
+function this:CheckStartAddPower()
+	if self:IsPowerMax() then return end
+	local lastTime = PlayerPrefsUtils.GetRefreshPowerTime()
+	if lastTime ~= 0 then
+		local addCount = math.floor((os.time() - lastTime) / RefreshInterval)
+		if addCount > 0 then
+			self:RefreshPower(addCount)
+		end
+	end
+end
+
+function this:AddScore(score)
+	self.curScore = self.curScore + score
+	EventDispatcher:GetInstance():DispatchEvent(EventID.LevelScoreChange)
+	if self.curScore >= self.levelNeedScore then
+		self:StopRound(true)
+	end
+end
+
+function this:RefreshPower(addCount)
+	addCount = addCount or 1
+	self:SetPower(math.min(self.curPowerCount + addCount,MainScene.MaxPower))
+	PlayerPrefsUtils.SetPowerVolume(self.curPowerCount)
+	self:SaveRefreshTime(self:IsPowerMax() and 0 or os.time())
+end
+
+function this:SaveRefreshTime(time)
+	self.refreshTime = time or os.time()
+	PlayerPrefsUtils.SetRefreshPowerTime(self.refreshTime)
+end
+
+function this:IsPowerMax()
+	return self.curPowerCount >= MainScene.MaxPower
+end
+
+function this:Start()
+    this.super.Start(self)
+    self.mgr_Grid = GridManager:GetInstance()
+	self.mgr_Grid:Init()
+	WindowManager:GetInstance():Open(Windows.MainView)
+
+	self.rate = 1
+	local targetWidth = 1080;
+	local targetHeight = 1920;
+	local height = CS.UnityEngine.Screen.height
+	local width = CS.UnityEngine.Screen.width
+	if targetWidth*height > targetHeight*width then
+		targetHeight = targetWidth*height/width
+		local rate = targetHeight / 1920
+		self.rate = (rate - self.rate) * 0.677 + self.rate
+	end
+
+	self.mainCamera = CS.UnityEngine.GameObject.Find("NormCamera"):GetComponent("Camera")
+	self.mainCamera.fieldOfView = StartFieldOfView
+
+	SoundManager:GetInstance():PlayGround(1)
+	local dependencies = {}
+	for i=1,9 do
+		table.insert(dependencies,"Grid/Numbers/Prefabs/SM_Floor_Stone_N_0" .. i .. ".prefab")
+	end
+	for _,cfg in pairs(SoundConfig) do
+		table.insert(dependencies,cfg.path)
+	end
+	table.insert(dependencies,"Windows/Account/AccountView.prefab")
+	table.insert(dependencies,"Windows/Account/GameView.prefab")
+	local downLoader = CS.ABDownLoader(dependencies,ABDLUtils.KeepStartsWith .. "AccountView",true)
+	downLoader:Load(function() end)
+end
+
+function this:StartRound()
+	if self.tweener then LuaUIUtils.Kill(self.tweener) self.tweener = nil end
+	self.tweener = LuaUIUtils.DoFloat(StartFieldOfView * self.rate,EndFieldOfView * self.rate,1.5,function(value)
+		self.mainCamera.fieldOfView = value
+	end)
+	LuaUIUtils.OnComplete(self.tweener,function()
+		self.stop = false
+		self.tweener = nil
+		WindowManager:GetInstance():GetServerByName(Windows.GameView):ShowCountDown(self.levelCfg.level_time,function()
+			self:StopRound()
+		end)
+	end)
+
+	if not IsNil(self.sceneModel) then
+		PoolManager:GetInstance():Back(self)
+		self.sceneModel = nil
+	end
+
+	if self.modelTimer then
+		self.modelTimer:OnDestroy()
+		self.modelTimer = nil
+	end
+
+
+	self.mgr_Grid:Clear()
+	self.levelCfg = LevelConfig[self.levelId]
+	self.levelNeedScore = self.levelCfg.level_score
+	self.curScore = 0
+	self.mgr_Grid:RefreshMapAll(self.levelCfg)
+
+	if self.levelCfg.animation_path ~= "" then
+		PoolManager:GetInstance():Take(self.levelCfg.animation_path,self,function(transform)
+			self.sceneModel = transform
+			if IsNil(transform) then return end
+			self.sceneModel.localScale = GameUtils.Vector3One
+			local gridUnit = GridManager:GetInstance().gridList[1]
+			self.sceneModel.position = GameUtils.Vector3(gridUnit.posX,0,gridUnit.posZ)
+
+			if self.levelCfg.animation_time > 0 then
+				self.modelTimer = Timer.New(self,self.levelCfg.animation_time,function()
+					PoolManager:GetInstance():Back(self)
+					self.modelTimer = nil
+					self.sceneModel = nil
+				end,1)
+			end
+		end)
+	end
+	if not self.finishedGuide and self.levelCfg.level ~= 0 then PlayerPrefsUtils.SetGuideState(1) end
+end
+
+function this:StopRound(isWin)
+	self.stop = true
+	if self.levelCfg.level ~= 0 and not isWin then
+		self:SetPower(self.curPowerCount - 1)
+		PlayerPrefsUtils.SetPowerVolume(self.curPowerCount)
+		if self.refreshTime == 0 then
+			self:SaveRefreshTime()
+		end
+	end
+	self.levelId = isWin and (self.levelId + 1) or self.levelId
+	WindowManager:GetInstance():Open(Windows.AccountView,WindowType.Stack,nil,isWin)
+	WindowManager:GetInstance():Close(Windows.GameView)
+end
+
+function this:ExitRound()
+	self.stop = true
+	WindowManager:GetInstance():Close(Windows.GameView)
+	WindowManager:GetInstance():Open(Windows.MainView)
+	self.mgr_Grid:Clear()
+end
+
+function this:SetPower(value)
+	if self.curPowerCount == value then return end
+	self.curPowerCount = math.max(0,value)
+	EventDispatcher:GetInstance():DispatchEvent(EventID.PowerChange,self.curPowerCount)
+end
+
+function this:GetPower()
+	return self.curPowerCount
+end
+
+function this:AddCharacter()
+    this.super.AddCharacter(self)
+end
+
+function this:Update(time)
+    this.super.Update(self, time)
+end
+
+function this:OnDestroy()
+    this.super.OnDestroy(self)
+	if not IsNil(self.sceneModel) then
+		PoolManager:GetInstance():Back(self.sceneModel)
+		self.sceneModel = nil
+	end
+
+	if self.modelTimer then
+		self.modelTimer:OnDestroy()
+		self.modelTimer = nil
+	end
+	if self.tweener then LuaUIUtils.Kill(self.tweener) self.tweener = nil end
+    if self.refreshTimer then self.refreshTimer:OnDestroy() self.refreshTimer = nil end
+end

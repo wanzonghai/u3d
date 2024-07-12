@@ -1,0 +1,78 @@
+AnimHandle = Class("AnimHandle", HandleBase)
+
+local Loop = CS.UnityEngine.WrapMode.Loop
+
+function AnimHandle:ctor(controller)
+	AnimHandle.super.ctor(self, controller, Handles.Anim)
+
+	self.scene = SceneManager:GetInstance().scene
+	self.animation = self.controller.object.boneClothes.animation
+	self.navMeshAgents = self.controller.object.navMeshAgents
+	self.isComplete = false
+	self.canCut = true 		--动作能否被打断
+end
+
+--动作名,时间,回调,额外信息
+function AnimHandle:OnHandle(...)
+	AnimHandle.super.OnHandle(self, ...)
+
+	if self.event ~= nil then self.event(self.isComplete) end
+	self.animName, self.p_time, self.event, self.extraParams, self.canCut = ...
+	if self.canCut == nil then self.canCut = true end
+	if type(self.extraParams) == "string" then
+		self.animName, self.extraParams = self:ReadParam(self.extraParams)
+	end
+	self.nowTime = os.time()
+	self.endTime = self.nowTime + self.p_time
+	self.isComplete = false
+end
+
+function AnimHandle:WriteParam()
+	if self.extraParams == nil then return self.animName end
+	local extraStr = table.tableToString1(self.extraParams)
+	return self.animName .. "$" .. extraStr
+end
+
+function AnimHandle:ReadParam(paramsStr)
+	local result = string.split(paramsStr, "$")
+	local extraParams = nil
+	if result[2] ~= nil then
+		extraParams = StringUtils.StrToTable(result[2])
+	end
+	return result[1], extraParams
+end
+
+function AnimHandle:Run()
+	AnimHandle.super.Run(self)
+
+	if self.p_time == 0 then self.animation:Play(self.animName or Actions.Idle)
+	else self.animation:Play(self.animName or Actions.Idle)
+	end
+	if self.extraParams ~= nil and self.extraParams.effectID ~= nil and self.fixedEffect == nil then
+		self.fixedEffect = FixedEffect.New(self.extraParams.effectID)
+	  	self.fixedEffect:FixedToTransform(self.controller.object.boneClothes:GetMountByName(self.extraParams.mount))
+	end
+end
+
+function AnimHandle:Update(time)
+	AnimHandle.super.Update(self, time)
+	
+	if self.endTime >= 0 then
+		local lastTime = self.endTime - os.time()
+		if lastTime <= 0 then
+			self.endTime = -1
+			self.isComplete = true
+			self.controller:OnHandles(Handles.Idle)
+		end
+	end
+end
+
+function AnimHandle:Destroy()
+	if self.isDestroy then return end
+	if self.fixedEffect ~= nil then
+		self.fixedEffect:Destroy()
+		self.fixedEffect = nil
+	end
+	if self.event then self.event(self.isComplete) self.event = nil end
+	AnimHandle.super.Destroy(self)
+end

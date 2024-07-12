@@ -1,0 +1,29 @@
+TimeScaleSkill = Class("TimeScaleSkill", SkillAcitonBase)
+
+--TimeScale 缩放 时间
+function TimeScaleSkill:ctor(skillUnit, p)
+	TimeScaleSkill.super.ctor(self, skillUnit, p)
+	self.scale = tonumber(self.params["Scale"] or 1)
+	self.t = tonumber(self.params["T"] or 0)
+end
+
+function TimeScaleSkill:Play(target)
+	TimeScaleSkill.super.Play(self, target)
+	self.time = self.t
+	CS.UnityEngine.Time.timeScale = self.scale
+end
+
+function TimeScaleSkill:Update(time)
+	TimeScaleSkill.super.Update(self, time)
+	if self.time > 0 then
+		self.time = self.time - time
+		if self.time <= 0 then
+			self:Stop()
+		end
+	end
+end
+
+function TimeScaleSkill:Stop()
+	TimeScaleSkill.super.Stop(self)
+	CS.UnityEngine.Time.timeScale = 1
+end

@@ -1,0 +1,211 @@
+WeaponClothes = Class("WeaponClothes")
+
+local ClampForever = CS.UnityEngine.WrapMode.ClampForever
+local Vector3 = CS.UnityEngine.Vector3
+
+function WeaponClothes:ctor(boneClothes)
+	self.boneClothes = boneClothes
+
+	self.transform = nil
+	self.layer = Layers.Default
+	self.weapons = {}
+	self.id = 0
+	self.event = Delegate.New()
+	self.bones = nil
+	self.rootBone = nil
+	self.boneClothes.bodyClothes.event:Add(self, self.LaunchModel)
+
+	self.hideSigns = {}
+	self.effect = nil
+	self.followTransformY = 0	--0固定 1移出 2逗留 3移回
+	self.followPosition = nil
+	self.t1 = 0
+	self.t2 = 0
+	self.t3 = 0
+end
+
+function WeaponClothes:OnModel(id)
+	if self.id == id then return end
+	self:Destroy()
+
+	self.id = id
+	if self.id == 0 then return end
+
+	if self.boneClothes.bodyClothes.bodyComplete then self:LaunchModel() end
+end
+
+function WeaponClothes:LaunchModel()
+	self.boneClothes.bodyClothes.event:Remove(self)
+	if self.id == 0 then return end
+	PoolManager:GetInstance():Take("Role/Weapon/Weapon" .. self.id .. ".prefab", self, function(transform)
+		self.transform = transform
+		self.transform.parent = self.boneClothes.parent
+		self.transform.position = self.boneClothes.parent.position
+	    self.transform.rotation = self.boneClothes.parent.rotation
+	    self.transform.localScale = GameUtils.Vector3One
+	    self.pool.handler:InitTrail(transform, self.boneClothes.animation.animation)
+	    
+	   	local length = self.transform.childCount - 1
+	    for i = 0 , length do
+			local weapon = {}
+			weapon.transform = self.transform:GetChild(i)
+			weapon.position = weapon.transform.localPosition
+			weapon.rotation = weapon.transform.localRotation
+	    	table.insert(self.weapons, weapon)
+		end
+
+		for _, weapon in pairs(self.weapons) do
+			local t = weapon.transform
+			t.parent = self.boneClothes:GetMountByName(t.name)
+			t.localRotation = GameUtils.QuaternionIdentity
+			t.localPosition = GameUtils.Vector3Zero
+			t.localScale = GameUtils.Vector3One
+		end
+
+	    self:SetLayer(self.layer)
+		self:SetShow(self.boneClothes.show)
+		self:SetSortingOrder(self.boneClothes.sortingOrder)
+		self:SetParticleSystemScale(self.boneClothes.particleSystemScale)
+	    self.event:Function()
+	end)
+end
+
+--武器飞出去的技能接口调用
+function WeaponClothes:OnFollowTransformY(position, t1, t2, t3)
+	if #self.weapons == 0 then return end
+	self.followTransformY = 1
+	self.followPosition = position
+	self.t1 = t1
+	self.t2 = t2
+	self.t3 = t3
+	local weapon = self.weapons[1].transform
+	weapon.parent = nil
+end
+
+function WeaponClothes:UpdateFollowTransformY(time)
+	if self.followTransformY == 0 then return end
+
+	local weapon = self.weapons[1].transform
+	weapon.rotation = self.boneClothes:GetMountByName(weapon.name).rotation
+	if self.followTransformY == 1 then
+		local t = self.t1
+		self.t1 = self.t1 - time
+		if self.t1 >= 0 then
+			local dis = self.followPosition - weapon.position
+			local speed = dis.magnitude / t
+			speed = time * speed
+			weapon.position = weapon.position + speed * dis.normalized
+		else
+			weapon.position = self.followPosition
+			if self.t2 <= 0 then self.followTransformY = 3
+			else self.followTransformY = 2 end
+		end
+	elseif self.followTransformY == 2 then
+		self.t2 = self.t2 - time
+		if self.t2 <= 0 then self.followTransformY = 3 end
+	elseif self.followTransformY == 3 then
+		local t = self.t3
+		self.t3 = self.t3 - time
+		if self.t3 >= 0 then
+			local dis = self.boneClothes:GetMountByName(weapon.name).position - weapon.position
+			local speed = dis.magnitude / t
+			speed = time * speed
+			weapon.position = weapon.position + speed * dis.normalized
+		else
+			weapon.parent = self.boneClothes:GetMountByName(weapon.name)
+			weapon.localRotation = GameUtils.QuaternionIdentity
+			weapon.localPosition = GameUtils.Vector3Zero
+			self.followTransformY = 0
+		end
+	end
+end
+
+function WeaponClothes:TrailShow(name, show)
+	if IsNil(self.transform) then return end
+	if string.IsNullOrEmpty(name) then 
+		for _, v in pairs(self.pool.handler.trail) do
+			if show then v:StartTrail()
+			else v:EndTrail() end
+    	end
+	elseif self.pool.handler.trail[name] ~= nil then
+		if show then self.pool.handler.trail[name]:StartTrail()
+		else self.pool.handler.trail[name]:EndTrail() end
+	end
+end
+
+function WeaponClothes:SetLayer(layer)
+	self.layer = layer
+	if IsNil(self.transform) then return end
+	self.pool.handler:SetLayer(layer)
+	if self.effect then self.effect:SetLayer(layer) end
+end
+
+function WeaponClothes:SetShow(show, sign)
+	if IsNil(self.transform) then return end
+	local hideSign = sign or "NormSign"
+	if show then table.removeValue(self.hideSigns, hideSign)
+	else
+		if not table.containValue(self.hideSigns,hideSign) then
+		   table.insert(self.hideSigns,hideSign)
+		end
+	end
+	self:UpdateShow()
+end
+
+function WeaponClothes:Update(time)
+	self:UpdateFollowTransformY(time)
+end
+
+function WeaponClothes:UpdateShow()
+	self.pool.handler:SetShow(#self.hideSigns == 0)
+end
+
+function WeaponClothes:SetSortingOrder(sortingOrder)
+	if IsNil(self.transform) then return end
+	self.pool.handler:SetSortingOrder(sortingOrder)
+end
+
+function WeaponClothes:SetParticleSystemScale(particleSystemScale)
+	if IsNil(self.transform) then return end
+	self.pool.handler:SetParticleSystemScale(particleSystemScale)
+end
+
+function WeaponClothes:FadeInRim(time, r, g, b)
+	if IsNil(self.transform) then return end
+	self.pool.handler:FadeInRim(time, r, g, b)
+end
+function WeaponClothes:FadeOutRim(time)
+	if IsNil(self.transform) then return end
+	self.pool.handler:FadeOutRim(time)
+end
+
+function WeaponClothes:Destroy()
+	if self.id == 0 then return end
+
+	if WeaponConfig[self.id].bone then
+		if not IsNil(self.transform) then
+			self.pool.handler.skinnedMeshRenderer[0].bones = self.bones 
+			self.pool.handler.skinnedMeshRenderer[0].rootBone = self.rootBone
+		end
+		self.bones = nil
+		self.rootBone = nil
+	else
+		if not IsNil(self.transform) then
+			for _, weapon in pairs(self.weapons) do
+				local t = weapon.transform
+				t.parent = self.transform
+				t.localRotation = weapon.rotation
+				t.localPosition = weapon.position
+			end
+		end
+	end
+	self.weapons = {}
+	if self.effect then 
+		self.effect:Destroy() 
+		self.effect = nil
+	end
+	self.followTransformY = 0
+	if self.pool ~= nil then PoolManager:GetInstance():Back(self) end
+	self.id = 0
+	self.transform = nil
+end

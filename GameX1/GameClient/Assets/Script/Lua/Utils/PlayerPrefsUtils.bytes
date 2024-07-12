@@ -1,0 +1,34 @@
+PlayerPrefsUtils = {}
+
+--PlayerPrefsUtils.Save = function() PlayerPrefs.Save() end
+local GameUtils = CS.GameUtils
+
+--音效设置
+PlayerPrefsUtils.GetClipVolume = function() return GameUtils.GetFloat("ClipVolume", 1) end
+PlayerPrefsUtils.SetClipVolume = function(value) return GameUtils.SetFloat("ClipVolume", value) end
+--背景音量设置
+PlayerPrefsUtils.GetGroundVolume = function() return GameUtils.GetFloat("GroundVolume", 0.3) end
+PlayerPrefsUtils.SetGroundVolume = function(value) return GameUtils.SetFloat("GroundVolume", value) end
+
+--音效初始值设置
+PlayerPrefsUtils.GetClipInitVolume = function() return GameUtils.GetFloat("ClipInitVolume", 1) end
+PlayerPrefsUtils.SetClipInitVolume = function(value) return GameUtils.SetFloat("ClipInitVolume", value) end
+
+--背景音量初始值设置
+PlayerPrefsUtils.GetGroundInitVolume = function() return GameUtils.GetFloat("GroundInitVolume", 1) end
+PlayerPrefsUtils.SetGroundInitVolume = function(value) return GameUtils.SetFloat("GroundInitVolume", value) end
+
+PlayerPrefsUtils.GetPowerVolume = function() return GameUtils.GetInt("PowerVolume",3) end
+PlayerPrefsUtils.SetPowerVolume = function(value) return GameUtils.SetInt("PowerVolume",value) end
+
+PlayerPrefsUtils.GetRefreshPowerTime = function() return GameUtils.GetInt("RefreshPowerTime",0) end
+PlayerPrefsUtils.SetRefreshPowerTime = function(value) return GameUtils.SetInt("RefreshPowerTime",value) end
+
+PlayerPrefsUtils.GetDisruptionState = function() return GameUtils.GetInt("DisruptionState",0) end
+PlayerPrefsUtils.SetDisruptionState = function(value) return GameUtils.SetInt("DisruptionState",value) end
+
+PlayerPrefsUtils.GetAddTimeState = function() return GameUtils.GetInt("AddTimeState",0) end
+PlayerPrefsUtils.SetAddTimeState = function(value) return GameUtils.SetInt("AddTimeState",value) end
+
+PlayerPrefsUtils.GetGuideState = function() return GameUtils.GetInt("GuideState",0) end
+PlayerPrefsUtils.SetGuideState = function(value) return GameUtils.SetInt("GuideState",value) end

@@ -1,0 +1,76 @@
+ChargeSkill = Class("ChargeSkill", SkillAcitonBase)
+
+--冲刺 T时间 D距离
+local Vector3 = CS.UnityEngine.Vector3
+function ChargeSkill:ctor(skillUnit, p)
+	ChargeSkill.super.ctor(self, skillUnit, p)
+
+	self.t = tonumber(self.params["T"] or 0.2)
+	self.d = tonumber(self.params["D"] or 0)
+	self.x = tonumber(self.params["X"] or 0)
+	self.z = tonumber(self.params["Z"] or 0)
+	self.p = tonumber(self.params["P"] or 0)
+	self.f = tonumber(self.params["F"] or 1)
+	self.id = tonumber(self.params["ID"] or 0)
+end
+
+function ChargeSkill:Play(target, point)
+	ChargeSkill.super.Play(self, target, point)
+	
+	local offset = Vector3(self.x, 0, self.z)
+	local magnitude = offset.magnitude
+	self.time = self.t 
+
+	if self.f == 0 then self.object.navMeshAgents:IsRotation(false) end
+	local position = nil
+	if self.p == 0 then
+		position = self.object.root.position
+		position = position + self.object.root.forward * self.d
+		position = position + self.object.root.rotation * offset
+	elseif self.p == 1 then
+		position = self.object.root.position
+		if target and not IsNil(target.root) then
+			local dis = target.root.position - position
+			local magnitude = dis.magnitude
+			if magnitude <= target.normVO.model.body_size then				--在目标体内
+
+			elseif magnitude >= target.normVO.model.body_size + self.d then	--目标距离过远
+				position = position + dis.normalized * self.d
+			else															--目标距离小于冲锋距离
+				position = position + dis.normalized * (magnitude - target.normVO.model.body_size)
+			end
+		else
+			position = position + self.object.root.forward * self.d
+		end
+		position = position + self.object.root.rotation * offset
+	elseif self.p == 2 then
+		position = point
+		position = position + self.object.root.rotation * offset
+	end
+	self.speed = Vector3.Distance(self.object.root.position, position) / self.t
+	self.object.navMeshAgents:Speed(self.speed)
+	self.object.navMeshAgents:MoveRay(position)
+	if self.id > 0 then
+		local effect = FixedEffect.New(self.id)
+		effect:FixedToPosition(position, self.object.root.rotation)
+	end
+end
+
+function ChargeSkill:Update(time)
+	ChargeSkill.super.Update(self, time)
+
+	if self.time > 0 then
+		self.object.navMeshAgents:Speed(self.speed)
+		self.time = self.time - time
+		if self.time <= 0 then
+			self:Stop()
+		end
+	end
+end
+
+function ChargeSkill:Stop()
+	ChargeSkill.super.Stop(self)
+	if self.f == 0 then self.object.navMeshAgents:IsRotation(true) end
+	self.object.navMeshAgents:Speed(self.object.attributes.move_speed.value)
+	self.object.navMeshAgents:Stop()
+end

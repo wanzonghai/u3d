@@ -1,0 +1,35 @@
+SkillUtils = {}
+
+local skillConfig = require"Config/Skill"
+
+--属性
+local SkillConfigVO = {}
+
+SkillUtils.GetConfigVOByID = function(id)
+    if SkillConfigVO[id] == nil then
+    	local skillVO = {}
+		local actions = string.split(StringUtils.StringFormat(skillConfig[id].func), ";")
+		for i = 1, #actions do
+			local as = string.split(actions[i], ",")
+			local action = {}
+			action.name = as[1]
+			table.remove(as, 1)
+			action.params = {}
+			for j = 1, #as do
+				local ps = string.split(as[j], "=")
+				action.params[ps[1]] = ps[2]
+    		end
+    		table.insert(skillVO, action)
+	    end
+	    SkillConfigVO[id] = skillVO
+    end
+    return SkillConfigVO[id]
+end
+
+SkillUtils.ClearConfigVOByID = function(id)
+    SkillConfigVO[id] = nil
+end
+
+SkillUtils.GetCd = function(skillId)
+    return skillConfig[skillId].cd
+end

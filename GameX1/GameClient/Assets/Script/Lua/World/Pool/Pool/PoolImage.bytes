@@ -1,0 +1,51 @@
+PoolImage = Class("PoolImage")
+
+local ABDLManager = CS.ABDLManager:GetInstance()
+local DownLoader = CS.DownLoader
+local DownLoaderState = CS.DownLoaderState
+function PoolImage:ctor(path)
+	self.path = path
+	self.sign = ABDLUtils.KeepStartsWith .. path
+	self.downLoader = ABDLManager:DownLoader(path)
+	self.downLoader.IsLoadAll = true
+
+	self.tableList = {}			--使用队列
+	self.poolTakeList = {}		--事件队列
+	self.unload = true
+end
+
+function PoolImage:Take(t, evt)
+	self.unload = false
+	table.insert(self.tableList, t)
+	if self.downLoader.State == DownLoaderState.Complete then evt(self.downLoader) 
+	else
+		self.poolTakeList[t] = evt
+		if self.downLoader.State == DownLoaderState.None then
+			self.downLoader:Load(function() self:DownLoaderTake() end, true, self.sign)
+		end
+	end
+end
+
+function PoolImage:DownLoaderTake()
+	for k,v in pairs(self.poolTakeList) do
+		v(self.downLoader)
+	end
+	self.poolTakeList = {}
+end
+
+function PoolImage:Back(t)
+	local key = table.getKeyByValue(self.tableList, t)
+	if key == nil then return end
+	table.remove(self.tableList, key)
+	self.poolTakeList[t] = nil
+end
+
+function PoolImage:UnLoad()
+	if self.unload then return false end
+	if #self.tableList ~= 0 then return false end
+	self.unload = true
+	self.downLoader:UnLoad(self.sign)
+	self.tableList = {}
+	self.poolTakeList = {}
+	return true
+end

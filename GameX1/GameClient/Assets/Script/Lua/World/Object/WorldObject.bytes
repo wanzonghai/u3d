@@ -1,0 +1,14 @@
+WorldObject =  Class("WorldObject", NormObject)
+local this = WorldObject
+
+local Vector3 = CS.UnityEngine.Vector3
+
+function this:ctor(id)
+	this.super.ctor(self, id)
+end
+
+function this:Start()
+	this.super.Start(self)
+	--self.boxCollider.size = Vector3(self.normVO.model.radius, self.normVO.model.height, self.normVO.model.radius)
+	--self.boxCollider.center = Vector3(0, 1, 0)
+end

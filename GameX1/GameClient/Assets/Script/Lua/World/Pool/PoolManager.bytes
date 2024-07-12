@@ -1,0 +1,94 @@
+PoolManager = Class("PoolManager")
+
+local GameObject = CS.UnityEngine.GameObject
+local this = PoolManager
+function this:GetInstance()
+    if nil == self.m_Instance then
+        self.m_Instance = self:New()
+    end
+    return self.m_Instance
+end
+
+function this:ctor()
+	self.tfPool = {}
+	self.audioClipPool = {}
+	self.animationClipPool = {}
+	self.imagePool = {}
+	self.imageSpritePool = {}
+	self.poolTransform = GameObject("PoolManager").transform
+	self.poolTransform.gameObject:SetActive(false)
+	if GameUtils.IsPhotoImage then self.postWebRequest = CS.PostWebRequest() end
+	CS.UnityEngine.Object.DontDestroyOnLoad(self.poolTransform.gameObject)
+end
+
+function this:UnLoad()
+	for _, v in pairs(self.tfPool) do
+		v:UnLoad()
+	end
+	for _, v in pairs(self.imagePool) do
+		v:UnLoad()
+	end
+end
+
+function this:ExitScene()
+	self.audioClipPool = {}
+	self.animationClipPool = {}
+
+    for k, v in pairs(self.tfPool) do
+		if v:UnLoad() then self.tfPool[k] = nil end
+	end
+	for k, v in pairs(self.imageSpritePool) do
+		v:UnLoad()
+	end
+end
+
+function this:Take(path, op, evt)
+	if self.tfPool[path] == nil then self.tfPool[path] = PoolTransform.New(path, self.poolTransform) end
+	self.tfPool[path]:Take(op, evt)
+end
+function this:Back(op)
+	if self.tfPool[op.pool.path] ~= nil then 
+		self.tfPool[op.pool.path]:Back(op) 
+	else
+		L.LogError("PoolManager.Back溢出 ".. op.pool.path)
+	end
+end
+
+function this:TakeAudioClip(path, evt)
+	if self.audioClipPool[path] == nil then self.audioClipPool[path] = PoolAudioClip.New(path) end
+	self.audioClipPool[path]:Take(evt)
+end
+
+function this:TakeAnimationClip(path, evt)
+	if self.animationClipPool[path] == nil then self.animationClipPool[path] = PoolAnimationClip.New(path) end
+	self.animationClipPool[path]:Take(evt)
+end
+
+function this:TakeImage(t, path, evt)
+	if self.imagePool[path] == nil then self.imagePool[path] = PoolImage.New(path) end
+	self.imagePool[path]:Take(t, evt)
+end
+function this:BackImage(t, path)
+	if self.imagePool[path] ~= nil then 
+		self.imagePool[path]:Back(t) 
+	else
+		L.LogError("PoolManager.BackImage溢出 ".. path)
+	end
+end
+
+function this:TakeImageSprite(t, path, ishttp, evt)
+	if self.imageSpritePool[path] == nil then self.imageSpritePool[path] = PoolImageSprite.New(self.postWebRequest, path) end
+	self.imageSpritePool[path]:Take(t, ishttp, evt)
+end
+function this:BackImageSprite(t, path)
+	if self.imageSpritePool[path] ~= nil then 
+		self.imageSpritePool[path]:Back(t) 
+	else
+		L.LogError("PoolManager.BackImageSprite溢出 ".. path)
+	end
+end
+function this:UnLoadImageSprite(path)
+	if self.imageSpritePool[path] ~= nil then 
+		self.imageSpritePool[path]:UnLoad(true)
+	end
+end

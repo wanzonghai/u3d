@@ -1,0 +1,33 @@
+Delegate = Class("Delegate")
+
+function Delegate:ctor()
+	self.list = {}
+end
+
+--添加回调
+function Delegate:Add(t, func)
+    if self.list[t] ~= nil then 
+        L.LogError("Delegate相同table回调多次侦听")
+    end
+	self.list[t] = func
+end
+
+--移除回调
+function Delegate:Remove(t)
+	self.list[t] = nil
+end
+
+--触发回调(self 添加回调的t)
+function Delegate:Function(...)
+	local list = {}
+	for k, v in pairs(self.list) do
+		list[k] = v
+    end
+    for k, v in pairs(list) do
+        v(k, ...)
+    end
+end
+
+function Delegate:Clear()
+    self.list = {}
+end

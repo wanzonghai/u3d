@@ -1,0 +1,149 @@
+BoneClothes = Class("BoneClothes")
+
+local Vector3 = CS.UnityEngine.Vector3
+local GameObject = CS.UnityEngine.GameObject
+local HotFixManager = CS.HotFixManager.GetInstance()
+local Vector321 = Vector3(0, 2.1, 0)
+local Vector308 = Vector3(0, 0.8, 0)
+
+function BoneClothes:ctor(parent)
+	self.parent = parent
+	self.pool = nil
+	self.lsMount = {}
+	self.boneName = nil
+	self.transform = nil
+	self.boneComplete = false
+	self.boneEvent = Delegate.New()
+	self.animation = Animations.New()
+	self.layer = Layers.Default
+
+	self.show = true
+	self.sortingOrder = 0
+	self.scale = 1
+	self.particleSystemScale = nil
+	--self.bodyClothes = BodyClothes.New(self)
+	--self.weaponClothes = WeaponClothes.New(self)			--weapon_id
+end
+
+function BoneClothes:OnBone(name, scale)
+	self.scale = scale or 1
+	self.particleSystemScale = self.particleSystemScale == nil and self.scale or self.particleSystemScale * self.scale
+	self:Destroy(true)
+	self.boneName = name
+
+	local p = "Role/" .. name .. "/Bone.prefab"
+	PoolManager:GetInstance():Take(p, self, function(transform)
+		self.transform = transform
+		self.transform.parent = self.parent
+		self.transform.localPosition = Vector3(0,0,0)
+		self.transform.rotation = self.parent.rotation
+	    
+		--非骨骼挂点（血条挂点，脚下挂点之类的,生成bone之后要跟Bone走）
+	    for k, v in pairs(self.lsMount) do
+	        if self.pool.handler.mount[k] ~= nil then
+	        	self.lsMount[k].parent = self.pool.handler.mount[k]
+	        	self.lsMount[k].localPosition = GameUtils.Vector3Zero
+				self.lsMount[k].localRotation = GameUtils.QuaternionIdentity
+				self.lsMount[k].localScale = GameUtils.Vector3One
+	        end
+	    end
+
+		self.animation:Infuse(self.pool.handler.animator, self.boneName)
+		self:SetSize(self.scale)
+	    self:SetLayer(self.layer)
+		self:SetShow(self.show)
+		self:SetSortingOrder(self.sortingOrder)
+		self:SetParticleSystemScale(self.particleSystemScale)
+	    self.boneComplete = true
+	    self.boneEvent:Function()
+	end)
+end
+
+function BoneClothes:Update(time)
+	self.animation:Update(time)
+	--self.weaponClothes:Update(time)
+end
+
+function BoneClothes:Destroy(unload)
+	if self.boneName == nil then return end
+	--self.bodyClothes:Destroy()
+	--self.weaponClothes:Destroy()
+	self.transform = nil
+	self.boneName = nil
+	self.animation:Destroy()
+	PoolManager:GetInstance():Back(self)
+
+	if unload then
+		for k, v in pairs(self.lsMount) do
+			v.parent = self.parent
+			v.localRotation = GameUtils.QuaternionIdentity
+		end
+	else
+		for k, v in pairs(self.lsMount) do
+			GameObject.Destroy(v.gameObject)
+		end
+		self.lsMount = {}
+	end
+end
+
+function BoneClothes:GetMountByName(name, bone)
+	if name == Mounts.Root then return self.parent end
+	if bone then
+		if not IsNil(self.transform) and self.pool.handler.mount[name] ~= nil then 
+			return self.pool.handler.mount[name]
+		end
+	end
+	if self.lsMount[name] then return self.lsMount[name] end
+	local transform = GameObject(name).transform
+	if not IsNil(self.transform) and self.pool.handler.mount[name] then 
+		transform.parent = self.pool.handler.mount[name]
+		transform.localPosition = GameUtils.Vector3Zero
+	else
+		transform.parent = self.parent
+		if name == Mounts.HP then transform.localPosition = Vector321
+		else transform.localPosition = Vector308
+		end
+	end
+	transform.localScale = GameUtils.Vector3One
+	transform.localRotation = GameUtils.QuaternionIdentity
+	self.lsMount[name] = transform
+	return self.lsMount[name]
+end
+
+function BoneClothes:SetLayer(layer)
+	self.layer = layer
+	if IsNil(self.transform) then return end
+	self.pool.handler:SetLayer(layer)
+	--self.bodyClothes:SetLayer(layer)
+	--self.weaponClothes:SetLayer(layer)
+end
+
+function BoneClothes:SetShow(show)
+	self.show = show
+	if IsNil(self.transform) then return end
+	self.pool.handler:SetShow(show)
+	--self.bodyClothes:SetShow(show)
+	--self.weaponClothes:SetShow(show)
+end
+
+function BoneClothes:SetSortingOrder(sortingOrder)
+	self.sortingOrder = sortingOrder
+	if IsNil(self.transform) then return end
+	self.pool.handler:SetSortingOrder(sortingOrder)
+	--self.bodyClothes:SetSortingOrder(sortingOrder)
+	--self.weaponClothes:SetSortingOrder(sortingOrder)
+end
+
+function BoneClothes:SetSize(size)
+	self.scale = size
+	if IsNil(self.transform) then return end
+	self.transform.localScale = Vector3(self.scale, self.scale, self.scale)
+end
+
+function BoneClothes:SetParticleSystemScale(particleSystemScale)
+	self.particleSystemScale = particleSystemScale
+	if IsNil(self.transform) then return end
+	self.pool.handler:SetParticleSystemScale(particleSystemScale)
+	--self.bodyClothes:SetParticleSystemScale(particleSystemScale)
+	--self.weaponClothes:SetParticleSystemScale(particleSystemScale)
+end

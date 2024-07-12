@@ -1,0 +1,41 @@
+--执行trigger的Code
+SceneCode = Class("SceneCode")
+
+local Vector3 = CS.UnityEngine.Vector3
+
+function SceneCode:ctor(code, sceneTrigger)
+	self.sceneTrigger = sceneTrigger
+	self.playIndex = 0
+	code = GameUtils.StringFormat(code)
+	if string.IsNullOrEmpty(code) then return end
+	L.Log("ClientCode: " .. code)
+	self.actions = string.split(code, ";")
+	
+	self:Play()
+end
+
+function SceneCode:Play()
+	self.playIndex = self.playIndex + 1
+	if self.playIndex > #self.actions then return end
+
+	self:CodeOneShot(self.actions[self.playIndex])
+end
+
+function SceneCode:CodeOneShot(code)
+	local action = string.split(code, ",")
+	if action[1] == "OpenWindow" then
+		WindowManager:GetInstance():Open(action[2], WindowType.Remove)
+	elseif action[1] == "MoveTo" then
+		local x = SceneManager:GetInstance().scene.player
+		x:MoveTo(Vector3(tonumber(action[2]), tonumber(action[3]), tonumber(action[4])))
+		if #action > 4 then x.object.root.eulerAngles = Vector3(tonumber(action[5]), tonumber(action[6]), tonumber(action[7])) end
+	elseif action[1] == "Delay" then
+		Timer.New(self, tonumber(action[2]), function()
+			self:Play()
+		end, 1, true)
+		return
+	else
+		L.LogError("没有{" .. action[1] .. "}行为.")
+	end
+	self:Play()
+end

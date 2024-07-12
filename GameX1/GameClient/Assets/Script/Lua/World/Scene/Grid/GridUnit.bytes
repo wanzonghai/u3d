@@ -1,0 +1,213 @@
+GridUnit = Class("GridUnit")
+local this = GridUnit
+
+local Vector3 = CS.UnityEngine.Vector3
+GridWidth = 1.25
+
+function this:ctor(row,col)
+    self.row = row
+    self.col = col
+    self.num = 0
+
+    --是否被选中
+    self.selected = false
+    self.state = 0              --选中状态   1：选中可连线  2：选中不可连线 3：选中空格子
+    --手指是否在区域内
+    self.isInRange = false
+    self.lastGridUnit = nil     --被选中的上一个格子
+
+    --模型坐标点
+    self.posX = (col - 1) * GridWidth
+    self.posZ = (row - 1) * GridWidth
+    self.minX = self.posX
+    self.minZ = self.posZ
+    self.maxX = self.posX + GridWidth
+    self.maxZ = self.posZ + GridWidth
+
+    self.point1 = Vector3(self.posX,0,self.posZ)
+    self.point2 = Vector3(self.maxX,0,self.posZ)
+    self.point3 = Vector3(self.maxX,0,self.maxZ)
+    self.point4 = Vector3(self.posX,0,self.maxZ)
+    self.lines = {}
+    self.lines[1] = {self.point1,self.point2}
+    self.lines[2] = {self.point2,self.point3}
+    self.lines[3] = {self.point3,self.point4}
+    self.lines[4] = {self.point4,self.point1}
+    self.middlePoint = Vector3(self.posX + GridWidth/2,0,self.posZ + GridWidth / 2)
+    self.checkDistance = GridWidth * 2
+
+    self.tf_parent_floor = nil
+    self.tf_parent_num = nil
+    self.obj_select_greed = nil
+    self.obj_select_red = nil
+    self.obj_select_blue = nil
+
+    self.model_ground = nil
+    self.model_root = nil
+    self.model_floor = nil
+    self.model_num = nil
+end
+
+function this:SetNum(num)
+    if self.num == num then return end
+    self.num = num
+    self:RefreshModel(num)
+end
+
+function this:RefreshModel(num)
+    if not self.model_ground then
+        self.model_ground = GridModel.New()
+        self.model_ground:CreateTransform("Grid/SM_Bld_House_Floor_Stone_03.prefab",nil,function(transform)
+            if not transform then return end
+            self.model_ground:SetName("" .. self.row .. "-" .. self.col)
+            self.model_ground:SetPos(GameUtils.Vector3(self.posX,0,self.posZ))
+
+            self.obj_select_blue = transform:Find("select_03").gameObject
+            self.obj_select_red = transform:Find("select_01").gameObject
+            self.obj_select_greed = transform:Find("select_02").gameObject
+            transform.parent = nil
+            self.obj_select_blue:SetActive(false)
+            self.obj_select_red:SetActive(false)
+            self.obj_select_greed:SetActive(false)
+
+            self.model_root = GridModel.New()
+            self.model_root:CreateTransform("Grid/Numbers/Prefabs/Root_Loc.prefab",transform,function(transform1)
+                local tf_animation = transform1:Find("Animaton_Loc")
+                self.tf_parent_floor = tf_animation:Find("Floor_Loc")
+                self.tf_parent_num = tf_animation:Find("Number_Loc")
+                self:RefreshNumModel(num)
+            end)
+        end)
+    else
+        self:RefreshNumModel(num)
+    end
+end
+
+function this:RefreshNumModel(num)
+    if num > 0 then
+        if not self.model_floor then
+            self.model_floor = GridModel.New()
+            self.model_floor:CreateTransform("Grid/Numbers/Prefabs/SM_Floor_Stone_001.prefab",self.tf_parent_floor)
+        end
+        if not self.model_num then
+            self.model_num = GridModel.New()
+        end
+        self.model_num:CreateTransform("Grid/Numbers/Prefabs/SM_Floor_Stone_N_0" .. num .. ".prefab",self.tf_parent_num)
+
+        self.model_floor:SetActive(true)
+        self.model_num:SetActive(true)
+    else
+        if self.model_floor then self.model_floor:SetActive(false) end
+        if self.model_num then self.model_num:SetActive(false) end
+    end
+end
+
+function this:Select(state)
+    --L.LogError(string.format("Select   Row:%s   Col:%s   State:%s",self.row,self.col,state))
+    if self.selected then return end
+    SoundManager:GetInstance():Play(3)
+    self.selected = true
+    self.state = state
+    local red = GridManager:GetInstance().isRed
+    self:SetGreenActive(not red)
+    self:SetRedActive(red)
+    self.lastGridUnit = GridManager:GetInstance():GetLastSelectUnit()
+    self.selectIdx = GridManager:GetInstance():GetSelectLen() + 1
+    GridManager:GetInstance():OnSelectGrid(self)
+end
+
+function this:Deselect(dontReport)
+    --L.LogError(string.format("Deselect   Row:%s   Col:%s ",self.row,self.col))
+    self.state = 0
+    self.selected = false
+    self.isInRange = false
+    self:SetRedActive(false)
+    self:SetGreenActive(false)
+    self.lastGridUnit = nil
+    self.selectIdx = 0
+    if not dontReport then
+        GridManager:GetInstance():OnDeselectGrid(self)
+    end
+end
+
+function this:Clear()
+    self:Deselect()
+    self:SetNum(0)
+end
+
+function this:IsEmpty()
+    return self.num == 0
+end
+
+function this:SetEmpty()
+    self:SetNum(0)
+end
+
+function this:IsInRange(point)
+    if point.x <= self.minX then return false
+    elseif point.x >= self.maxX then return false
+    elseif point.z <= self.minZ then return false
+    elseif point.z >= self.maxZ then return false
+    else return true end
+end
+
+function this:SetRedActive(isActive)
+    if not IsNil(self.obj_select_red) then self.obj_select_red:SetActive(isActive) end
+end
+
+function this:SetGreenActive(isActive)
+    if not IsNil(self.obj_select_greed) then self.obj_select_greed:SetActive(isActive) end
+end
+
+function this:CheckIsSelect(point)
+    self.isInRange = self:IsInRange(point)
+    return self.isInRange
+end
+
+function this:Compare(gridUnit)
+    return self.row == gridUnit.row and self.col == gridUnit.col
+end
+
+function this:CompareWithLine(gridUnit)
+    return self.row == gridUnit.row or self.col == gridUnit.col
+end
+
+function this:OnDrag(point,lastPoint)
+    if Vector3.Distance(self.middlePoint,point) > self.checkDistance then return end
+    self.isInRange = self:IsInRange(point)
+    if self.isInRange and not self.selected then
+        --L.LogError(string.format("Row:%s   Col:%s",self.row,self.col))
+        --判断是否能选中
+        if GridManager:GetInstance():CanConnect(self) then
+            self:Select(self:IsEmpty() and 3 or 1)
+        else
+            self:Select(2)
+        end
+    elseif not self.isInRange and self.selected then
+        if self.selectIdx == GridManager:GetInstance():GetSelectLen() then
+            --判断手指在那个格子
+            local unit = GridManager:GetInstance():GetUnitByPoint(point)
+            if unit and self.lastGridUnit and unit:Compare(self.lastGridUnit) then
+                self:Deselect()
+            end
+        end
+    else
+        if not lastPoint then return end
+        local pos
+        --判断是否相交
+        for i=1,#self.lines do
+            pos = CS.LuaUtils.GetIntersection(self.lines[i][1],self.lines[i][2],point,lastPoint)
+            if pos.x ~= 0 or pos.z ~= 0 then
+                self:Select(self:IsEmpty() and 3 or 1)
+                break
+            end
+        end
+    end
+end
+
+function this:Destroy()
+    if self.model_num then self.model_num:Destroy() self.model_num = nil end
+    if self.model_floor then self.model_floor:Destroy() self.model_floor = nil end
+    if self.model_root then self.model_root:Destroy() self.model_root = nil end
+    if self.model_ground then self.model_ground:Destroy() self.model_ground = nil end
+end

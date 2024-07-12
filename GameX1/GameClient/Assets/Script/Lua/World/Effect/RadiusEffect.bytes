@@ -1,0 +1,21 @@
+RadiusEffect = Class("RadiusEffect", EffectBase)
+
+local Vector3 = CS.UnityEngine.Vector3
+function RadiusEffect:ctor(id, destroyForExitScene)
+    RadiusEffect.super.ctor(self, id, destroyForExitScene)
+    
+    self.size = 0
+end
+
+function RadiusEffect:RadiusSize(position, size)
+    self.root.position = position
+    self.size = size
+    
+    if not self.isCreate then self:CreateTransform() end
+end
+
+function RadiusEffect:LoadComplete()
+    RadiusEffect.super.LoadComplete(self)
+
+    self.root.localScale = Vector3(self.size * 2, 1, self.size * 2)
+end

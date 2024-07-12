@@ -1,0 +1,44 @@
+ProgressEffect = Class("ProgressEffect", EffectBase)
+
+local Vector3 = CS.UnityEngine.Vector3
+function ProgressEffect:ctor(id, destroyForExitScene)
+	ProgressEffect.super.ctor(self, id, destroyForExitScene)
+	
+    self.formTransform = nil
+    self.toTransform = nil
+
+    self.from = nil
+    self.to = nil
+    self.time = 0
+    self.totalTime = 0
+end
+
+function ProgressEffect:ProgressToPosition(position, rotation, from, to, time)
+	self.root.position = position
+    if rotation ~= nil then self.root.rotation = rotation end
+    
+    self.from = from
+    self.to = to
+    self.totalTime = time
+    if not self.isCreate then self:CreateTransform() end
+end
+
+function ProgressEffect:LoadComplete()
+    ProgressEffect.super.LoadComplete(self)
+
+    self.formTransform = self.transform:Find("2")
+    self.toTransform = self.transform:Find("1")
+    self.formTransform.localScale = Vector3.Lerp(self.from, self.to, self.time / self.totalTime)
+    self.toTransform.localScale = self.to
+end
+
+function ProgressEffect:Update(time)
+	ProgressEffect.super.Update(self, time)
+
+    if self.isDestroy then return end
+    self.time = self.time + self.playSpeed * time
+    if self.time >= self.totalTime then self:Destroy()
+    elseif not IsNil(self.formTransform) then
+        self.formTransform.localScale = Vector3.Lerp(self.from, self.to, self.time / self.totalTime)
+    end
+end

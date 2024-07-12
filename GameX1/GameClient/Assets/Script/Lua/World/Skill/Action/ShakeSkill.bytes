@@ -1,0 +1,14 @@
+ShakeSkill = Class("ShakeSkill", SkillAcitonBase)
+
+--震屏 a幅度 t时间
+function ShakeSkill:ctor(skillUnit, p)
+	ShakeSkill.super.ctor(self, skillUnit, p)
+	self.a = tonumber(self.params["A"] or 0.2)
+	self.t = tonumber(self.params["T"] or 0.2)
+end
+
+function ShakeSkill:Play(target)
+	ShakeSkill.super.Play(self, target)
+	CameraManager:GetInstance():ShakeCamera(self.t, self.a)
+	self:Stop()
+end

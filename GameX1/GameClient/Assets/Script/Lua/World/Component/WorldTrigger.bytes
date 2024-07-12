@@ -1,0 +1,58 @@
+WorldTrigger = Class("WorldTrigger")
+
+local GameObject = CS.UnityEngine.GameObject
+local offsetY = CS.UnityEngine.Vector3(0, 2.5, 0)
+
+function WorldTrigger:ctor(text, position, rotation)
+	self.transform = GameObject("Trigger" .. text).transform
+	self.transform.position = position
+	if rotation then self.transform.rotation = rotation end
+
+	self.trigger = self.transform.gameObject:AddComponent(typeof(CS.TableTrigger))
+	self.trigger.EnterEvent = function(tablePhysical) self:EnterFunction(tablePhysical) end 
+	self.trigger.ExitEvent = function(tablePhysical) self:ExitFunction(tablePhysical) end 
+
+	self.isDestroy = false
+	self.isExitScene = false
+	EventDispatcher:GetInstance():AddEventListener(self, EventID.ExitScene, self.OnExitScene)	
+end
+
+function WorldTrigger:Function(enterFun, exitFun)
+	self.enterFun = enterFun
+	self.exitFun = exitFun
+end
+
+function WorldTrigger:Radius(radius)
+	self.trigger.Radius = radius
+end
+
+function WorldTrigger:Rect(x, y, z)
+	self.trigger:Rect(x, y, z)
+end
+
+function WorldTrigger:EnterFunction(tablePhysical)
+	if self.isExitScene then return end
+	if self.enterFun ~= nil then
+		self.enterFun(tablePhysical.Table)
+	end
+end
+
+function WorldTrigger:ExitFunction(tablePhysical)
+	if self.isExitScene then return end
+	if self.exitFun ~= nil then
+		self.exitFun(tablePhysical.Table)
+	end
+end
+
+function WorldTrigger:OnExitScene()
+	self.isExitScene = true
+	self:OnDestroy()
+end
+
+function WorldTrigger:OnDestroy()
+	if self.isDestroy then return end
+	self.isDestroy = true
+	EventDispatcher:GetInstance():RemoveEventListener(self, EventID.ExitScene)
+	--TableTrigger为支持瞬时触发器等待下一个FixedUpdate销毁 
+	if not IsNil(self.trigger) then self.trigger:Destroy() end	
+end

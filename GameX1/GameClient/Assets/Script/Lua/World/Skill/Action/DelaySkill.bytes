@@ -1,0 +1,28 @@
+DelaySkill = Class("DelaySkill", SkillAcitonBase)
+
+--延时 t延时时间
+function DelaySkill:ctor(skillUnit, p)
+	DelaySkill.super.ctor(self, skillUnit, p)
+
+	self.pause = true
+	self.t = tonumber(self.params["T"] or 0)
+	self.time = 0
+end
+
+function DelaySkill:Play(target)
+	DelaySkill.super.Play(self, target)
+	self.time = self.t
+end
+
+function DelaySkill:Update(time)
+	DelaySkill.super.Update(self, time)
+	self.time = self.time - time
+	if self.time <= 0 then
+		self:Stop()
+		self.skillUnit:PlayOneShot()
+	end
+end
+
+function DelaySkill:Stop()
+	DelaySkill.super.Stop(self)
+end

@@ -1,0 +1,19 @@
+DamageSkill = Class("DamageSkill", SkillAcitonBase)
+
+--动画 N动画名
+function DamageSkill:ctor(skillUnit, p)
+	AnimSkill.super.ctor(self, skillUnit, p)
+end
+
+function DamageSkill:Play(target)
+	AnimSkill.super.Play(self, target)
+	
+	local myAtt = self.object.attributes.att.value
+	local targetDef = target.attributes.def.value
+	local damage = myAtt - targetDef
+	target.attributes:Equal("hp",target.attributes.hp.value - damage,FlyWordName.Injured,-damage)
+end
+
+function DamageSkill:Stop()
+	AnimSkill.super.Stop(self)
+end

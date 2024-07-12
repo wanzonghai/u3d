@@ -1,0 +1,104 @@
+ NormObject =  Class("NormObject", ObjectBase)
+ local this = NormObject
+ 
+local BoxCollider = typeof(CS.UnityEngine.BoxCollider)
+local Rigidbody = typeof(CS.UnityEngine.Rigidbody)
+local TablePhysical = typeof(CS.TablePhysical)
+local Quaternion = CS.UnityEngine.Quaternion
+
+function this:ctor(id)
+	this.super.ctor(self,id)
+
+	self.controller = nil
+	self.normVO = nil
+	self.scene = SceneManager:GetInstance().scene
+	self.boneClothes = BoneClothes.New(self.hTransform)
+	self.attributes = Attributes.New(self)
+
+	--self.boxCollider = self.root.gameObject:AddComponent(BoxCollider)
+	--self.boxCollider.isTrigger = true
+
+	--self.rigidbody = self.root.gameObject:AddComponent(Rigidbody)
+	--self.rigidbody.isKinematic = false
+	--self.rigidbody.useGravity = false
+	
+	self.root.gameObject.layer = Layers.Role
+	--self.tablePhysical = self.root.gameObject:AddComponent(TablePhysical)
+	--self.tablePhysical.Table = self
+
+	self.skills = Skills.New(self)
+	
+	self.destroyFunc = Delegate.New()	--销毁回调
+	self.showFunc = Delegate.New()		--显示回调
+	
+	self.isClothes = false				--是否存在骨骼模型
+end
+
+function this:Infuse(normVO, isClothes)
+	if isClothes == nil then isClothes = false end
+	self.normVO = normVO
+	self.root.position = normVO.position
+	self.root.eulerAngles = Quaternion.LookRotation(normVO.forward).eulerAngles
+
+	self.navMeshAgents = NavMeshAgents.New(self)
+	self.navMeshAgents:NavMeshAgentEnabled(false)
+	if isClothes then self:IsClothes(isClothes) end
+	self.boneClothes:SetLayer(Layers.Default, true)
+	self.attributes:Infuse()
+end
+
+function this:Run()
+	this.super.Run(self)
+	--self.navMeshAgents:Run()
+	self.skills:Equal(self.normVO.role.skill_list)
+end
+
+function this:IsClothes(value)
+	if self.normVO == nil then return end
+	if value then
+		self.isClothes = true
+		self:OnClothes()
+	else
+		if not self.isClothes then return end
+		self.isClothes = false
+		self.boneClothes:Destroy()
+	end
+	self.showFunc:Function()
+end
+
+function this:OnClothes()
+	if self.boneClothes.boneName == self.normVO.model.bone then return end
+	self.boneClothes:OnBone(self.normVO.model.bone, self.normVO.model.scale)
+	--self:SetBodyID()
+	--self:SetWeaponID()
+end
+
+function this:CanSetClothes()
+	return self.isClothes and self.normVO.makeup_info.type == 0
+end
+
+function this:SetBodyID()
+	if not self:CanSetClothes() then return end
+	self.boneClothes.bodyClothes:OnModel(self.normVO:GetAttrByName("body_id"))
+end
+
+function this:SetWeaponID()
+	if not self:CanSetClothes() then return end
+	self.boneClothes.weaponClothes:OnModel(self.normVO:GetAttrByName("weapon_id"))
+end
+
+function this:Update(time)
+	this.super.Update(self, time)
+
+	self.boneClothes:Update(time)
+	self.skills:Update(time)
+	--self.navMeshAgents:Update(time)
+end
+
+function this:Destroy()
+	self.destroyFunc:Function()
+	self.skills:Stop()
+	self.boneClothes:Destroy()
+	self.attributes:Destroy()
+	this.super.Destroy(self)
+end

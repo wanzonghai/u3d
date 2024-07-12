@@ -1,0 +1,30 @@
+LoadingServer = Class("LoadingServer", WindowServerBase)
+local this = LoadingServer
+
+function this:ctor()
+	this.super.ctor(self)
+	self.assetPath = { Windows.GetViewPathByName(Windows.LoadingView) }
+	self.asyncDownLoad = false
+	self.ABLoader = nil
+end
+
+function this:Init()
+	this.super.Init(self)
+	self.view = LoadingView.New(self.root.transform, self)
+end
+
+function this:EnterScene(path, level, sign, fast, async)
+	if async == nil then async = false end
+	self.ABLoader = CS.ABDownLoader(path, sign, async)
+	self.ABLoader.FpsNum = 3
+	self.ABLoader:AddSign()
+	self.sign = sign
+	self.level = level
+	self.path = path
+
+	WindowManager:GetInstance():Open(Windows.LoadingView, WindowType.Normal)
+end
+
+function this:GetDownLoader() return self.ABLoader end
+function this:GetLevel() return self.level end
+function this:GetSign() return self.sign end

@@ -1,0 +1,50 @@
+LineEffectSkill = Class("LineEffectSkill", SkillAcitonBase)
+
+--线性特效 ID特效id Fx1挂点 Fx2目标挂点 T时间 D放空距离
+local Vector3 = CS.UnityEngine.Vector3
+local GameObject = CS.UnityEngine.GameObject
+
+function LineEffectSkill:ctor(skillUnit, p)
+	LineEffectSkill.super.ctor(self, skillUnit, p)
+
+    self.id = tonumber(self.params["ID"] or 0)
+    self.fx = self.params["Fx"] or Mounts.Body
+	self.tFx = self.params["TFx"] or Mounts.Body
+    self.t = tonumber(self.params["T"] or 0)
+    self.d = tonumber(self.params["D"] or 2)
+end
+
+function LineEffectSkill:Play(target)
+	LineEffectSkill.super.Play(self, target)
+    
+    self.time = self.t
+    self.effect = LineEffect.New(self.id)
+    if target then
+        self.effect:LineTransform({self.object.boneClothes:GetMountByName(self.fx), target.boneClothes:GetMountByName(self.tFx)})
+    else
+        local offset = Vector3(0, 0, self.d)
+        offset = self.object.boneClothes:GetMountByName(self.fx).position + self.object.root.rotation * offset
+        self.root = GameObject("LineTrans").transform
+        self.root.position = offset
+        self.effect:LineTransform({self.object.boneClothes:GetMountByName(self.fx), self.root})
+    end
+    self.effect:PlaySpeed(self.skillUnit.actionSpeed)
+end
+
+function LineEffectSkill:Update(time)
+	LineEffectSkill.super.Update(self, time)
+	self.time = self.time - time
+	if self.time <= 0 then
+		self:Stop()
+	end
+end
+
+function LineEffectSkill:Stop()
+	LineEffectSkill.super.Stop(self)
+    if self.effect then
+        self.effect:Destroy()
+        self.effect = nil
+        if self.root ~= nil then GameObject.Destroy(self.root.gameObject) end
+        self.root = nil
+    end
+end

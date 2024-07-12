@@ -1,0 +1,113 @@
+UIEffect = Class("UIEffect", EffectBase)
+local Vector3 = CS.UnityEngine.Vector3
+local BgEffect = 
+{
+    [6329] = true
+
+}
+--构造(id,winName,transform, addSortingOrder,worldSize非UI特效缩放,psScale是否支持ParticleSystem缩放)
+--例子UIEffect.New(1,Windows.WaiXingView,self.FxEffect, nil,1,false)
+function UIEffect:ctor(id,winName,transform, addSortingOrder,worldSize,psScale,callBack)
+    UIEffect.super.ctor(self, id, false)
+    self.callBack = callBack
+    self.winName = winName
+    local server = WindowManager:GetInstance():GetServerByName(winName)
+    self.addSortingOrder = addSortingOrder or 1
+    if server.showBgEffect and not BgEffect[id] then
+        self.addSortingOrder =  self.addSortingOrder + 2
+    end
+    self.offset = transform:Find("OffsetByEffect")
+	if IsNil(self.offset) then self.root:SetParent(transform)
+	else self.root:SetParent(self.offset)
+	end
+	self.root.localPosition = GameUtils.Vector3Zero
+    self.root.localRotation = GameUtils.QuaternionIdentity
+    if psScale == nil then psScale = true end
+    if worldSize then               --自定义WorldEffect缩放
+        self.root.localScale = Vector3(worldSize, worldSize, worldSize)
+        if psScale then self:SetParticleSystemScale(self.root.lossyScale.x) end
+    else                            --默认UI特效缩放
+        self.root.localScale = Vector3.one
+        if psScale then self:SetParticleSystemScale(self.root.root.lossyScale.x / 0.0088888891041279) end
+    end
+    local hasBgEffect = WindowManager:GetInstance():GetServerByName(winName)
+    self:SetSortingOrder(WindowManager:GetInstance():GetServerByName(winName).sortingOrder + self.addSortingOrder)
+    self:SetLayer(Layers.UI)
+    if not self.isCreate then self:CreateTransform() end
+    EventDispatcher:GetInstance():AddEventListener(self, EventID.WinSetLayerIndex, self.OnWinSetLayerIndex)
+    EventDispatcher:GetInstance():AddEventListener(self, EventID.DestroyWin, self.OnDestroyWin)
+    self.time = 0
+    self.linePositions = nil
+end
+
+function UIEffect:Update(time)
+	UIEffect.super.Update(self, time)
+
+	if self.isDestroy then return end
+	if self.time and self.time > 0 then
+		self.time = self.time - self.playSpeed * time
+		if self.time <= 0 then
+            if self.timeCallBack then self.timeCallBack() self.timeCallBack = nil end
+			self:Destroy()
+		end
+	end
+end
+
+function UIEffect:LoadComplete()
+    UIEffect.super.LoadComplete(self)
+    self.isComplete = true
+    if self.linePositions then self:LinePosition(self.linePositions) end
+    if self.callBack then self.callBack(self) end
+end
+
+function UIEffect:SetCallBack(fun)
+    self.callBack = fun
+    if self.isComplete then
+        self.callBack(self)
+    end
+end
+--添加特效销毁时的回调
+function UIEffect:SetEffectDestoryCallBack( fun )
+    self.callBackOnDestroy = fun
+end
+--清除特效销毁时的回调
+function UIEffect:ClearCallBackOnDestory( )
+    self.callBackOnDestroy = nil
+end
+
+function UIEffect:LinePosition(positionList)
+    self.linePositions = positionList
+    if self.transform then self.pool.handler:LinePosition(self.linePositions) end
+end
+
+function UIEffect:SetTimer(euler, timeCallBack)
+    self.time = euler
+    self.timeCallBack = timeCallBack
+end
+
+function UIEffect:OnWinSetLayerIndex(winName)
+    if self.winName ~= winName then return end
+    self:SetSortingOrder(WindowManager:GetInstance():GetServerByName(winName).sortingOrder + self.addSortingOrder)
+    self.root.gameObject:SetActive(false)
+    self.root.gameObject:SetActive(true)
+end
+
+function UIEffect:SetEulerAngles(euler)
+    self.root.eulerAngles = euler
+end
+
+function UIEffect:OnDestroyWin(winName)
+    if self.winName ~= winName then return end
+    self:Destroy()
+end
+
+function UIEffect:Destroy()
+    if self.isDestroy then return end
+    UIEffect.super.Destroy(self)
+    EventDispatcher:GetInstance():RemoveEventListener(self, EventID.WinSetLayerIndex)
+    EventDispatcher:GetInstance():RemoveEventListener(self, EventID.DestroyWin)
+
+    if self.callBackOnDestroy then
+        self.callBackOnDestroy()
+    end
+end

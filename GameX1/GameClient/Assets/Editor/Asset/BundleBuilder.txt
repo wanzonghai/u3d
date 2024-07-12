@@ -1,0 +1,16 @@
+Assets/Resources/Atlas/MainView/button2.png,2,0
+Assets/Resources/Atlas/MainView/Num3/0.png,2,0
+Assets/Resources/Atlas/MainView/Num3/1.png,2,0
+Assets/Resources/Atlas/MainView/Num3/2.png,2,0
+Assets/Resources/Atlas/MainView/Num3/3.png,2,0
+Assets/Resources/Atlas/MainView/Num3/4.png,2,0
+Assets/Resources/Atlas/MainView/Num3/5.png,2,0
+Assets/Resources/Atlas/MainView/Num3/6.png,2,0
+Assets/Resources/Atlas/MainView/Num3/7.png,2,0
+Assets/Resources/Atlas/MainView/Num3/8.png,2,0
+Assets/Resources/Atlas/MainView/Num3/9.png,2,0
+Assets/Resources/Atlas/MainView/shezhi.png,2,0
+Assets/Resources/Atlas/MainView/tili1.png,2,0
+Assets/Resources/Atlas/MainView/tili2.png,2,0
+Assets/Resources/Atlas/MainView/tili3.png,2,0
+Assets/Resources/Atlas/MainView/tilitiao.png,2,0

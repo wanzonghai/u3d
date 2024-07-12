@@ -1,0 +1,77 @@
+NormScene = Class("NormScene", SceneBase)
+
+local sceneConfig = require "Config/SceneVO"
+
+function NormScene:ctor(id)
+	NormScene.super.ctor(self, id)
+
+	self.player = nil
+	self.objects = {}
+	self.appDisplayTimer = 10
+	self.scene = sceneConfig[id]
+	if self.id > 0 then L.Log("EnterScene: " .. self.id .. "  Path: " .. self.scene.Path) end
+end
+
+function NormScene:AddComponent()
+	NormScene.super.AddComponent(self, id)
+	self.cameraManager:AddComponent()
+end
+
+function NormScene:Run()
+	NormScene.super.Run(self)
+	EventDispatcher:GetInstance():DispatchEvent(EventID.SceneEnter)
+end
+
+function NormScene:OnAppDisplay(time)
+	if AppFPS.Fps <= 15 then
+		self.appDisplayTimer = self.appDisplayTimer - time
+		if self.appDisplayTimer <= 0 then
+			if QualityUtils.GetQualityLevel() == 4 then 
+				QualityUtils.SetQualityLevel(3)
+			else 
+				QualityUtils.SetQualityLevel(2)
+			end
+			self.appDisplayTimer = 3
+		end
+	else self.appDisplayTimer = 8 end
+end
+
+function NormScene:Update(time)
+	NormScene.super.Update(self, time)
+
+	self:OnAppDisplay(time)
+	for _, v in pairs(self.objects) do
+		v:Update(time)
+    end
+end
+
+function NormScene:LateUpdate()
+	NormScene.super.LateUpdate(self)
+	self.cameraManager:LateUpdate()
+end
+
+function NormScene:AddObject(object)
+	if self.objects[object.id]then
+		if not self.objects[object.id].isDestroy then
+			self.objects[object.id]:Destroy()
+		end
+	end
+	self.objects[object.id] = object
+end
+
+function NormScene:RemoveObject(object)
+	self.objects[object.id] = nil
+end
+
+function NormScene:GetObject(id)
+	return self.objects[id]
+end
+
+function NormScene:OnDestroy()
+	EventDispatcher:GetInstance():DispatchEvent(EventID.ExitScene)
+	for _, v in pairs(self.objects) do
+		v:Destroy()
+    end
+	self.objects = {}
+    NormScene.super.OnDestroy(self)
+end

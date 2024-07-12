@@ -1,0 +1,83 @@
+--#J_技能.xlsx
+local team = {}
+local config = 
+{
+	[1001] =
+	{
+		id = 1001,
+		name = "boss普攻",
+		priority = 1,
+		distance = 0.6,
+		cd = 15,
+		func = "Anim,N=skill1;\nDelay,T=1;\nDamage;Delay,T=1;",
+		cut = {"stun","frozen"},
+		cut_attribute = {"blindy"},
+	},
+	[1002] =
+	{
+		id = 1002,
+		name = "角色普攻",
+		priority = 1,
+		distance = 0.6,
+		func = "Anim,N=skill1;\nDelay,T=1;\nDamage;Delay,T=1;",
+		cut = {"stun","frozen"},
+		cut_attribute = {"blindy"},
+	},
+	[1003] =
+	{
+		id = 1003,
+		name = "boss炸弹技能",
+		priority = 1,
+		func = "Anim,N=skill1;\nShake=0.5,T=0.2\nDelay,T=0.5;\nDamage;Delay,T=0.5;",
+		cut = {"stun","frozen"},
+		cut_attribute = {"blindy"},
+	},
+	[1001] =
+	{
+		id = 1001,
+		name = "boss普攻",
+		priority = 1,
+		distance = 0.6,
+		cd = 15,
+		func = "Anim,N=skill1;\nDelay,T=1;\nDamage;Delay,T=1;",
+		cut = {"stun","frozen"},
+		cut_attribute = {"blindy"},
+	},
+	[1002] =
+	{
+		id = 1002,
+		name = "角色普攻",
+		priority = 1,
+		distance = 0.6,
+		func = "Anim,N=skill1;\nDelay,T=1;\nDamage;Delay,T=1;",
+		cut = {"stun","frozen"},
+		cut_attribute = {"blindy"},
+	},
+	[1003] =
+	{
+		id = 1003,
+		name = "boss炸弹技能",
+		priority = 1,
+		func = "Anim,N=skill1;\nShake=0.5,T=0.2\nDelay,T=0.5;\nDamage;Delay,T=0.5;",
+		cut = {"stun","frozen"},
+		cut_attribute = {"blindy"},
+	},
+}
+local _default_values =
+{
+	id = 0,
+	name = "",
+	desc = "",
+	icon = "",
+	priority = 0,
+	distance = 0,
+	cd = 0,
+	func = "",
+	cut = team,
+	cut_attribute = team,
+}
+local base = { __index = _default_values }
+for _, v in pairs(config) do
+	setmetatable( v, base )
+end
+return config, _default_values

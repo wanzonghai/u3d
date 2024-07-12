@@ -1,0 +1,40 @@
+FixedEffect = Class("FixedEffect", EffectBase)
+
+function FixedEffect:ctor(id, destroyForExitScene)
+	FixedEffect.super.ctor(self, id, destroyForExitScene)
+	
+	self.time = 0
+end
+
+function FixedEffect:FixedToPosition(position, rotation, time)
+	if not self.isCreate then self:CreateTransform() end
+	self.root.position = position
+	if rotation ~= nil then self.root.rotation = rotation end
+	self.time = time or 0
+end
+
+function FixedEffect:FixedToTransform(transform, rotation, time)
+	if IsNil(transform) then 
+		self:Destroy()
+		return 
+	end
+	if not self.isCreate then self:CreateTransform() end
+	self.root.parent = transform
+	if rotation ~= nil then self.root.rotation = rotation 
+	else self.root.rotation = transform.rotation end
+	self.root.localPosition = GameUtils.Vector3Zero
+	self.root.localScale = GameUtils.Vector3One
+	self.time = time or 0
+end
+
+function FixedEffect:Update(time)
+	FixedEffect.super.Update(self, time)
+
+	if self.isDestroy then return end
+	if self.time > 0 then
+		self.time = self.time - self.playSpeed * time
+		if self.time <= 0 then
+			self:Destroy()
+		end
+	end
+end

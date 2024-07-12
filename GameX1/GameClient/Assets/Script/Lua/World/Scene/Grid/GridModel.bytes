@@ -1,0 +1,49 @@
+GridModel = Class("GridModel")
+local this = GridModel
+
+function this:ctor()
+    self.transform = nil
+end
+
+function this:CreateTransform(path,parent,cb)
+    if not IsNil(self.transform) then
+        PoolManager:GetInstance():Back(self)
+        self.transform = nil
+    end
+
+    PoolManager:GetInstance():Take(path,self,function(transform)
+        self.transform = transform
+        if IsNil(self.transform) then return end
+        if not IsNil(parent) then 
+            self.transform:SetParent(parent)
+            self.transform.localPosition = GameUtils.Vector3Zero
+        end
+        if cb then cb(self.transform) end
+    end)
+end
+
+function this:SetPos(vec3)
+    if IsNil(self.transform) then return end
+    self.transform.localPosition = vec3
+end
+
+function this:SetActive(isActive)
+    if IsNil(self.transform) then return end
+    self.transform.gameObject:SetActive(isActive)
+end
+
+function this:SetName(name)
+    if IsNil(self.transform) then return end
+    self.transform.gameObject.name = name
+end
+
+function this:SetLayer(layer)
+    if IsNil(self.transform) then return end
+    self.transform.gameObject.layer = layer
+end
+
+function this:Destroy()
+    if not IsNil(self.transform) then
+        PoolManager:GetInstance():Back(self)
+    end
+end

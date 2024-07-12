@@ -1,0 +1,24 @@
+HandleBase = Class("HandleBase")
+
+function HandleBase:ctor(controller, handles)
+	self.isDestroy = false
+
+	self.controller = controller
+	self.handles = handles
+end
+
+function HandleBase:OnHandle(...)
+
+end
+
+function HandleBase:Run()
+	
+end
+
+function HandleBase:Update(time)
+	
+end
+
+function HandleBase:Destroy()
+	self.isDestroy = true
+end

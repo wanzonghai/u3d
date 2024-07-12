@@ -1,0 +1,72 @@
+MoveEffect = Class("MoveEffect", EffectBase)
+
+local Quaternion = CS.UnityEngine.Quaternion
+function MoveEffect:ctor(id, destroyForExitScene)
+	MoveEffect.super.ctor(self, id, destroyForExitScene)
+
+	self.speed = 0
+	self.moveToTransform = nil
+	self.position = nil
+	self.func = nil
+
+	self.moveType = 0
+	self.isArriveDestroy = true
+end
+
+function MoveEffect:SetArriveDestroy(b)
+	self.isArriveDestroy = b
+end
+
+function MoveEffect:MoveToTransform(start, speed, transform, func)
+	if IsNil(transform) then 
+		self:Destroy()
+		return 
+	end
+	if not self.isCreate then self:CreateTransform() end
+	self.root.position = start
+	local dir = transform.position - start
+	self.root.eulerAngles = Quaternion.LookRotation(dir).eulerAngles
+
+	self.speed = speed
+	self.moveToTransform = transform
+	self.func = func
+
+	self.moveType = 1
+end
+
+function MoveEffect:MoveToPosition(start, speed, position, func)
+	if not self.isCreate then self:CreateTransform() end
+	self.root.position = start
+	local dir = position - start
+	self.root.eulerAngles = Quaternion.LookRotation(dir).eulerAngles
+
+	self.position = position
+	self.speed = speed
+	self.func = func
+
+	self.moveToTransform = nil
+	self.moveType = 2
+end
+
+function MoveEffect:Update(time)
+	MoveEffect.super.Update(self, time)
+
+	if self.isDestroy then return end
+	if self.moveType == 1 then
+		if IsNil(self.moveToTransform) then 
+			self:Destroy()
+			return
+		else
+			self.position = self.moveToTransform.position
+		end
+	end
+	local dis = self.position - self.root.position
+	local speed = time * self.speed
+	if dis.magnitude <= speed then
+		self.root.position = self.position
+		if self.isArriveDestroy then self:Destroy() end
+		if self.func ~= nil then self.func() end
+	else
+		self.root.position = self.root.position + speed * dis.normalized
+	end
+end

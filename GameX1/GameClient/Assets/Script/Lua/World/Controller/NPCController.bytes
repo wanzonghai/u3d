@@ -1,0 +1,13 @@
+NPCController = Class("NPCController", NormController)
+
+function NPCController:ctor(object, kindMode)
+    NPCController.super.ctor(self, object, kindMode)
+end
+
+function NPCController:Run()
+    NPCController.super.Run(self)
+end
+
+function NPCController:Destroy()
+    NPCController.super.Destroy(self)
+end

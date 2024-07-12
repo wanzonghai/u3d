@@ -1,0 +1,51 @@
+EffectMoveSkill = Class("EffectMoveSkill", SkillAcitonBase)
+
+--移动伤害特效 ID特效id XX偏移 ZZ偏移 Dir向量方向 W宽 L长 R半径 S移动速度 D距离 Buff(BUFF效果)
+local Vector3 = CS.UnityEngine.Vector3
+function EffectMoveSkill:ctor(skillUnit, p)
+	EffectMoveSkill.super.ctor(self, skillUnit, p)
+
+	self.id = tonumber(self.params["ID"] or 0)
+	self.x = tonumber(self.params["X"] or 0)
+	self.y = tonumber(self.params["Y"] or 0)
+	self.z = tonumber(self.params["Z"] or 0)
+	self.dir = false
+	if self.params["Dir"]~= nil and self.params["Dir"] ~= "0" then
+		self.dir = true
+	end
+
+	self.r = tonumber(self.params["R"] or 0)
+	self.w = tonumber(self.params["W"] or 0)
+	self.l = tonumber(self.params["L"] or 0)
+
+	self.s = tonumber(self.params["S"] or 1)
+	self.d = tonumber(self.params["D"] or 1)
+	self.buff = tonumber(self.params["Buff"] or 0)
+end
+
+function EffectMoveSkill:Play(target)
+	EffectMoveSkill.super.Play(self, target)
+
+	local position = self.object.root.position
+	local offset = Vector3(self.x, self.y, self.z)
+	position = position + self.object.root.rotation * offset
+	
+	local endPosition = position
+	if self.dir then
+		local dis = position - self.object.root.position
+		dis.y = 0
+		endPosition = endPosition + dis.normalized * self.d
+	else
+		offset = Vector3(0, 0, self.d)
+		endPosition = endPosition + self.object.root.rotation * offset
+	end
+
+	local effect = MoveEffect.New(self.id)
+	effect:MoveToPosition(position, self.s, endPosition)
+
+	self:Stop()
+end
+
+function EffectMoveSkill:Stop()
+	EffectMoveSkill.super.Stop(self)
+end

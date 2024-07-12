@@ -1,0 +1,110 @@
+EffectBase = Class("EffectBase")
+
+local GameObject = CS.UnityEngine.GameObject
+local effectConfig = require "Config/Effect"--特效表
+local Vector3 = CS.UnityEngine.Vector3
+
+function EffectBase:ctor(id, destroyForExitScene)
+	self.id = id
+	self.destroyForExitScene = destroyForExitScene 
+	if self.destroyForExitScene == nil then self.destroyForExitScene = true end
+	self.root = GameObject("Effect_" .. id).transform
+	if not self.destroyForExitScene then GameObject.DontDestroyOnLoad(self.root.gameObject) end
+	self.transform = nil
+	self.pool = nil
+	self.isCreate = false
+	self.isEmissionClear = 0
+	self.layer = Layers.Default
+	self.sortingOrder = 0
+	self.show = true
+	self.playSpeed = 1
+	self.particleSystemScale = 1
+	self.life = 0
+	self.isDestroy = false
+	EffectManager:GetInstance():AddEffect(self)
+end
+
+function EffectBase:CreateTransform()
+	self.isCreate = true
+	if effectConfig[self.id] == nil then
+		L.LogError("Effect表没"..self.id)
+		return
+	end
+	self.life = effectConfig[self.id].life
+	local scale = effectConfig[self.id].scale
+	if scale > 0 then self.root.localScale = Vector3(scale, scale, scale) end
+	PoolManager:GetInstance():Take(effectConfig[self.id].path, self, function(transform)
+		self.transform = transform
+		transform.parent = self.root
+		transform.localPosition = GameUtils.Vector3Zero
+		transform.localRotation = GameUtils.QuaternionIdentity
+		transform.localScale = GameUtils.Vector3One
+		self:SetShow(self.show)
+		self:SetLayer(self.layer)
+		self:PlaySpeed(self.playSpeed)
+		self:SetSortingOrder(self.sortingOrder)
+		self:SetParticleSystemScale(self.particleSystemScale)
+		self:LoadComplete()
+		if effectConfig[self.id].Trail then 
+			self.isEmissionClear = 15
+			self.pool.handler:EmissionClear(true) 
+		end
+	end)
+end
+
+function EffectBase:LoadComplete()
+
+end
+
+function EffectBase:Update(time)
+	if self.life > 0 then
+		self.life = self.life - time
+		if self.life <= 0 then 
+			self:Destroy()
+			return
+		end
+	end
+	if self.isEmissionClear > 0 then
+		self.isEmissionClear = self.isEmissionClear - 1
+		if self.isEmissionClear == 0 then
+			self.pool.handler:EmissionClear(false) 
+		end
+	end
+end
+
+function EffectBase:SetLayer(value)
+	self.layer = value
+	if self.pool ~= nil and self.pool.handler ~= nil then
+		self.pool.handler:SetLayer(value) 
+	end
+end
+
+function EffectBase:SetParticleSystemScale(value)
+	self.particleSystemScale = value
+	if self.pool ~= nil and self.pool.handler ~= nil then self.pool.handler:SetParticleSystemScale(value) end
+end
+
+function EffectBase:SetShow(value)
+	self.show = value
+	if self.pool ~= nil and self.pool.handler ~= nil then self.pool.handler:SetShow(value) end
+end
+
+function EffectBase:SetSortingOrder(value)
+	self.sortingOrder = value
+	if self.pool ~= nil and self.pool.handler ~= nil then self.pool.handler:SetSortingOrder(value) end
+end
+
+function EffectBase:PlaySpeed(value)
+	self.playSpeed = value
+	if self.pool ~= nil and self.pool.handler ~= nil then self.pool.handler:SetSpeed(value) end
+end
+
+function EffectBase:Destroy()
+	if self.isDestroy then return end
+	self.isDestroy = true
+	if self.pool ~= nil then PoolManager:GetInstance():Back(self) end
+	if not IsNil(self.root) then GameObject.Destroy(self.root.gameObject) end
+	self.transform = nil
+	self.root = nil
+	EffectManager:GetInstance():RemoveEffect(self)
+end

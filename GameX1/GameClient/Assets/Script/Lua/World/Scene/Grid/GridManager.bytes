@@ -1,0 +1,433 @@
+GridManager = Class("GridManager")
+local this = GridManager
+
+local Row = 11
+local Col = 9
+local TotalNum = 10
+
+function this:OPT(array,i,s)
+    if s == 0 then return true end
+    if i == 1 then return array[i].num == s end
+    if array[i].num > s then
+        return self:OPT(array,i-1,s)
+    end
+    return self:OPT(array,i-1,s) or self:OPT(array,i-1,s - array[i].num)
+end
+
+function this:GetInstance()
+    if not self.instacne then
+        self.instacne = GridManager.New()
+    end
+    return self.instacne
+end
+
+function this:ctor()
+    self.instacne = nil
+    self.inited = false
+    self.isRed = false
+
+    self.startRow = 0
+    self.startCol = 0
+    self.mapRow = 0
+    self.mapCol = 0
+
+    self.selectGridList = nil
+end
+
+function this:Init()
+    if self.inited then return end
+    self.inited = true
+    WindowManager:GetInstance():Open(Windows.JoystickView,WindowType.Normal)
+    EventDispatcher:GetInstance():AddEventListener(self,EventID.MouseDown,self.OnMouseDown)
+    EventDispatcher:GetInstance():AddEventListener(self,EventID.MouseUp,self.OnMouseUp)
+    EventDispatcher:GetInstance():AddEventListener(self,EventID.MouseDrag,self.OnMouseDrag)
+end
+
+function this:RefreshMapAll(lvCfg)
+    if lvCfg then
+        local start_point = lvCfg.start_point
+        self.startRow = start_point[1] or 1
+        self.startCol = start_point[2] or 1
+
+        local rolw_col = lvCfg.rolw_col
+        local mapRow = rolw_col[1] or Row
+        local mapCol = rolw_col[2] or Col
+        if self.mapRow ~= mapRow or self.mapCol ~= mapCol then
+            self:DestroyAll()
+
+            self.gridList = {}
+            for i=self.startRow,self.startRow + mapRow - 1 do
+                for j=self.startCol,self.startCol + mapCol - 1 do
+                    table.insert(self.gridList,GridUnit.New(i,j))
+                end
+            end
+        
+            self.tempTable = {}
+            for i,_ in ipairs(self.gridList) do
+                table.insert(self.tempTable,i)
+            end
+            self.mapRow = mapRow
+            self.mapCol = mapCol
+        else
+            self:Clear()
+        end
+    else
+        self:Clear()
+    end
+
+    if lvCfg and table.nums(lvCfg.fix_nums) > 0 then
+        local idx = 1
+        for i=self.startRow,self.startRow + self.mapRow - 1 do
+            for j=self.startCol,(self.startCol + self.mapCol -1) do
+                local fix = lvCfg.fix_nums[idx]
+                self:GetUnitByRowAndCol(i,j):SetNum(fix and fix[1] or 1,fix and fix[2] or 0)
+                idx = idx + 1
+            end
+        end
+    else
+        while(true) do
+            local group = self:GetNumGroup()
+            local result = self:SetGroupHorizontal(group)
+            if not result then 
+                result = self:SetGroupVertical(group)
+            end
+    
+            if not result then 
+                result = self:SetGroupFill(group)
+            end
+            if not result then break end
+        end
+    end
+end
+
+function this:SetGroupHorizontal(group)
+    local len = #group
+    local row,col = self:GetStartPointHorizontal(len)
+    if row == 0 then return false end
+    local index = 1
+    for i=col,col + len - 1 do
+        self:GetUnitByRowAndCol(row,i):SetNum(group[index])
+        index = index + 1
+    end
+    return true 
+end
+
+function this:SetGroupVertical(group)
+    local len = #group
+    local row,col = self:GetStartPointVertical(len)
+    if row == 0 then return false end 
+    local index = 1
+    for i=row,row + len - 1 do 
+        self:GetUnitByRowAndCol(i,col):SetNum(group[index])
+        index = index + 1
+    end
+    return true
+end
+
+function this:SetGroupFill(group)
+    for i=1,#group do 
+        local unit = self:GetEmptyGridUnit()
+        if not unit then return false end
+        unit:SetNum(group[i])
+    end
+    return true
+end
+
+function this:GetStartPointHorizontal(len)
+    local row,col = 0,0
+    local index,sucess,startCol
+    for i = self.startRow, self.startRow + self.mapRow - 1 do
+        startCol = self.startCol
+        index = self.startCol
+        while (index < (self.mapCol + self.startCol)) do
+            index = index + 1
+            sucess = true
+            if (self.mapCol + self.startCol ) - startCol  < len then sucess = false break end
+            for j=startCol,startCol + len - 1 do
+                if not self:GetUnitByRowAndCol(i,j):IsEmpty() then sucess = false startCol = j + 1 break end
+            end
+            if sucess then
+                row = i
+                col = startCol
+                break
+            end
+        end
+        if row ~= 0 then break end
+    end
+    return row,col
+end
+
+function this:GetStartPointVertical(len)
+    local row,col = 0,0
+    local index,sucess,startCol
+    for i = self.startCol, self.startCol + self.mapCol - 1 do
+        startCol = self.startRow
+        index = self.startRow
+        while (index < (self.startRow + self.mapRow)) do
+            index = index + 1
+            sucess = true
+            if (self.mapRow + self.startRow) - startCol < len then sucess = false break end
+            for j=startCol,startCol + len - 1 do
+                if not self:GetUnitByRowAndCol(j,i):IsEmpty() then sucess = false startCol = j + 1 break end
+            end
+            if sucess then
+                row = startCol
+                col = i
+                break
+            end
+        end
+        if row ~= 0 then break end
+    end
+    return row,col
+end
+
+function this:GetUnitByRowAndCol(row,col)
+    return self.gridList[(row - self.startRow)*self.mapCol + col - self.startCol + 1]
+end
+
+function this:GetUnitByPoint(point)
+    for _,unit in ipairs(self.gridList) do
+        if unit:IsInRange(point) then return unit end
+    end
+end
+
+function this:GetEmptyGridUnit()
+    for _,unit in ipairs(self.gridList) do
+        if unit:IsEmpty() then
+            return unit
+        end
+    end
+end
+
+function this:GetNotEmptyGridUnits()
+    local list = {}
+    for _,unit in ipairs(self.gridList) do
+        if not unit:IsEmpty() then table.insert(list,unit) end
+    end
+    return list
+end
+
+function this:GetNumGroup()
+	local result = {}
+	local tempNum = TotalNum - 1
+	local temp 
+	while(true) do
+        if tempNum == 0 then break end
+		if tempNum == 1 then table.insert(result,tempNum) break end
+		temp = math.random(1,tempNum)
+		if tempNum == temp and temp == 2 then table.insert(result,tempNum) break end
+		tempNum = tempNum - temp
+		table.insert(result,temp)
+	end
+	return result
+end
+
+function this:IsFull()
+    for _,unit in ipairs(self.gridList) do
+        if unit:IsEmpty() then return false end
+    end
+    return true
+end
+
+function this:Clear()
+    if not self.gridList then return end
+    for _,unit in ipairs(self.gridList) do
+        unit:Clear()
+    end
+end
+
+function this:DestroyAll()
+    if not self.gridList then return end
+    for _,unit in ipairs(self.gridList) do
+        unit:Destroy()
+    end
+    self.gridList = nil
+end
+
+function this:ExitScene()
+    --self:DestroyAll()
+end
+
+function this:OnMouseDown()
+    self.selectGridList = {}
+    for _,unit in ipairs(self.gridList) do
+        local pos = JoystickView.GetPoint()
+        if unit:CheckIsSelect(pos) then
+            unit:Select(1)
+            unit.enterPoint = pos
+            break
+        end
+    end
+end
+
+function this:OnMouseUp()
+    if self.isRed then
+        for _,unit in ipairs(self.selectGridList) do
+            unit:Deselect(true)
+        end
+        self.isRed = false
+        self.selectGridList = nil
+        return
+    end
+    local num = 0
+    local list = {}
+    for _,unit in ipairs(self.selectGridList) do
+        if unit.state == 1 then
+            num = num + unit.num
+            table.insert(list,unit)
+        end
+    end
+
+    for _,unit in ipairs(self.selectGridList) do
+        unit:Deselect(true)
+    end
+
+    if num == TotalNum then
+        for _,unit in pairs(list) do
+            unit:SetEmpty()
+        end
+        SceneManager:GetInstance().scene:AddScore(TotalNum)
+        SoundManager:GetInstance():Play(2)
+        if not SceneManager:GetInstance().scene.stop then
+            self:CheckIsNeedRefresh()
+        end
+    end
+end
+
+function this:CheckIsNeedRefresh()
+    local gridList = self:GetNotEmptyGridUnits()
+    if #gridList >= 10 then return end
+    if #gridList == 0 then
+        self:RefreshMapAll()
+        return
+    end
+
+    local num = 0
+    for _,unit in ipairs(gridList) do
+        num = unit.num + num
+    end
+    if num < TotalNum then
+        self:RefreshMapAll()
+        return
+    end
+
+    local result = self:OPT(gridList,#gridList,TotalNum)
+    if not result then
+        self:RefreshMapAll()
+    end
+end
+
+function this:Disruption()
+    local gridList = self:GetNotEmptyGridUnits()
+    if #gridList == 0 then return end
+    local array = {}
+    for _,unit in ipairs(gridList) do
+        table.insert(array,unit.num)
+    end
+    self:Clear()
+    self.tempTable = self:DisruptionArray(self.tempTable)
+    for i=1,#array do
+        self.gridList[self.tempTable[i]]:SetNum(array[i])
+    end
+end
+
+function this:DisruptionArray(_table, _num)
+    local _result = {}
+    local _index = 1
+    local _num = _num or #_table
+    while #_table ~= 0 do
+        local ran = math.random(0, #_table)
+        if _table[ran] ~= nil then
+            _result[_index] = _table[ran]
+            table.remove(_table,ran)
+            _index = _index + 1
+            if _index > _num then break end
+        end
+    end
+    return _result
+end
+
+function this:OnMouseDrag()
+    local point = JoystickView.GetPoint()
+    local lastPoint = JoystickView.GetPoint(1)
+    local unit = self:GetLastSelectUnit()
+    if unit then unit:OnDrag(point,lastPoint) end
+
+    local delta = JoystickView.delta
+
+    local absX = math.abs(delta.x)
+    local absY = math.abs(delta.y)
+
+    local startIdx,endIdx,dist
+    if absX > absY then
+        startIdx = delta.x > 0 and 1 or #self.gridList
+        endIdx = delta.x > 0 and #self.gridList or 1
+        dist = delta.x > 0 and 1 or - 1
+    else
+        startIdx = delta.y > 0 and 1 or #self.gridList
+        endIdx = delta.y > 0 and #self.gridList or 1
+        dist = delta.y > 0 and 1 or - 1
+    end
+    for i=startIdx,endIdx,dist do
+        local tempUnit = self.gridList[i]
+        if (unit and not unit:Compare(tempUnit)) or not unit then
+            tempUnit:OnDrag(point,lastPoint)
+        end
+    end
+    self:CheckIsRed()
+end
+
+function this:CanConnect(gridUnit)
+    local lastUnit = self:GetLastSelectUnit()
+    if not lastUnit then return true end
+    if lastUnit.row ~= gridUnit.row and lastUnit.col ~= gridUnit.col then return false end
+    if math.abs(lastUnit.row - gridUnit.row ) > 1  then
+        local startIdx = lastUnit.row > gridUnit.row and gridUnit.row or lastUnit.row
+        local endIdx = lastUnit.row > gridUnit.row and lastUnit.row or gridUnit.row
+        for i=startIdx + 1,endIdx - 1 do
+            local unit = self:GetUnitByRowAndCol(i,gridUnit.col)
+            if not unit:IsEmpty() and (unit.state == 2 or not unit.select) then return false end
+        end
+    elseif math.abs(lastUnit.col - gridUnit.col) > 1 then
+        local startIdx = lastUnit.col > gridUnit.col and gridUnit.col or lastUnit.col
+        local endIdx = lastUnit.col > gridUnit.col and lastUnit.col or gridUnit.col
+        for i=startIdx + 1,endIdx - 1 do
+            local unit = self:GetUnitByRowAndCol(gridUnit.row,i)
+            if not unit:IsEmpty() and (unit.state == 2 or not unit.select) then return false end
+        end
+    end
+    return true
+end
+
+function this:OnSelectGrid(gridUnit)
+    table.insert(self.selectGridList,gridUnit)
+end
+
+function this:OnDeselectGrid(gridUnit)
+    if not self.selectGridList then return end
+    table.removeValue(self.selectGridList,gridUnit)
+end
+
+function this:CheckIsRed()
+    local isRed = false
+    for _,unit in ipairs(self.selectGridList) do
+        if unit.state == 2 then isRed = true break end
+    end
+
+    if self.isRed == isRed then return end
+    self.isRed = isRed
+    for _,unit in ipairs(self.selectGridList) do
+        unit:SetRedActive(isRed)
+        unit:SetGreenActive(not isRed)
+    end
+end
+
+function this:GetLastSelectUnit()
+    if not self.selectGridList then return nil end
+    return self.selectGridList[#self.selectGridList]
+end
+
+function this:GetSelectLen()
+    if not self.selectGridList then return 0 end
+    return #self.selectGridList
+end

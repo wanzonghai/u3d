@@ -1,0 +1,24 @@
+EffectPointSkill = Class("EffectPointSkill", SkillAcitonBase)
+
+--挂点特效 ID特效id XX偏移 ZZ偏移 T时间 M是否仅玩家自己播放
+local Vector3 = CS.UnityEngine.Vector3
+function EffectPointSkill:ctor(skillUnit, p)
+	EffectPointSkill.super.ctor(self, skillUnit, p)
+
+	self.id = tonumber(self.params["ID"] or 0)
+	self.x = tonumber(self.params["X"] or 0)
+	self.y = tonumber(self.params["Y"] or 0)
+	self.z = tonumber(self.params["Z"] or 0)
+	self.t = tonumber(self.params["T"] or 0)
+end
+
+function EffectPointSkill:Play(target)
+	EffectPointSkill.super.Play(self, target)
+	local position = self.object.root.position
+	local offset = Vector3(self.x, self.y, self.z)
+	position = position + self.object.root.rotation * offset
+	local effect = FixedEffect.New(self.id)
+	effect:FixedToPosition(position, self.object.root.rotation, self.t)
+	effect:PlaySpeed(self.skillUnit.actionSpeed)
+	self:Stop()
+end

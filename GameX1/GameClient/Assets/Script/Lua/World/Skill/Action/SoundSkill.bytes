@@ -1,0 +1,14 @@
+SoundSkill = Class("SoundSkill", SkillAcitonBase)
+
+--声音id
+function SoundSkill:ctor(skillUnit, p)
+	SoundSkill.super.ctor(self, skillUnit, p)
+
+	self.id = tonumber(self.params["ID"] or 0)
+end
+
+function SoundSkill:Play(target)
+	SoundSkill.super.Play(self, target)
+	SoundManager:GetInstance():Play(self.id)
+	self:Stop()
+end
