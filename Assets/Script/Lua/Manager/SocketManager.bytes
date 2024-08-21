@@ -1,66 +1,126 @@
---音管理器
 SocketManager = Class("SocketManager")
-local SocketManager = require"Config/Socket"
+-- local SocketManager = require "Config/Socket"
 local this = SocketManager
 
---活动
----读唯一实例
+-- 获取单例实例
 function this:GetInstance()
     if nil == self.m_Instance then
         self.m_Instance = self:New()
     end
     return self.m_Instance
 end
+
+-- 构造函数
 function this:ctor()
-    -- 初始化连接、回调等
+    -- 初始化连接状态和回调表
     self.isConnected = false
     self.callbacks = {}
+    self.host = nil
+    self.port = nil
 end
 
 -- 连接到服务器
-function SocketManager:Connect(host, port)
-    -- 假设使用某种网络库连接服务器
-    -- 这里仅为示例，不是实际的连接代码
-    self.isConnected = true
-    print("Connected to server at " .. host .. ":" .. port)
-end
+function this:Connect(host, port, onSuccess, onError)
+    -- 存储host和port
+    self.host = host
+    self.port = port
 
--- 发送数据
-function SocketManager:Send(messageType, messageData)
-    if self.isConnected then
-        -- 将消息编码并发送给服务器
-        -- 具体的实现依赖于你使用的网络库
-        print("Sending message:", messageType, messageData)
-        -- 例如：网络库.send(messageType, messageData)
-    else
-        print("Not connected to the server.")
+    -- 尝试连接到服务器
+    local success, err = pcall(function()
+        -- 连接代码示例（替换为实际连接代码）
+        -- network.connect(host, port)
+        self.isConnected = true
+        print("Connected to server at " .. host .. ":" .. port)
+        
+        -- 如果有成功回调，调用它
+        if onSuccess then
+            onSuccess()
+        end
+    end)
+
+    -- 如果连接失败，处理错误
+    if not success then
+        self.isConnected = false
+        print("Failed to connect to server: " .. err)
+
+        -- 如果有错误回调，调用它
+        if onError then
+            onError(err)
+        end
     end
 end
 
--- 接收数据
-function SocketManager:Receive(messageType, callback)
-    -- 注册接收回调
-    self.callbacks[messageType] = callback
+-- 主动断开连接
+function this:Disconnect()
+    if self.isConnected then
+        -- 尝试断开连接
+        local success, err = pcall(function()
+            -- 假设使用某种网络库断开连接
+            -- network.disconnect()
+            self.isConnected = false
+            print("Disconnected from server at " .. self.host .. ":" .. self.port)
+        end)
+
+        -- 如果断开失败，打印错误
+        if not success then
+            print("Failed to disconnect from server: " .. err)
+        end
+    else
+        print("No active connection to disconnect.")
+    end
+end
+
+-- 发送数据
+function this:Send(messageType, messageData)
+    if self.isConnected then
+        -- 尝试发送数据
+        local success, err = pcall(function()
+            -- 发送代码示例（替换为实际发送代码）
+            -- network.send(messageType, messageData)
+            print("Sending message:", messageType, messageData)
+        end)
+
+        -- 如果发送失败，打印错误
+        if not success then
+            print("Failed to send message: " .. err)
+        end
+    else
+        print("Cannot send message. Not connected to the server.")
+    end
+end
+
+-- 注册接收数据的回调
+function this:Receive(messageType, callback)
+    if type(callback) == "function" then
+        self.callbacks[messageType] = callback
+    else
+        print("Invalid callback function for message type:", messageType)
+    end
 end
 
 -- 处理收到的数据
-function SocketManager:OnReceive(messageType, messageData)
+function this:OnReceive(messageType, messageData)
     local callback = self.callbacks[messageType]
     if callback then
-        callback(messageData)
+        local success, err = pcall(function()
+            callback(messageData)
+        end)
+
+        if not success then
+            print("Error in message callback for " .. messageType .. ": " .. err)
+        end
     else
         print("No handler for message type:", messageType)
     end
 end
 
--- 断开连接并清理
-function SocketManager:OnDestroy()
+-- 清理并销毁SocketManager
+function this:OnDestroy()
     if self.isConnected then
-        -- 关闭连接
-        print("Disconnecting from server...")
-        self.isConnected = false
-        -- 例如：网络库.close()
+        self:Disconnect()
     end
+
     -- 清理回调
     self.callbacks = {}
+    print("SocketManager destroyed and callbacks cleared.")
 end

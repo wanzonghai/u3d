@@ -50,6 +50,38 @@ function this:Start()
     GameObject.Find("GameX3_Beijing_Mo").transform.localScale = GameUtils.Vector3(scaleValue,scaleValue,1)
     WindowManager:GetInstance():Open(Windows.MainView)
 end
+function this:socketConnectTest()
+    local socketManager = SocketManager:GetInstance()
+    -- 定义连接成功的回调函数
+    local function onConnectSuccess()
+        print("Connected successfully!")
+        
+        -- 在连接成功后，发送一条测试消息
+        socketManager:Send("TestMessageType", "Hello, server!")
+
+        -- 注册接收消息的回调函数
+        socketManager:Receive("TestMessageType", function(messageData)
+            print("Received message from server: " .. messageData)
+        end)
+    end
+
+    -- 定义连接失败的回调函数
+    local function onConnectError(errorMessage)
+        print("Failed to connect: " .. errorMessage)
+    end
+    socketManager:Connect("127.0.0.1", 8080, onConnectSuccess, onConnectError)
+    -- 模拟接收到一条消息
+    socketManager:OnReceive("TestMessageType", "Hello, client!")
+    -- -- 主动断开连接
+    -- socketManager:Disconnect()
+
+    -- -- 销毁 SocketManager 并清理资源
+    -- socketManager:OnDestroy()
+    ---log::LUA: Connected to server at 127.0.0.1:8080
+    -- LUA: Connected successfully!
+    -- LUA: Sending message:	TestMessageType	Hello, server!
+    -- LUA: Received message from server: Hello, client!
+end
 -- 开始一个新关卡
 function this:StartRound(levelId)
     -- 清理旧的数据

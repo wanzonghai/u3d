@@ -47,6 +47,7 @@ local ScriptPath =
 	"Manager/EventDispatcher",
 	"Manager/SoundManager",
 	"Manager/TimerManager",
+	"Manager/SocketManager",
 
 	--Windows
 	"Windows/Utils/NGUITools",
