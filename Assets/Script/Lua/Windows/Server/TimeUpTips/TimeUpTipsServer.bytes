@@ -1,0 +1,12 @@
+TimeUpTipsServer = Class("TimeUpTipsServer",WindowServerBase)
+local this = TimeUpTipsServer
+
+function this:ctor()
+    this.super.ctor(self)
+    self.assetPath = { Windows.GetViewPathByName(Windows.TimeUpTipsView)}
+end
+
+function this:Init()
+    this.super.Init(self)
+	self.view = TimeUpTipsView.New(self.root.transform, self)
+end

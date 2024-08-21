@@ -1,0 +1,49 @@
+GameProgressBar = Class("GameProgressBar")
+local this = GameProgressBar
+
+function this:ctor(tf_root,levels,curGroupIdx)
+    self.root = tf_root
+    self.unitList = {}
+    self.obj_bar = tf_root:Find("Bar").gameObject
+    self.poolComponent = PoolComponent.New(self.tf_root,tf_root:Find("Prefab").gameObject)
+    self:RefreshList(levels,curGroupIdx)
+end
+
+function this:RefreshList(levels,curGroupIdx)
+    if #self.unitList > 0 then
+        for i=1,#self.unitList do
+            self.poolComponent:Back(self.unitList[i].obj)
+            self.unitList[i]:Destroy()
+        end
+        self.unitList = {}
+    end
+
+    local len = #levels
+    for i=1,len do
+        local obj = self.poolComponent:Take(self.obj_bar)
+        local unit = GameProgressUnit.New(obj,levels[i],i,len)
+        table.insert(self.unitList,unit)
+    end
+    self:RefreshUnitState(curGroupIdx)
+end
+
+function this:RefreshUnitState(curGroupIdx)
+    local state
+    for i=1,#self.unitList do
+        state = 0
+        if self.unitList[i].index < curGroupIdx then
+            state = 2
+        elseif self.unitList[i].index == curGroupIdx then
+            state = 1
+        end
+        self.unitList[i]:SetState(state)
+    end
+end
+
+function this:SetCurGroupIdx(curGroupIdx)
+    if self.curGroupIdx == curGroupIdx then return end
+    self.curGroupIdx = curGroupIdx
+    self:RefreshUnitState(self.curGroupIdx)
+end
+
+function this:Destroy() end

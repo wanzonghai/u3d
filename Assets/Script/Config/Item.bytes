@@ -1,0 +1,766 @@
+--W_物品.xlsx
+local team = {}
+local config = 
+{
+	[1] =
+	{
+		id = 1,
+		path = "Art/images/Prefab/Apple01.prefab",
+	},
+	[2] =
+	{
+		id = 2,
+		path = "Art/images/Prefab/Apple02.prefab",
+	},
+	[3] =
+	{
+		id = 3,
+		path = "Art/images/Prefab/Apple03.prefab",
+	},
+	[4] =
+	{
+		id = 4,
+		path = "Art/images/Prefab/Badminton.prefab",
+	},
+	[5] =
+	{
+		id = 5,
+		path = "Art/images/Prefab/Banana.prefab",
+	},
+	[6] =
+	{
+		id = 6,
+		path = "Art/images/Prefab/BBQ01.prefab",
+	},
+	[7] =
+	{
+		id = 7,
+		path = "Art/images/Prefab/BBQ02.prefab",
+	},
+	[8] =
+	{
+		id = 8,
+		path = "Art/images/Prefab/BBQ03.prefab",
+	},
+	[9] =
+	{
+		id = 9,
+		path = "Art/images/Prefab/BBQ04.prefab",
+	},
+	[10] =
+	{
+		id = 10,
+		path = "Art/images/Prefab/Beer01_a.prefab",
+	},
+	[11] =
+	{
+		id = 11,
+		path = "Art/images/Prefab/Beer01_b.prefab",
+	},
+	[12] =
+	{
+		id = 12,
+		path = "Art/images/Prefab/Beer01_c.prefab",
+	},
+	[13] =
+	{
+		id = 13,
+		path = "Art/images/Prefab/Beer01_d.prefab",
+	},
+	[14] =
+	{
+		id = 14,
+		path = "Art/images/Prefab/Bigball01_a.prefab",
+	},
+	[15] =
+	{
+		id = 15,
+		path = "Art/images/Prefab/Bigball01_b.prefab",
+	},
+	[16] =
+	{
+		id = 16,
+		path = "Art/images/Prefab/Bigball01_c.prefab",
+	},
+	[17] =
+	{
+		id = 17,
+		path = "Art/images/Prefab/Bigball01_d.prefab",
+	},
+	[18] =
+	{
+		id = 18,
+		path = "Art/images/Prefab/Bigball01_e.prefab",
+	},
+	[19] =
+	{
+		id = 19,
+		path = "Art/images/Prefab/BigDrink01_a.prefab",
+	},
+	[20] =
+	{
+		id = 20,
+		path = "Art/images/Prefab/BigDrink01_b.prefab",
+	},
+	[21] =
+	{
+		id = 21,
+		path = "Art/images/Prefab/Blento01.prefab",
+	},
+	[22] =
+	{
+		id = 22,
+		path = "Art/images/Prefab/Blento02.prefab",
+	},
+	[23] =
+	{
+		id = 23,
+		path = "Art/images/Prefab/Blento03.prefab",
+	},
+	[24] =
+	{
+		id = 24,
+		path = "Art/images/Prefab/Blento04.prefab",
+	},
+	[25] =
+	{
+		id = 25,
+		path = "Art/images/Prefab/Bowling01_a.prefab",
+	},
+	[26] =
+	{
+		id = 26,
+		path = "Art/images/Prefab/Bowling01_b.prefab",
+	},
+	[27] =
+	{
+		id = 27,
+		path = "Art/images/Prefab/Box01.prefab",
+	},
+	[28] =
+	{
+		id = 28,
+		path = "Art/images/Prefab/Box02_a.prefab",
+	},
+	[29] =
+	{
+		id = 29,
+		path = "Art/images/Prefab/Box02_b.prefab",
+	},
+	[30] =
+	{
+		id = 30,
+		path = "Art/images/Prefab/Bread01_a.prefab",
+	},
+	[31] =
+	{
+		id = 31,
+		path = "Art/images/Prefab/Bread01_c.prefab",
+	},
+	[32] =
+	{
+		id = 32,
+		path = "Art/images/Prefab/Bread01_b.prefab",
+	},
+	[33] =
+	{
+		id = 33,
+		path = "Art/images/Prefab/Bread02_a.prefab",
+	},
+	[34] =
+	{
+		id = 34,
+		path = "Art/images/Prefab/Bread02_b.prefab",
+	},
+	[35] =
+	{
+		id = 35,
+		path = "Art/images/Prefab/Bread02_c.prefab",
+	},
+	[36] =
+	{
+		id = 36,
+		path = "Art/images/Prefab/Bread03.prefab",
+	},
+	[37] =
+	{
+		id = 37,
+		path = "Art/images/Prefab/Bread04_a.prefab",
+	},
+	[38] =
+	{
+		id = 38,
+		path = "Art/images/Prefab/Bread04_b.prefab",
+	},
+	[39] =
+	{
+		id = 39,
+		path = "Art/images/Prefab/Bread05_a.prefab",
+	},
+	[40] =
+	{
+		id = 40,
+		path = "Art/images/Prefab/Bread05_b.prefab",
+	},
+	[41] =
+	{
+		id = 41,
+		path = "Art/images/Prefab/Bread05_c.prefab",
+	},
+	[42] =
+	{
+		id = 42,
+		path = "Art/images/Prefab/Bread05_d.prefab",
+	},
+	[43] =
+	{
+		id = 43,
+		path = "Art/images/Prefab/Bread06.prefab",
+	},
+	[44] =
+	{
+		id = 44,
+		path = "Art/images/Prefab/Bread07.prefab",
+	},
+	[45] =
+	{
+		id = 45,
+		path = "Art/images/Prefab/Bread08_a.prefab",
+	},
+	[46] =
+	{
+		id = 46,
+		path = "Art/images/Prefab/Bread08_b.prefab",
+	},
+	[47] =
+	{
+		id = 47,
+		path = "Art/images/Prefab/Bread08_c.prefab",
+	},
+	[48] =
+	{
+		id = 48,
+		path = "Art/images/Prefab/Bread09.prefab",
+	},
+	[49] =
+	{
+		id = 49,
+		path = "Art/images/Prefab/Bread10.prefab",
+	},
+	[50] =
+	{
+		id = 50,
+		path = "Art/images/Prefab/Bread11.prefab",
+	},
+	[51] =
+	{
+		id = 51,
+		path = "Art/images/Prefab/Bread12.prefab",
+	},
+	[52] =
+	{
+		id = 52,
+		path = "Art/images/Prefab/Bread13.prefab",
+	},
+	[53] =
+	{
+		id = 53,
+		path = "Art/images/Prefab/Bread14.prefab",
+	},
+	[54] =
+	{
+		id = 54,
+		path = "Art/images/Prefab/Bread15.prefab",
+	},
+	[55] =
+	{
+		id = 55,
+		path = "Art/images/Prefab/Burger01.prefab",
+	},
+	[56] =
+	{
+		id = 56,
+		path = "Art/images/Prefab/Burger02.prefab",
+	},
+	[57] =
+	{
+		id = 57,
+		path = "Art/images/Prefab/Burger03.prefab",
+	},
+	[58] =
+	{
+		id = 58,
+		path = "Art/images/Prefab/Cake01_a.prefab",
+	},
+	[59] =
+	{
+		id = 59,
+		path = "Art/images/Prefab/Cake01_b.prefab",
+	},
+	[60] =
+	{
+		id = 60,
+		path = "Art/images/Prefab/Cake02.prefab",
+	},
+	[61] =
+	{
+		id = 61,
+		path = "Art/images/Prefab/Cake03_a.prefab",
+	},
+	[62] =
+	{
+		id = 62,
+		path = "Art/images/Prefab/Cake03_b.prefab",
+	},
+	[63] =
+	{
+		id = 63,
+		path = "Art/images/Prefab/Cake03_c.prefab",
+	},
+	[64] =
+	{
+		id = 64,
+		path = "Art/images/Prefab/Cake04.prefab",
+	},
+	[65] =
+	{
+		id = 65,
+		path = "Art/images/Prefab/Cap01_a.prefab",
+	},
+	[66] =
+	{
+		id = 66,
+		path = "Art/images/Prefab/Cap01_b.prefab",
+	},
+	[67] =
+	{
+		id = 67,
+		path = "Art/images/Prefab/Cap01_c.prefab",
+	},
+	[68] =
+	{
+		id = 68,
+		path = "Art/images/Prefab/Cherry.prefab",
+	},
+	[69] =
+	{
+		id = 69,
+		path = "Art/images/Prefab/Clok01_a.prefab",
+	},
+	[70] =
+	{
+		id = 70,
+		path = "Art/images/Prefab/Clok01_b.prefab",
+	},
+	[71] =
+	{
+		id = 71,
+		path = "Art/images/Prefab/Coconut.prefab",
+	},
+	[72] =
+	{
+		id = 72,
+		path = "Art/images/Prefab/Cookie.prefab",
+	},
+	[73] =
+	{
+		id = 73,
+		path = "Art/images/Prefab/Curling01_a.prefab",
+	},
+	[74] =
+	{
+		id = 74,
+		path = "Art/images/Prefab/Curling01_b.prefab",
+	},
+	[75] =
+	{
+		id = 75,
+		path = "Art/images/Prefab/ElectricFan01_a.prefab",
+	},
+	[76] =
+	{
+		id = 76,
+		path = "Art/images/Prefab/ElectricFan01_b.prefab",
+	},
+	[77] =
+	{
+		id = 77,
+		path = "Art/images/Prefab/Flour.prefab",
+	},
+	[78] =
+	{
+		id = 78,
+		path = "Art/images/Prefab/Hot_pot01_a.prefab",
+	},
+	[79] =
+	{
+		id = 79,
+		path = "Art/images/Prefab/Hot_pot01_b.prefab",
+	},
+	[80] =
+	{
+		id = 80,
+		path = "Art/images/Prefab/Hot_pot01_c.prefab",
+	},
+	[81] =
+	{
+		id = 81,
+		path = "Art/images/Prefab/Hot_pot01_d.prefab",
+	},
+	[82] =
+	{
+		id = 82,
+		path = "Art/images/Prefab/Hot_pot01_e.prefab",
+	},
+	[83] =
+	{
+		id = 83,
+		path = "Art/images/Prefab/Jam01_a.prefab",
+	},
+	[84] =
+	{
+		id = 84,
+		path = "Art/images/Prefab/Jam01_b.prefab",
+	},
+	[85] =
+	{
+		id = 85,
+		path = "Art/images/Prefab/Jam01_c.prefab",
+	},
+	[86] =
+	{
+		id = 86,
+		path = "Art/images/Prefab/Jam01_d.prefab",
+	},
+	[87] =
+	{
+		id = 87,
+		path = "Art/images/Prefab/Milk01.prefab",
+	},
+	[88] =
+	{
+		id = 88,
+		path = "Art/images/Prefab/Milk02_a.prefab",
+	},
+	[89] =
+	{
+		id = 89,
+		path = "Art/images/Prefab/Milk02_b.prefab",
+	},
+	[90] =
+	{
+		id = 90,
+		path = "Art/images/Prefab/Milktea01_a.prefab",
+	},
+	[91] =
+	{
+		id = 91,
+		path = "Art/images/Prefab/Milktea01_b.prefab",
+	},
+	[92] =
+	{
+		id = 92,
+		path = "Art/images/Prefab/Milktea01_c.prefab",
+	},
+	[93] =
+	{
+		id = 93,
+		path = "Art/images/Prefab/Milktea01_d.prefab",
+	},
+	[94] =
+	{
+		id = 94,
+		path = "Art/images/Prefab/Noodles.prefab",
+	},
+	[95] =
+	{
+		id = 95,
+		path = "Art/images/Prefab/Orange01.prefab",
+	},
+	[96] =
+	{
+		id = 96,
+		path = "Art/images/Prefab/Orange02.prefab",
+	},
+	[97] =
+	{
+		id = 97,
+		path = "Art/images/Prefab/Pei.prefab",
+	},
+	[98] =
+	{
+		id = 98,
+		path = "Art/images/Prefab/Pizza.prefab",
+	},
+	[99] =
+	{
+		id = 99,
+		path = "Art/images/Prefab/Pot01_a.prefab",
+	},
+	[100] =
+	{
+		id = 100,
+		path = "Art/images/Prefab/Pot01_b.prefab",
+	},
+	[101] =
+	{
+		id = 101,
+		path = "Art/images/Prefab/Pot02_a.prefab",
+	},
+	[102] =
+	{
+		id = 102,
+		path = "Art/images/Prefab/Pot02_b.prefab",
+	},
+	[103] =
+	{
+		id = 103,
+		path = "Art/images/Prefab/PotPlant01.prefab",
+	},
+	[104] =
+	{
+		id = 104,
+		path = "Art/images/Prefab/PotPlant02.prefab",
+	},
+	[105] =
+	{
+		id = 105,
+		path = "Art/images/Prefab/PotPlant03.prefab",
+	},
+	[106] =
+	{
+		id = 106,
+		path = "Art/images/Prefab/PotPlant04.prefab",
+	},
+	[107] =
+	{
+		id = 107,
+		path = "Art/images/Prefab/PotPlant05_a.prefab",
+	},
+	[108] =
+	{
+		id = 108,
+		path = "Art/images/Prefab/PotPlant05_b.prefab",
+	},
+	[109] =
+	{
+		id = 109,
+		path = "Art/images/Prefab/PotPlant05_c.prefab",
+	},
+	[110] =
+	{
+		id = 110,
+		path = "Art/images/Prefab/PotPlant05_d.prefab",
+	},
+	[111] =
+	{
+		id = 111,
+		path = "Art/images/Prefab/Robot01_a.prefab",
+	},
+	[112] =
+	{
+		id = 112,
+		path = "Art/images/Prefab/Robot01_b.prefab",
+	},
+	[113] =
+	{
+		id = 113,
+		path = "Art/images/Prefab/Robot01_c.prefab",
+	},
+	[114] =
+	{
+		id = 114,
+		path = "Art/images/Prefab/RollingPin.prefab",
+	},
+	[115] =
+	{
+		id = 115,
+		path = "Art/images/Prefab/Rugby.prefab",
+	},
+	[116] =
+	{
+		id = 116,
+		path = "Art/images/Prefab/Schoolbag01_a.prefab",
+	},
+	[117] =
+	{
+		id = 117,
+		path = "Art/images/Prefab/Schoolbag01_b.prefab",
+	},
+	[118] =
+	{
+		id = 118,
+		path = "Art/images/Prefab/Schoolbag01_c.prefab",
+	},
+	[119] =
+	{
+		id = 119,
+		path = "Art/images/Prefab/Scissor01_a.prefab",
+	},
+	[120] =
+	{
+		id = 120,
+		path = "Art/images/Prefab/Scissor01_b.prefab",
+	},
+	[121] =
+	{
+		id = 121,
+		path = "Art/images/Prefab/Scissor01_c.prefab",
+	},
+	[122] =
+	{
+		id = 122,
+		path = "Art/images/Prefab/Seed01_a.prefab",
+	},
+	[123] =
+	{
+		id = 123,
+		path = "Art/images/Prefab/Seed01_b.prefab",
+	},
+	[124] =
+	{
+		id = 124,
+		path = "Art/images/Prefab/Seed01_c.prefab",
+	},
+	[125] =
+	{
+		id = 125,
+		path = "Art/images/Prefab/Shovel01_a.prefab",
+	},
+	[126] =
+	{
+		id = 126,
+		path = "Art/images/Prefab/Shovel01_b.prefab",
+	},
+	[127] =
+	{
+		id = 127,
+		path = "Art/images/Prefab/Smallball01_a.prefab",
+	},
+	[128] =
+	{
+		id = 128,
+		path = "Art/images/Prefab/Smallball01_b.prefab",
+	},
+	[129] =
+	{
+		id = 129,
+		path = "Art/images/Prefab/Smallball01_c.prefab",
+	},
+	[130] =
+	{
+		id = 130,
+		path = "Art/images/Prefab/Smallball01_d.prefab",
+	},
+	[131] =
+	{
+		id = 131,
+		path = "Art/images/Prefab/Smallball01_e.prefab",
+	},
+	[132] =
+	{
+		id = 132,
+		path = "Art/images/Prefab/SmallDrink01_a.prefab",
+	},
+	[133] =
+	{
+		id = 133,
+		path = "Art/images/Prefab/SmallDrink01_b.prefab",
+	},
+	[134] =
+	{
+		id = 134,
+		path = "Art/images/Prefab/SmallDrink01_c.prefab",
+	},
+	[135] =
+	{
+		id = 135,
+		path = "Art/images/Prefab/Snack01_a.prefab",
+	},
+	[136] =
+	{
+		id = 136,
+		path = "Art/images/Prefab/Snack01_b.prefab",
+	},
+	[137] =
+	{
+		id = 137,
+		path = "Art/images/Prefab/Snack01_c.prefab",
+	},
+	[138] =
+	{
+		id = 138,
+		path = "Art/images/Prefab/Snack02_a.prefab",
+	},
+	[139] =
+	{
+		id = 139,
+		path = "Art/images/Prefab/Snack02_b.prefab",
+	},
+	[140] =
+	{
+		id = 140,
+		path = "Art/images/Prefab/Snack02_c.prefab",
+	},
+	[141] =
+	{
+		id = 141,
+		path = "Art/images/Prefab/TableTennis.prefab",
+	},
+	[142] =
+	{
+		id = 142,
+		path = "Art/images/Prefab/Watermalen01.prefab",
+	},
+	[143] =
+	{
+		id = 143,
+		path = "Art/images/Prefab/Watermalen02.prefab",
+	},
+	[144] =
+	{
+		id = 144,
+		path = "Art/images/Prefab/Watermalen03.prefab",
+	},
+	[145] =
+	{
+		id = 145,
+		path = "Art/images/Prefab/Watermalen04.prefab",
+	},
+	[146] =
+	{
+		id = 146,
+		path = "Art/images/Prefab/Wine01.prefab",
+	},
+	[147] =
+	{
+		id = 147,
+		path = "Art/images/Prefab/Wine02.prefab",
+	},
+	[148] =
+	{
+		id = 148,
+		path = "Art/images/Prefab/Wine03.prefab",
+	},
+	[149] =
+	{
+		id = 149,
+		path = "Art/images/Prefab/Wine04.prefab",
+	},
+	[150] =
+	{
+		id = 150,
+		path = "Art/images/Prefab/ZhongDrink01_a.prefab",
+	},
+	[151] =
+	{
+		id = 151,
+		path = "Art/images/Prefab/ZhongDrink01_b.prefab",
+	},
+	[152] =
+	{
+		id = 152,
+		path = "Art/images/Prefab/ZhongDrink01_c.prefab",
+	},
+}
+return config

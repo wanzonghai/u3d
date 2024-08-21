@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: SettingViewAtlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 0
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: 0f8d04d9c6b3fef4488ea5ae7537e0e7, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 2f0a6a6091eaa02409b2742575e62a4e, type: 3}
+  - {fileID: 21300000, guid: 6824ded1311260248a89960a539bb3b6, type: 3}
+  - {fileID: 21300000, guid: 318196624943e5049a10f8184fd74089, type: 3}
+  - {fileID: 21300000, guid: 2fc87f4333b09fc4c82fae578b50cb1d, type: 3}
+  - {fileID: 21300000, guid: 8ea01b8373261394cb1d1feb6b2a95d0, type: 3}
+  - {fileID: 21300000, guid: a9d342a4020a7e5489c71df183c52c76, type: 3}
+  - {fileID: 21300000, guid: ee026fa435a2aa7438486667fbd9a6e9, type: 3}
+  - {fileID: 21300000, guid: 36ae0786b146fc74a994b2065b484739, type: 3}
+  - {fileID: 21300000, guid: ef6b8cda2f42df14fa8d132e751fbed0, type: 3}
+  - {fileID: 21300000, guid: 17e9ce1cbea1eca49b48d77c58746d0f, type: 3}
+  - {fileID: 21300000, guid: b855dc3c72f22be44a85c9de584d54e9, type: 3}
+  - {fileID: 21300000, guid: 03faf9ad7a3ad3e49b0685248e995fb8, type: 3}
+  - {fileID: 21300000, guid: a998944e1322e2d48b44b54d1edbba0b, type: 3}
+  - {fileID: 21300000, guid: 8099f5be0454c344d940b794a1f05508, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - GameX3_chongxinkaishi_da
+  - GameX3_chongxinkaishi_E_da
+  - GameX3_shizhijiemian_da
+  - GameX3_shizhijiemian_ON_Y
+  - GameX3_shizhijiemian_da_YinYue_E
+  - GameX3_shizhijiemian_ON_R
+  - GameX3_shizhijiemian_OFF_Y
+  - GameX3_shizhijiemian_Xiao
+  - GameX3_shizhijiemian_chahao
+  - GameX3_Tuichuguankai_E_da
+  - GameX3_Tuichuguankai_da
+  - GameX3_shizhijiemian_OFF_G
+  - GameX3_shizhijiemian_da_shizhi_E
+  - GameX3_shizhijiemian_da_YinXiao_E
+  m_RenderDataMap: {}
+  m_Tag: SettingViewAtlas
+  m_IsVariant: 0

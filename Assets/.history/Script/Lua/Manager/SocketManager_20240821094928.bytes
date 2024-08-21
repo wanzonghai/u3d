@@ -1,0 +1,38 @@
+--音管理器
+SocketManager = Class("SocketManager")
+local SocketManager = require"Config/Socket"
+local this = SocketManager
+
+--活动
+---读唯一实例
+function this:GetInstance()
+    if nil == self.m_Instance then
+        self.m_Instance = self:New()
+    end
+    return self.m_Instance
+end
+function this:ctor()
+    -- 初始化连接、回调等
+    self.isConnected = false
+    self.callbacks = {}
+end
+
+-- 连接到服务器
+function SocketManager:Connect(host, port)
+    -- 假设使用某种网络库连接服务器
+    -- 这里仅为示例，不是实际的连接代码
+    self.isConnected = true
+    print("Connected to server at " .. host .. ":" .. port)
+end
+
+-- 发送数据
+function SocketManager:Send(messageType, messageData)
+    if self.isConnected then
+        -- 将消息编码并发送给服务器
+        -- 具体的实现依赖于你使用的网络库
+        print("Sending message:", messageType, messageData)
+        -- 例如：网络库.send(messageType, messageData)
+    else
+        print("Not connected to the server.")
+    end
+end

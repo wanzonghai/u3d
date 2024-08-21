@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: TimeUpTipsAtlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 0
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: ba86bb67ff9f1754983ad87378073cbd, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 56c6d0100bb82f0488260b6c6ab84996, type: 3}
+  - {fileID: 21300000, guid: 776f31600e43658469c863f4598fb708, type: 3}
+  - {fileID: 21300000, guid: 2f835286843293449910296f0826fe5c, type: 3}
+  - {fileID: 21300000, guid: 0f97d1d67fd820d4faf8ee8db9b95646, type: 3}
+  - {fileID: 21300000, guid: dab1630822b6dd347a912f6ea0c9f382, type: 3}
+  - {fileID: 21300000, guid: 0610efdb704203046b411fabd4bafd46, type: 3}
+  - {fileID: 21300000, guid: e08530de85e96ab4a8cfdce07a176b91, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - GameX3_ShiJianBuZu_BeiJing
+  - GameX3_ShiJianBuZu
+  - GameX3_GongNengBeiJing_ChaHao
+  - GameX3_ShiJianBuZu_JiaShi
+  - GameX3_ShiJianBuZu_JiaShi_E
+  - GameX3_ShiJianBuZu_E
+  - GameX3_ShiJianBuZu_60Miao_E
+  m_RenderDataMap: {}
+  m_Tag: TimeUpTipsAtlas
+  m_IsVariant: 0

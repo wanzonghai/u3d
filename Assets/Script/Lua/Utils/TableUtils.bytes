@@ -1,0 +1,87 @@
+TableUtils = {}
+
+-- 判断一个元素有没有在Table里
+TableUtils.Contains = function(myTable, value)
+    if type(myTable) == "table" then
+        for i = 1, #myTable do
+            if myTable[i] == value then return true end
+        end
+    else
+        L.LogError("TableUtils.Contains的第一个参数应该为table，现在为" .. type(myTable))
+    end
+    return false
+end
+
+-- 获取一个元素在Table里的索引
+TableUtils.IndexOf = function(myTable, value)
+    if type(myTable) == "table" then
+        for i = 1, #myTable do
+            if myTable[i] == value then return i end
+        end
+    else
+        L.LogError("TableUtils.IndexOf的第一个参数应该为table，现在为" .. type(myTable))
+    end
+    return -1
+end
+
+-- 删除Table的元素
+TableUtils.Remove = function(myTable, value)
+    if type(myTable) == "table" then
+        local pos = 0
+        for i = 1, #myTable do
+            if myTable[i] == value then pos = i end
+        end
+        table.remove(myTable, pos)
+    else
+        L.LogError("TableUtils.Remove的第一个参数应该为table，现在为" .. type(myTable))
+    end
+end
+
+-- 删除指定位置上的元素
+TableUtils.RemoveAt = function(myTable, pos)
+    if type(myTable) == "table" then
+        table.remove(myTable, pos)
+    else
+        L.LogError("TableUtils.RemoveAt的第一个参数应该为table，现在为" .. type(myTable))
+    end
+end
+
+-- 删除Table的所有元素
+TableUtils.RemoveAll = function(myTable)
+    if type(myTable) == "table" then
+        while (#myTable > 0) do
+            table.remove(myTable, 1)
+        end
+    else
+        L.LogError("TableUtils.RemoveAll的第一个参数应该为table，现在为" .. type(myTable))
+    end
+end
+
+-- 添加指定元素至Table末尾
+TableUtils.Add = function(myTable, value)
+    if type(myTable) == "table" then
+        myTable[#myTable + 1] = value
+    else
+        L.LogError("TableUtils.Add的第一个参数应该为table，现在为" .. type(myTable))
+    end
+end
+
+-- 添加元素至Table指定位置
+TableUtils.Insert = function(myTable, pos, value)
+    if type(myTable) == "table" then
+        table.insert(myTable, pos, value)
+    else
+        L.LogError("TableUtils.Add的第一个参数应该为table，现在为" .. type(myTable))
+    end
+end
+
+TableUtils.GetCount = function(myTable)
+    local count = 0
+    if type(myTable) == "table" then
+        for _, _ in pairs(myTable) do count = count + 1 end
+    else
+        L.LogError("TableUtils.GetCount的第一个参数应该为table，现在为" .. type(myTable))
+    end
+    return count
+end
+

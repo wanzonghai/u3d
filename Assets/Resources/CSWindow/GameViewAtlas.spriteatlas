@@ -1,0 +1,72 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!687078895 &4343727234628468602
+SpriteAtlas:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: GameViewAtlas
+  m_EditorData:
+    serializedVersion: 2
+    textureSettings:
+      serializedVersion: 2
+      anisoLevel: 1
+      compressionQuality: 50
+      maxTextureSize: 2048
+      textureCompression: 0
+      filterMode: 1
+      generateMipMaps: 0
+      readable: 0
+      crunchedCompression: 0
+      sRGB: 1
+    platformSettings: []
+    packingSettings:
+      serializedVersion: 2
+      padding: 4
+      blockOffset: 1
+      allowAlphaSplitting: 0
+      enableRotation: 1
+      enableTightPacking: 0
+      enableAlphaDilation: 0
+    secondaryTextureSettings: {}
+    variantMultiplier: 1
+    packables:
+    - {fileID: 102900000, guid: a1fccccffe37f3e4d8651bb7e44a7bfc, type: 3}
+    bindAsDefault: 1
+    isAtlasV2: 0
+    cachedData: {fileID: 0}
+  m_MasterAtlas: {fileID: 0}
+  m_PackedSprites:
+  - {fileID: 21300000, guid: 8866c5b12f3632949ad95128ec4b3763, type: 3}
+  - {fileID: 21300000, guid: 57615c922a3417c48a8e0fa786cbd07c, type: 3}
+  - {fileID: 21300000, guid: 758c41a359e7a9441817ce0fb5cea6ed, type: 3}
+  - {fileID: 21300000, guid: 2193bd3478ee4e0458b47ff5c6bfd439, type: 3}
+  - {fileID: 21300000, guid: 8d0e67649970aa14cbfbf5bd07de2d2e, type: 3}
+  - {fileID: 21300000, guid: bba4113556a532e4a8b621c393535553, type: 3}
+  - {fileID: 21300000, guid: ad06a72617fc29545bf892150e92a08c, type: 3}
+  - {fileID: 21300000, guid: b4f2c4566db780543bd0346a2970f4db, type: 3}
+  - {fileID: 21300000, guid: 7ece9f382405fb342b6b64c58f3583cb, type: 3}
+  - {fileID: 21300000, guid: 69e42d792c89d3c4792cb6e1f9913042, type: 3}
+  - {fileID: 21300000, guid: 4d9637b939e3d9449900446894e8c273, type: 3}
+  - {fileID: 21300000, guid: c9ac1a6a3d70eb44380b9be729a641f2, type: 3}
+  - {fileID: 21300000, guid: 6b773ffb81562324883d67744fedb8c7, type: 3}
+  - {fileID: 21300000, guid: f1c7c88dad716804ba948012d6d1718c, type: 3}
+  m_PackedSpriteNamesToIndex:
+  - GameX3_ZhuangHuang_xiao
+  - GameX3_shijian
+  - GameX3_jiesuohuogui_K
+  - tips_Kuang
+  - GameX3_jiesuohuogui_SheXiangJi
+  - GameX3_jiesuohuogui_E
+  - GameX3_shijiank
+  - GameX3_ZhengJiaDaoJuShuLiang_+
+  - GameX3_shezhi
+  - GameX3_XunZhao_xiao
+  - GameX3_ZhengJiaDaoJuShuLiang_G
+  - GameX3_Dongjie_xiao
+  - GameX3_DaoJuShuLiang_P
+  - tips_E
+  m_RenderDataMap: {}
+  m_Tag: GameViewAtlas
+  m_IsVariant: 0

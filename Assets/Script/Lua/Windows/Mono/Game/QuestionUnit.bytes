@@ -1,0 +1,84 @@
+QuestionUnit = Class("QuestionUnit")
+local this = QuestionUnit
+
+local LuaUIUtils = CS.LuaUIUtils
+
+local PosY = 0.05
+local Scale1 = 0.7
+local Scale2 = 1.3
+
+function this:ctor(chipGroup)
+    self.chipGroup = chipGroup
+    PoolManager:GetInstance():Take("Slot/Prefabs/Question.prefab",self,function(obj)
+        self.obj = obj
+        self.tf = obj.transform
+        self:Refresh()
+    end)
+    self.duration = 0.1
+end
+
+function this:SetChipUnitList(chipUnitList)
+    self.chipUnitList = chipUnitList
+    self:Refresh()
+end
+
+function this:Refresh()
+    if IsNil(self.obj) or not self.chipUnitList then return end
+    self.tf:SetParent(self.chipGroup.target)
+    local len = #self.chipUnitList
+    if len == 2 then
+        self.tf.localScale = GameUtils.Vector3(Scale1,Scale1,Scale1)
+        self.tf.localPosition = GameUtils.Vector3(MainScene.ChipPosX,PosY,self.chipUnitList[2].obj.transform.localPosition.z - 0.0035)
+    elseif len == 3 then
+        self.tf.localScale = GameUtils.Vector3One
+        self.tf.localPosition = GameUtils.Vector3(MainScene.ChipPosX,PosY,self.chipUnitList[3].obj.transform.localPosition.z - 0.0125)
+    elseif len == 4 then
+        self.tf.localScale = GameUtils.Vector3(Scale2,Scale2,Scale2)
+        self.tf.localPosition = GameUtils.Vector3(MainScene.ChipPosX ,PosY,self.chipUnitList[4].obj.transform.localPosition.z - 0.0205)
+    end
+end
+
+function this:Destroy()
+    if not IsNil(self.obj) then PoolManager:GetInstance():Back(self) self.obj = nil end
+    self:KillTweener()
+end
+
+function this:KillTweener()
+    if self.tweener then LuaUIUtils.Kill(self.tweener) self.tweener = nil end
+end
+
+function this:Play(newNum,cb)
+    self:Destroy()
+    local obj = CS.UnityEngine.GameObject("root")
+    obj.transform.position = self.chipUnitList[1].obj.transform.position
+    for i=1,#self.chipUnitList do
+        self.chipUnitList[i].obj.transform:SetParent(obj.transform)
+    end
+    self.tweener = LuaUIUtils.DoFloat(1,0,self.duration,function(value)
+        obj.transform.localScale = GameUtils.Vector3(1,1,value)
+    end)
+    LuaUIUtils.OnComplete(self.tweener,function()
+        for i=1,#self.chipUnitList do
+            self.chipUnitList[i]:RefreshNum(newNum)
+        end
+        self.tweener = LuaUIUtils.DoFloat(0,1,self.duration,function(value)
+            obj.transform.localScale = GameUtils.Vector3(1,1,value)
+        end)
+        if cb then cb() end
+        LuaUIUtils.OnComplete(self.tweener,function()
+            for i=1,#self.chipUnitList do
+                self.chipUnitList[i].obj.transform:SetParent(self.chipGroup.target)
+            end
+            CS.UnityEngine.GameObject.Destroy(obj)
+            self.tweener = nil
+        end)
+    end)
+end
+
+--无动画式的随机
+function this:Change(num)
+    for _,unit in ipairs(self.chipUnitList) do
+        unit:RefreshNum(num)
+    end
+    self:Destroy()
+end

@@ -1,0 +1,51 @@
+ItemTipsView = Class("ItemTipsView",WindowBase)
+local this = ItemTipsView
+
+function this:ctor(transform,server)
+    this.super.ctor(self,transform,server)
+    local tf_bg = transform:Find("Bg")
+    local tf_titles = tf_bg:Find("Titles")
+    self.titleList = {}
+    for i=1,MainScene.NumberThree do
+        table.insert(self.titleList,tf_titles:Find("Title" .. i).gameObject)
+    end
+
+    local tf_icons = tf_bg:Find("Icons")
+    self.iconList = {}
+    for i=1,MainScene.NumberThree do
+        table.insert(self.iconList,tf_icons:Find("Icon" .. i).gameObject)
+    end
+
+    tf_bg:Find("btn_close"):GetComponent("IceButton").OnClick:AddListener(function()
+        WindowManager:GetInstance():Close(Windows.ItemTIpsView)
+    end)
+
+    tf_bg:Find("btn_check"):GetComponent("IceButton").OnClick:AddListener(function()
+        local scene = SceneManager:GetInstance().scene
+        scene:PlayAdvertisement(function()
+            if self.type == 1 then
+                scene:SetFreezeCount(scene.freezeCount + 1)
+            elseif self.type == 2 then
+                scene:SetDisorderCount(scene.disorderCount + 1)
+            elseif self.type == 3 then
+                scene:SetTipsCount(scene.tipsCount + 1)
+            end
+            WindowManager:GetInstance():Close(Windows.ItemTIpsView)
+        end)
+    end)
+end
+
+function this:OnEnable(label)
+    this.super.OnEnable(self,label)
+    self.type = self.server.type
+    for i=1,MainScene.NumberThree do
+        self.titleList[i]:SetActive(self.type == i)
+    end
+    for i=1,MainScene.NumberThree do
+        self.iconList[i]:SetActive(self.type == i)
+    end
+end
+
+function this:Close()
+    this.super.Close(self)
+end

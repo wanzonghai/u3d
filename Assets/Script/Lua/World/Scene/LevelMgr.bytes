@@ -1,0 +1,339 @@
+LevelMgr = Class("LevelMgr")
+local this = LevelMgr
+
+local LuaUIUtils = CS.LuaUIUtils
+local LevelConfig = require "Config/Level"
+local SoundConfig = require "Config/Sound"
+local GameObject = CS.UnityEngine.GameObject
+local numOne = 1
+
+function this:ctor(cfgLevel,scene)
+    self.levelId = cfgLevel.id
+    self.scene = scene
+    self.cfgLevel = cfgLevel
+    self:Init()
+end
+
+function this:Init()
+    --根据关卡配置，生成道具数据    数据生成规则：
+
+    --先生成所有的数据
+    local needCount = self.cfgLevel.count
+    local needGroup = needCount / MainScene.NumberThree
+    local item_list = self.cfgLevel.item_list
+    local len = #item_list
+    local dataList = {}
+    local temp = 0
+    local itemId
+
+    while(needCount > 0) do
+        if temp == len then
+            temp = 1
+            needGroup = needGroup - len
+        else
+            temp = temp + 1
+        end
+        if needGroup > len then
+            itemId = item_list[temp]
+        else
+            itemId = item_list[self:GetRandomNum(1,len,temp)]
+        end
+
+        if dataList[itemId] then
+            dataList[itemId] = dataList[itemId] + MainScene.NumberThree
+        else
+            dataList[itemId] = MainScene.NumberThree
+        end
+
+        needCount = needCount - MainScene.NumberThree
+    end
+
+    --生成第一层
+    local canCombineGroup = math.random(self.cfgLevel.group[1],self.cfgLevel.group[2])    --第一层能合成的道具组数量
+    local firstList = {}
+    local firstNum = 0
+    for i=1,canCombineGroup do
+        firstNum = self:GetRandomNum(1,len,i,firstList)
+        table.insert(firstList,firstNum)
+    end
+
+    self.cupboardUnitList = self.scene.cupboardUnitList
+    local cupboardList = {}
+    local tempCount = 0
+    for _,unit in ipairs(self.cupboardUnitList) do
+        if unit:IsCreateItemInCtor() then
+            tempCount = tempCount + 1
+            table.insert(cupboardList,unit)
+        end
+    end
+    local firstItempCount = tempCount * MainScene.NumberThree - self.cfgLevel.empty_count       --第一层刷新的道具数量
+
+
+    --从剩下的ID里面挑选1-2个组成完整的第一页
+    local firstGroupData = {}
+    local tempDict = {}
+    local curCupboardIdx = 1
+    local insertFirst = function(itemId)
+        if tempDict[itemId] or not cupboardList[curCupboardIdx] then
+            table.insert(firstGroupData,itemId)
+            print("Item already inserted or cupboard index is not valid:", itemId)
+        else
+            cupboardList[curCupboardIdx]:AddDataWithNoIdx(1,itemId)
+            curCupboardIdx = curCupboardIdx + 1
+            tempDict[itemId] = true -- 记录道具已经插入
+
+        end
+    end
+    -- 计算第一层的道具数量
+    local totalCount = tempCount * MainScene.NumberThree - self.cfgLevel.empty_count
+    -- 插入道具到柜子
+    for i = 1,#firstList do
+        local itemId = item_list[firstList[i]]
+        for j=1,MainScene.NumberThree do
+            insertFirst(itemId)
+        end
+        -- dataList[itemId] = dataList[itemId] - 3
+        -- 更新数据列表
+        if dataList[itemId] then
+            dataList[itemId] = dataList[itemId] - MainScene.NumberThree
+        end
+        -- 更新剩余计数
+        totalCount = totalCount - MainScene.NumberThree
+    end
+    local remainNum = firstItempCount - canCombineGroup * MainScene.NumberThree
+    local addNum = 0
+    while remainNum > 0 do
+        for i=1,len do
+            if remainNum > 0 and not table.containValue(firstList,i) then
+                addNum = remainNum > 1 and 2 or remainNum
+                for j=1,addNum do
+                    insertFirst(item_list[i])
+                end
+                remainNum = remainNum - addNum
+                dataList[item_list[i]] = dataList[item_list[i]] - addNum
+            end
+            if remainNum <= 0 then break end
+        end
+    end
+    --分配到柜子里面
+    local randomIdx = 0
+    local canAdd
+    local temp
+    for _,tempId in ipairs(firstGroupData) do
+        canAdd = false
+        temp = 0
+        while canAdd == false and temp <= 50 do
+            temp = temp + 1
+            randomIdx = self:GetRandomNum(1,#cupboardList,temp)
+            canAdd = cupboardList[randomIdx]:CanAdd(1,tempId)
+        end
+        if canAdd then
+            cupboardList[randomIdx]:AddDataWithNoIdx(1,tempId)
+        else
+            L.LogError("检查配置表,生成第一层数据时候有道具无法摆放！请联系策划反馈此内容")
+        end
+    end
+
+    --剩下的都是随机生成
+    local remainDataList = {}
+    for tempId,num in pairs(dataList) do
+        if num > 0 then
+            for i=1,num do
+                table.insert(remainDataList,tempId)
+            end
+        end
+    end
+    self:RandomArray(remainDataList)
+    local remainLen = #remainDataList
+
+    print("Remain data list length:", remainLen)
+
+    local group = 2     --层
+    --从第二层开始，每个柜子都是随机数量随机物品
+    local addCount = 0
+    temp = 0
+    local curIdx = 1
+    local num
+    while remainLen > 0 do
+        for i=1,#cupboardList do
+            --随机数量
+            temp = temp + i
+            addCount = self:GetRandomNum(1,3,temp)
+            for j=1,addCount do
+                num = remainDataList[curIdx]
+                if not num then break end
+                if cupboardList[i]:CanAdd(group,num) then
+                    cupboardList[i]:AddDataWithNoIdx(group,num)
+                    curIdx = curIdx + 1
+                    remainLen = remainLen - 1
+                end
+            end
+            if not num then break end
+        end
+        group = group + 1
+    end
+    local actualCount = 0
+    for _,unit in ipairs(cupboardList) do
+        actualCount = actualCount + unit:GetItemCount()
+        unit:CreateItemObjs()
+    end
+    print("Actual items count inserted:", actualCount)
+    EventDispatcher:GetInstance():AddEventListener(self,EventID.MouseDown,self.OnMouseDown)
+    EventDispatcher:GetInstance():AddEventListener(self,EventID.MouseDrag,self.OnMouseDrag)
+    EventDispatcher:GetInstance():AddEventListener(self,EventID.MouseUp,self.OnMouseUp)
+end
+
+--获取随机数
+function this:GetRandomNum(min,max,seed,tab)
+    math.randomseed(seed)
+    if tab and #tab > 0 then
+        local num
+        while true do
+            num = math.random(min,max)
+            if not table.containValue(tab,num) then
+                return num
+            end
+        end
+    else
+        return math.random(min,max)
+    end
+end
+--随机打乱列表
+function this:RandomArray(arr)
+    local tmp,index
+    for i=1,#arr-1 do
+        index = math.random(i,#arr)
+        if i ~= index then
+            tmp = arr[index]
+            arr[index] = arr[i]
+            arr[i] = tmp
+        end
+    end
+end
+--鼠标按下
+function this:OnMouseDown(pos)
+    self.curCupboardUnit,self.curItemUnit = self:GetCupboardAndItemUnit(pos)
+    if self.curCupboardUnit and not self.curItemUnit then
+        self.curItemUnit = self.curCupboardUnit:GetItemUnit(pos)
+    end
+    if self.curItemUnit then
+        self.curItemUnit:OnMouseDown(pos)
+    end
+end
+--获取坐标下的item
+function this:GetItemUnit(pos)
+    -- local index = self:GetNearItemUnitIndex(pos)
+    -- if not index then return nil end
+    -- return self.objList[self.curGroup][index]
+end
+--鼠标拖拽
+function this:OnMouseDrag(pos)
+    if not self.curItemUnit then return end
+    self.curItemUnit:OnMouseDrag(pos)
+end
+--鼠标抬起
+function this:OnMouseUp(pos)
+    --如果没有选中的道具，就返回
+    if not self.curItemUnit then return end
+
+    --如果没滑倒柜子范围或者滑倒未解锁的柜子，则清除当前选中信息并且返回
+    local targetCupboardUnit,targetItemUnit = self:GetCupboardAndItemUnit(pos)
+    if not targetCupboardUnit or targetCupboardUnit.state ~= 1 or  targetCupboardUnit:GetEmptyCount() == 0 then
+        self.curItemUnit:OnMouseUp()
+        self.curItemUnit = nil
+        self.curCupboardUnit = nil
+        return
+    end
+
+    --如果滑倒自己位置，则归位
+    if targetItemUnit and targetCupboardUnit.index == self.curCupboardUnit.index and self.curItemUnit.index == targetItemUnit.index then
+        self.curItemUnit:OnMouseUp()
+        self.curItemUnit = nil
+        self.curCupboardUnit = nil
+        return
+    end
+    local index = targetCupboardUnit:GetNearEmptyIndex(pos)
+     -- 进一步检查 index，则归位
+     if not index then
+        self.curItemUnit:OnMouseUp()
+        self.curItemUnit = nil
+        self.curCupboardUnit = nil
+        return
+    end
+    self.curCupboardUnit:RemoveItemUnit(self.curItemUnit,targetCupboardUnit.index == self.curCupboardUnit.index)
+    targetCupboardUnit:AddItemUnitWithIndex(self.curItemUnit,index)
+    self.curItemUnit = nil
+    self.curCupboardUnit = nil
+end
+--获取道具跟上级道具的信息
+function this:GetCupboardAndItemUnit(pos)
+    local cupboardUnit,itemUnit,index
+    for _,unit in ipairs(self.cupboardUnitList) do
+        if unit.state == 1 then
+            if unit:IsInRange(pos) then cupboardUnit = unit break end
+        end
+    end
+    if cupboardUnit then
+        itemUnit,index = cupboardUnit:GetNearItemUnit(pos)
+    end
+    return cupboardUnit,itemUnit,index
+end
+--判空
+function this:OnItemEliminate()
+    local isAllEmpty = true
+    for _,unit in ipairs(self.cupboardUnitList) do
+        if not unit:IsAllEmpty() then isAllEmpty = false break end
+    end
+
+    if isAllEmpty then
+        self.scene:FinishLevel(true)
+    end
+end
+
+--检测是否死局
+function this:CheckImpasse()
+    --空格子小于等于2，没有可消除道具时候，就是死局
+    --先判断空格子数量
+    local emptyNum = 0
+    for _,cupboardUnit in ipairs(self.cupboardUnitList) do
+        emptyNum = emptyNum + cupboardUnit:GetEmptyCount()
+    end
+    emptyNum=emptyNum- self.scene:GetEmptyCupboard()
+    if emptyNum > 2 then return end
+    local itemDict = {}
+    for _,cupboardUnit in ipairs(self.cupboardUnitList) do
+        local curObjList = cupboardUnit:GetCurObjList()
+        if curObjList then
+            for i=1,MainScene.NumberThree do
+                if curObjList[i] then
+                    if itemDict[curObjList[i].itemId] then
+                        itemDict[curObjList[i].itemId] = itemDict[curObjList[i].itemId] + 1
+                    else
+                        itemDict[curObjList[i].itemId] = 1
+                    end
+                end
+            end
+        end
+    end
+
+    local hasCanCompose = false
+    for _,count in pairs(itemDict) do
+        if count >= 3 then hasCanCompose = true break end
+    end
+    if not hasCanCompose then
+        self:Disorder()
+        return
+    end
+    WindowManager:GetInstance():GetServerByName(Windows.GameView):OnShowHintChange(1,hasCanCompose)
+end
+
+function this:Destroy()
+    EventDispatcher:GetInstance():RemoveEventListener(self,EventID.MouseDown)
+    EventDispatcher:GetInstance():RemoveEventListener(self,EventID.MouseDrag)
+    EventDispatcher:GetInstance():RemoveEventListener(self,EventID.MouseUp)
+
+    for _,cupboardUnit in ipairs(self.cupboardUnitList) do
+        cupboardUnit:OnDestroy()
+    end
+    self.cupboardUnitList = nil
+end

@@ -1,0 +1,13 @@
+--音管理器
+SocketManager = Class("SocketManager")
+local SoundConfig = require"Config/Sound"
+local this = SoundManager
+
+--活动
+---读唯一实例
+function this:GetInstance()
+    if nil == self.m_Instance then
+        self.m_Instance = self:New()
+    end
+    return self.m_Instance
+end

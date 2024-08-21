@@ -1,0 +1,47 @@
+GameServer = Class("GameServer",WindowServerBase)
+local this = GameServer
+
+function this:ctor()
+    this.super.ctor(self)
+    self.assetPath = { Windows.GetViewPathByName(Windows.GameView)}
+    self.curLevelId = 0
+end
+
+function this:Init()
+    this.super.Init(self)
+	self.view = GameView.New(self.root.transform, self)
+end
+
+function this:StartRound(levelId)
+    if self.view then self.view:StartRound(levelId)
+    else
+        self.curLevelId = levelId
+        WindowManager:GetInstance():Open(Windows.GameView)
+    end
+end
+
+function this:ShowLock(cupboardUnit)
+    if not self.view then return end
+    self.view:ShowLock(cupboardUnit)
+end
+function this:OnShowHintChange(value1,value2)
+    if not self.view then return end
+    self.view:OnShowHintChange(value1,value2)
+end
+
+--暂停
+function this:Stop()
+    if not self.view then return end
+    self.view:Stop()
+end
+
+--恢复倒计时
+function this:Restart()
+    if not self.view then return end
+    self.view:Restart()
+end
+
+function this:AddTime(time)
+    if not self.view then return end
+    self.view:AddTime(time)
+end

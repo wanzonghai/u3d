@@ -1,0 +1,17 @@
+AccountFailView = Class("AccountFailView",WindowBase)
+local this = AccountFailView
+
+local LevelConfig = require "Config/Level"
+
+function this:ctor(transform,server)
+    this.super.ctor(self,transform,server)
+    transform:Find("btn_restart"):GetComponent("IceButton").OnClick:AddListener(function()
+        SceneManager:GetInstance().scene:Restart()
+        WindowManager:GetInstance():Close(Windows.AccountFailView)
+    end)
+
+    transform:Find("btn_back"):GetComponent("IceButton").OnClick:AddListener(function()
+        SceneManager:GetInstance().scene:BackToMainView()
+        WindowManager:GetInstance():Close(Windows.AccountFailView)
+    end)
+end

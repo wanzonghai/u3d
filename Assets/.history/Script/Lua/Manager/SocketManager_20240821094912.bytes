@@ -1,0 +1,18 @@
+--音管理器
+SocketManager = Class("SocketManager")
+local SocketManager = require"Config/Socket"
+local this = SocketManager
+
+--活动
+---读唯一实例
+function this:GetInstance()
+    if nil == self.m_Instance then
+        self.m_Instance = self:New()
+    end
+    return self.m_Instance
+end
+function this:ctor()
+     -- 初始化连接、回调等
+     self.isConnected = false
+     self.callbacks = {}
+end

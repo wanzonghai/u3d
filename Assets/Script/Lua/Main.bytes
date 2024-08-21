@@ -1,0 +1,13 @@
+-- Main.bytes
+print("Hello, Lua in Unity!")
+
+function Start()
+    local ss=555
+    print("Game Start!")
+
+    print("222222222"..ss);
+end
+
+function Update()
+    print("Game Update!")
+end

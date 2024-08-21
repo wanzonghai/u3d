@@ -1,0 +1,30 @@
+ABDLUtils = 
+{
+	KeepStartsWith = "KeepStartsWith-", --标记开头一致
+	Window = "WindowSign",				--界面资源标记
+	Inventory = "InventorySign",		--必要资源标记
+	Temporary = "TemporarySign",		--临时必要资源
+	NormScene = "NormScene", 			--场景分层
+}
+
+local SceneVO = require "Config/SceneVO"
+local Function = require "Config/Function"
+
+ABDLUtils.GetWorldDependencies = function(id)
+	local dependencies = {}
+	for _,cfg in pairs(Function) do
+		table.insert(dependencies,cfg.path)
+	end
+
+	-- table.insert(dependencies,"Grid/SM_Bld_House_Floor_Stone_bg.prefab")
+
+	-- table.insert(dependencies,"Grid/Numbers/Prefabs/Root_Loc.prefab")
+	
+	-- -- table.insert(dependencies,"Grid/Numbers/Prefabs/SM_Floor_Stone_001.prefab")
+
+	-- table.insert(dependencies,"Grid/Numbers/Prefabs/SM_Floor_Stone_N_05.prefab")
+
+	table.insert(dependencies, "Environments/Level/" .. SceneVO[id].Path .. ".unity")
+    dependencies = table.distinctValue(dependencies)
+    return dependencies
+end

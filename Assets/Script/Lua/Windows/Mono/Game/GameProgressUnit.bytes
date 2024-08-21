@@ -1,0 +1,56 @@
+GameProgressUnit = Class("GameProgressUnit")
+local this = GameProgressUnit
+
+function this:ctor(obj,num,index,maxIndex)
+    self.obj = obj
+    self.num = num
+    self.index = index
+    self.maxIndex = maxIndex
+
+    local tf = obj.transform
+    local tf_unfinish = tf:Find("unfinish")
+    local tf_cur = tf_unfinish:Find("Cur")
+    tf_cur:Find("img_color"):GetComponent("Image").color = MainScene.GetColor(num)
+    tf_cur:Find("txt_num"):GetComponent("Text").text = num
+    self.obj_jiantou = tf_cur:Find("img_jiantou").gameObject
+    self.obj_cur = tf_cur.gameObject
+
+    local tf_undone = tf_unfinish:Find("undone")
+    tf_undone:Find("txt_num"):GetComponent("Text").text = num
+    self.obj_undone = tf_undone.gameObject
+    self.obj_unfinish = tf_unfinish.gameObject
+
+    self.obj_finished = tf:Find("Finished").gameObject
+
+    tf:Find("MaxLevel").gameObject:SetActive(maxIndex == index)
+end
+
+--state:0代表未完成  1代表当前  2代表已完成
+function this:SetState(state)
+    self.obj_jiantou:SetActive(false)
+    if state == 0 then
+        self.obj_unfinish:SetActive(true)
+        self.obj_finished:SetActive(false)
+       
+        if self.maxIndex == self.index then
+            self.obj_cur:SetActive(true)
+            self.obj_undone:SetActive(false)
+        else
+            self.obj_cur:SetActive(false)
+            self.obj_undone:SetActive(true)
+        end
+    elseif state == 1 then
+        self.obj_undone:SetActive(false)
+        self.obj_unfinish:SetActive(true)
+        self.obj_finished:SetActive(false)
+        
+        self.obj_cur:SetActive(true)
+        self.obj_undone:SetActive(false)
+        self.obj_jiantou:SetActive(self.index ~= 1)
+    else
+        self.obj_unfinish:SetActive(false)
+        self.obj_finished:SetActive(true)
+    end
+end
+
+function this:Destroy() end
