@@ -12,7 +12,7 @@ local soundManager = nil
 local inScene = false
 local scene = nil
 local TotalManager = CS.UnityEngine.GameObject.Find('TotalManager')
-
+local NetworkManager = CS.NetworkManager.GetInstance()
 local screen = CS.UnityEngine.Screen
 local ScreenOrientation = CS.UnityEngine.ScreenOrientation
 local KeyCodeEscape = CS.UnityEngine.KeyCode.Escape
@@ -45,6 +45,7 @@ function LaunchStart()
 	timerManager = TimerManager:GetInstance()
 	windowManager = WindowManager:GetInstance()
 	soundManager = SoundManager:GetInstance()
+	NetworkManager:SwitchToStrongNetworkMode()
 	mgr_Scene:OnMapEnter(1)
 end
 

@@ -17,7 +17,11 @@ function this:ctor(transform,server)
 
     self.tf_middle = transform:Find("Middle")
     -- self.obj_prefab = self.tf_middle:Find("Prefab").gameObject
-
+    local btn_changeNet= self.tf_middle:Find("btn_changeNet").gameObject
+    btn_changeNet:GetComponent("IceButton").OnClick:AddListener(function()
+        CS.NetworkManager.GetInstance():SwitchToStrongNetworkMode()
+    end)
+    
     local tf_bottom = transform:Find("Bottom")
     -- local tf_freeze = tf_bottom:Find("btn_freeze")
     -- self.obj_add_freeze = tf_freeze:Find("Add").gameObject

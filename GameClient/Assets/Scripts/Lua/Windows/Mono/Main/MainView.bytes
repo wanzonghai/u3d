@@ -7,6 +7,7 @@ function this:ctor(transform,server)
         -- SoundManager:GetInstance():Play(3)
         SceneManager:GetInstance().scene:StartRound(PlayerPrefsUtils.GetCurLevelId() + 1)
         WindowManager:GetInstance():Close(Windows.MainView)
+        CS.NetworkManager.GetInstance():SwitchToWeakNetworkMode()
     end)
 
     -- transform:Find("btn_setting"):GetComponent("IceButton").OnClick:AddListener(function()

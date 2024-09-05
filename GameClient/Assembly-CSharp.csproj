@@ -57,8 +57,6 @@
     <Analyzer Include="C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\Extensions\Microsoft\Visual Studio Tools for Unity\Analyzers\Microsoft.Unity.Analyzers.dll" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Assets\Scripts\CSharp\Network\HTTPManager.cs" />
-    <Compile Include="Assets\Scripts\CSharp\Network\TCPClientManager.cs" />
     <Compile Include="Assets\XLua\Gen\LuaUtilsWrap.cs" />
     <Compile Include="Assets\XLua\Gen\UnityEngine_RectTransformWrap.cs" />
     <Compile Include="Assets\XLua\Src\LuaDLL.cs" />
@@ -80,7 +78,9 @@
     <Compile Include="Assets\XLua\Gen\UnityEngine_GameObjectWrap.cs" />
     <Compile Include="Assets\XLua\Gen\UnityEngine_SceneManagement_SceneManagerWrap.cs" />
     <Compile Include="Assets\XLua\Gen\IceMark_UI_IceMarkToolsWrap.cs" />
+    <Compile Include="Assets\XLua\Gen\NetworkManagerWrap.cs" />
     <Compile Include="Assets\XLua\Gen\IceMark_UI_IceButtonWrap.cs" />
+    <Compile Include="Assets\Scripts\CSharp\Network\TCPClientManager.cs" />
     <Compile Include="Assets\XLua\Gen\Coroutine_RunnerWrap.cs" />
     <Compile Include="Assets\XLua\Gen\UnityEngine_ParticleSystem_MainModuleWrap.cs" />
     <Compile Include="Assets\XLua\Gen\UnityEngine_Vector3Wrap.cs" />
@@ -167,6 +167,8 @@
     <Compile Include="Assets\Scripts\CSharp\XLua\BuildInInit.cs" />
     <Compile Include="Assets\Scripts\CSharp\HotFix\HotFixManager.cs" />
     <Compile Include="Assets\XLua\Gen\UnityEngine_BehaviourWrap.cs" />
+    <Compile Include="Assets\Scripts\CSharp\Network\NetworkManager.cs" />
+    <Compile Include="Assets\Scripts\CSharp\Network\HTTPManager.cs" />
     <Compile Include="Assets\XLua\Gen\UnityEngine_BoxColliderWrap.cs" />
     <Compile Include="Assets\XLua\Gen\DownLoaderWrap.cs" />
     <Compile Include="Assets\XLua\Gen\XLuaGenAutoRegister.cs" />
@@ -194,8 +196,6 @@
     <Compile Include="Assets\XLua\Gen\UnityEngine_ParticleSystem_EmissionModuleWrap.cs" />
     <Compile Include="Assets\Scripts\CSharp\Manager\TotalManager.cs" />
     <Compile Include="Assets\XLua\Gen\UnityEngine_MonoBehaviourWrap.cs" />
-    <Compile Include="Assets\Scripts\CSharp\Network\NetworkManager.cs" />
-    <Compile Include="Assets\XLua\Gen\NetworkManagerWrap.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\EditorExtend\MyExcel\EPPlus\EPPlus.XML" />
