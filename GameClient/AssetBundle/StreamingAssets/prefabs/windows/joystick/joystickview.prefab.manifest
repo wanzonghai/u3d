@@ -1,0 +1,33 @@
+ManifestFileVersion: 0
+CRC: 3234676871
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 6644ec02cd4c0949ddacb1e9f36a1009
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 6635f413c541409ce1652e26c5c00722
+HashAppended: 0
+ClassTypes:
+- Class: 1
+  Script: {instanceID: 0}
+- Class: 111
+  Script: {instanceID: 0}
+- Class: 114
+  Script: {fileID: 11500000, guid: 0cd44c1031e13a943bb63640046fad76, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: dc42784cf147c0c48a680349fa168899, type: 3}
+- Class: 114
+  Script: {fileID: 11500000, guid: de95ebf5bbdef1c419ac6799c9086414, type: 3}
+- Class: 115
+  Script: {instanceID: 0}
+- Class: 222
+  Script: {instanceID: 0}
+- Class: 223
+  Script: {instanceID: 0}
+- Class: 224
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Resources/Prefabs/Windows/Joystick/JoystickView.prefab
+Dependencies: []

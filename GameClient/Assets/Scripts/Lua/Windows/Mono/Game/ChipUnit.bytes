@@ -1,0 +1,128 @@
+ChipUnit = Class("ChipUnit")
+local this = ChipUnit
+
+local LuaUIUtils = CS.LuaUIUtils
+local LuaUtils = CS.LuaUtils
+
+function this:ctor(num)
+    self.num = num      --0代表随机筹码
+    self.obj = nil
+
+    self.isUp = false
+    self.duration = 0.1
+    self.dealingDuration = 0.2
+end
+
+function this:Create(root,endPos,startPos)
+    if not IsNil(self.obj) then PoolManager:GetInstance():Back(self) end
+    PoolManager:GetInstance():Take("Slot/Prefabs/Money.prefab",self,function(obj)
+        self.obj = obj
+        self.tf_money = obj.transform:Find("Money_mo_01")
+        self.animation = obj.transform:GetComponent("Animation")
+        self:SetColor()
+
+        self.obj_num =  self.tf_money:Find("num").gameObject
+        self.txt_num = self.obj_num.transform:GetComponent("TextMesh")
+        self:SetNum(self.num)
+        self:SetNumActive(false)
+        if startPos then
+            self.obj.transform.position = startPos
+            self.obj.transform:SetParent(root)
+            self.tweener = LuaUIUtils.DoLocalMove(self.obj.transform,endPos,self.dealingDuration)
+        else
+            self.obj.transform:SetParent(root)
+            self.obj.transform.localPosition = endPos
+        end
+    end)
+end
+
+function this:RefreshNum(num)
+    if self.num == num then return end
+    self.num = num
+    self:SetColor()
+    self:SetNum(self.num)
+end
+
+function this:SetColor()
+    LuaUtils.SetMeshRendererColor(self.tf_money,"_BaseColor",MainScene.GetColor(self.num))
+end
+
+function this:SetNumActive(isActive)
+    if IsNil(self.obj_num) then return end
+    self.obj_num:SetActive(isActive)
+end
+
+function this:SetParent(tf_parent,endPos,duration)
+    self.obj.transform:SetParent(tf_parent)
+    self:KillTweener()
+    self:RestoreInitial()
+    self.tweener = LuaUIUtils.DoLocalMove(self.obj.transform,endPos,duration or self.dealingDuration)
+    LuaUIUtils.OnComplete(self.tweener,function() self.tweener = nil end)
+end
+
+function this:SetNum(num)
+    num = num or self.num
+    local scale = MainScene.ScaleList[1]
+    if num > 9 then
+        if num < 100 then
+            scale = MainScene.ScaleList[2]
+        elseif num < 1000 then
+            scale = MainScene.ScaleList[3]
+        elseif num < 10000 then
+            scale = MainScene.ScaleList[4]
+        else
+            scale = MainScene.ScaleList[5]
+        end
+    end
+    self.obj_num.transform.localScale = GameUtils.Vector3(scale,scale,1)
+    self.txt_num.text = num
+end
+
+function this:Up()
+    self.isUp = true
+    self:KillTweener()
+    self.tweener = LuaUIUtils.DoLocalMoveY(self.obj.transform,MainScene.PosYUp,self.duration)
+    LuaUIUtils.OnComplete(self.tweener,function()
+        self.animation:Play("idle")
+        self.tweener = nil
+    end)
+end
+
+function this:RestoreInitial()
+    self.animation:Play("none")
+    self.tf_money.localPosition = GameUtils.Vector3Zero
+end
+
+function this:Down()
+    self.isUp = false
+    self:KillTweener()
+    self:RestoreInitial()
+    self.tweener = LuaUIUtils.DoLocalMoveY(self.obj.transform,MainScene.PosYDown,self.duration)
+    LuaUIUtils.OnComplete(self.tweener,function()
+        self.tweener = nil
+    end)
+end
+
+function this:OnMoveUnright()
+    self:DestroyTimer()
+    self:KillTweener()
+    self.animation:Play("shake")
+    self.timer = Timer.New(self,0.5,function()
+        self:Down()
+    end,1)
+end
+
+function this:KillTweener()
+    if self.tweener then LuaUIUtils.Kill(self.tweener) self.tweener = nil end
+end
+
+function this:DestroyTimer()
+    if self.timer then self.timer:OnDestroy() self.timer = nil end
+end
+
+function this:Destroy()
+    self:KillTweener()
+    self:DestroyTimer()
+    self:RestoreInitial()
+    if not IsNil(self.obj) then PoolManager:GetInstance():Back(self) else L.LogError("AA") end
+end

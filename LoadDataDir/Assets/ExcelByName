@@ -1,0 +1,8 @@
+Level,  E:/Unity/DemonLua/LoadDataDir/Excel/G_关卡表.xlsx
+Params,  E:/Unity/DemonLua/LoadDataDir/Excel/G_规则：公共参数.xlsx
+Function,  E:/Unity/DemonLua/LoadDataDir/Excel/J_界面规则.xlsx
+ItemSprite,  E:/Unity/DemonLua/LoadDataDir/Excel/J_界面规则.xlsx
+Sound,  E:/Unity/DemonLua/LoadDataDir/Excel/S_声音.xlsx
+Item,  E:/Unity/DemonLua/LoadDataDir/Excel/W_物品.xlsx
+Language,  E:/Unity/DemonLua/LoadDataDir/Excel/Y_语言.xlsx
+LocalRes,  E:/Unity/DemonLua/LoadDataDir/Excel/Z_资源.xlsx

@@ -1,0 +1,322 @@
+ScrollRectView = Class("ScrollRectView")
+local Vector3 = CS.UnityEngine.Vector3
+local Vector2 = CS.UnityEngine.Vector2
+local GameObject = CS.UnityEngine.GameObject
+
+local example =
+{
+	transform = transform,				--显示transform
+    arrangement = "Vertical",			--Vertical竖排，Horizontal横排
+    maxPerLine = 5,						--每排最大数量
+    spacing = {x = 0, y = 0},   		--间距
+    cellSize = {x = 108, y = 108},		--格子大小
+    itemClass = ScrollRectItem,			--item的class
+    itemData = {},						--显示数据(数组)
+    viewNumber = nil,                   --一屏显示列数
+    itemName = nil,                     --ItemPrefab名
+}
+
+--滚动显示的组件,具有item对象池，在滚动的过程中重复利用，初始化只生成可视的item显示GameObject
+--所有对外接口说明:
+--LocationIndex     定位到固定index的item对象
+--UpdateFrame       每帧调用，用于驱动ScrollRectItem的UpdateFrame
+--OnUpdate          更换所有数据调用 传入新的itemData列表
+--OnCountUpdate     原itemData数量有变更时调用，用于更新显示排列 传入改变对象在列表中显示的index或者不传，当有传入index值时定位更新效率更高
+--self.itemDict     获取显示的itemClass列表字典，key为index的位置,value为该位置itemClass
+--PositionReduction 归零坐标
+function ScrollRectView:ctor(scrollArgs, ...)
+	self.scrollArgs = scrollArgs
+    self.args = {...}
+
+	self.transform = scrollArgs.transform
+	self.rect = self.transform:Find("SubPanel"):GetComponent("RectTransform")
+    self.content = self.rect:Find("Content"):GetComponent("RectTransform")
+    self.scrollRect = self.rect:GetComponent("ScrollRect")
+    self.scrollRect.horizontalNormalizedPosition = 1
+    self.scrollRect.verticalNormalizedPosition = 1
+    if scrollArgs.itemName then 
+        self.itemPrefab = self.transform:Find(scrollArgs.itemName).gameObject 
+    else
+        self.itemPrefab = self.transform:Find("ItemPrefab").gameObject
+    end
+    self.itemPrefab:SetActive(false)
+    --每屏最多显示的数量
+    self.number = { x = scrollArgs.maxPerLine, y = scrollArgs.maxPerLine }
+    self:SetViewCount()
+    self.itemDict = {}				-- 所有显示的格子
+    self.disableList = {}           -- 未显示出来的itemClass
+    self.arrange = -99999
+    self.UpdateTable = function()
+        local arrange = self:GetArrangeNumber()
+        if self.arrange ~= arrange then
+            self.arrange = arrange
+            local startIndex = arrange * self.number.x + 1
+            if scrollArgs.arrangement == "Horizontal" then startIndex = arrange * self.number.y + 1 end
+            local endIndex = startIndex + self.viewCount - 1
+            endIndex = math.min(endIndex, #self.scrollArgs.itemData)
+            for index, itemClass in pairs(self.itemDict) do
+                if index > endIndex or index < startIndex then
+                    itemClass:OnDisable()
+                    self.itemDict[index] = nil
+                    self:BackPool(itemClass)
+                end
+            end
+            startIndex = math.max(1, startIndex)
+            if startIndex > endIndex then return end
+            for i = startIndex, endIndex do
+            	if self.itemDict[i] == nil then
+	            	local itemClass = self:TakePool()
+	            	itemClass.transform.localPosition = self:GetPosition(i)
+	            	itemClass:OnEnable(self.scrollArgs.itemData[i],i)
+	            	self.itemDict[i] = itemClass
+	            end
+        	end
+        end
+        if self.offsetInvoke ~= nil then self.offsetInvoke() end
+    end
+    self.scrollRect.onValueChanged:AddListener(self.UpdateTable)
+    self.UpdateTable()
+    self:SetDataCount()
+end
+
+--动态变化了滑动区域大小要重新设置可视数量
+function ScrollRectView:SetViewCount()
+    if self.scrollArgs.arrangement == "Vertical" then
+        if self.scrollArgs.viewNumber ~= nil then
+            self.number.y = self.scrollArgs.viewNumber
+        else
+            self.number.y = math.ceil((self.rect.sizeDelta.y - self.scrollArgs.cellSize.y) / (self.scrollArgs.cellSize.y + self.scrollArgs.spacing.y)) + 1
+        end
+        self.viewCount = (self.number.y + 1) * self.number.x
+    elseif self.scrollArgs.arrangement == "Horizontal" then
+        if self.scrollArgs.viewNumber ~= nil then
+            self.number.x = self.scrollArgs.viewNumber
+        else
+            self.number.x = math.ceil((self.rect.sizeDelta.x - self.scrollArgs.cellSize.x) / (self.scrollArgs.cellSize.x + self.scrollArgs.spacing.x)) + 1
+        end
+        self.viewCount = (self.number.x + 1) * self.number.y
+    end
+end
+
+function ScrollRectView:OnSetOffsetInvoke(invoke)
+    self.offsetInvoke = invoke
+end
+function ScrollRectView:LocationIndex(index, lastCount)
+    local index = index
+    if index < 1 then return end
+    if index > #self.scrollArgs.itemData then return end
+    if lastCount ~= nil then
+        if (index + lastCount) >= #self.scrollArgs.itemData then
+            index = #self.scrollArgs.itemData - lastCount
+            index = index > 0 and index or 1
+        end
+    end
+    if self.scrollArgs.arrangement == "Horizontal" then
+        local arrange = math.ceil(index / self.number.y) - 1
+        local posX = arrange * -(self.scrollArgs.cellSize.x + self.scrollArgs.spacing.x)
+        self.content.anchoredPosition = Vector2(posX, 0)
+    end
+    if self.scrollArgs.arrangement == "Vertical" then
+        local arrange = math.ceil(index / self.number.x) - 1
+        local posY = arrange * (self.scrollArgs.cellSize.y + self.scrollArgs.spacing.y)
+        self.content.anchoredPosition = Vector2(0, posY)
+    end
+    self:UpdateTable()
+end
+function ScrollRectView:PositionReduction()
+    self.content.localPosition = Vector3.zero
+    self:UpdateTable()
+end
+--每帧调用 用于驱动显示的itemData
+function ScrollRectView:UpdateFrame(time)
+    for _, itemClass in pairs(self.itemDict) do
+        itemClass:UpdateFrame(time)
+    end
+end
+--itemData替换时调用
+function ScrollRectView:OnUpdate(itemData, isReset)
+    self.scrollArgs.itemData = itemData
+    if isReset then
+        self.content.localPosition = Vector3.zero
+    end
+    local arrange = self:GetArrangeNumber()
+    self.arrange = arrange
+    local startIndex = arrange * self.number.x + 1
+    if self.scrollArgs.arrangement == "Horizontal" then startIndex = arrange * self.number.y + 1 end
+    local endIndex = startIndex + self.viewCount - 1
+    endIndex = math.min(endIndex, #self.scrollArgs.itemData)
+    startIndex = math.max(1, startIndex)
+    local sequenceList = {}
+    -- for index, itemClass in pairs(self.itemDict) do
+    --     if index >= startIndex then
+    --         itemClass:OnDisable()
+    --         self.itemDict[index] = nil
+    --         self:BackPool(itemClass)
+    --     end
+    -- end
+    for index, itemClass in pairs(self.itemDict) do
+        if index >= startIndex then
+            local dataVO = {}
+            dataVO.index = index
+            dataVO.itemClass = itemClass
+            table.insert(sequenceList, dataVO)
+        end
+    end
+
+    table.sort(sequenceList, function(a, b)
+        return a.index < b.index
+    end)
+
+    for i = 1, #sequenceList do
+        local item = sequenceList[i]
+        item.itemClass:OnDisable()
+        self.itemDict[item.index] = nil
+        self:BackPool(item.itemClass)
+    end
+    self:SetDataCount()
+    if startIndex > endIndex then return end
+    for i = startIndex, endIndex do
+        if self.itemDict[i] == nil then
+            local itemClass = self:TakePool()
+            itemClass.transform.localPosition = self:GetPosition(i)
+            itemClass:OnEnable(self.scrollArgs.itemData[i],i)
+            self.itemDict[i] = itemClass
+        end
+    end
+    if self.offsetInvoke ~= nil then self.offsetInvoke() end
+end
+--itemData有加减时调用（加减的引用位置）
+function ScrollRectView:OnCountUpdate(updateIndex)
+    local arrange = self:GetArrangeNumber()
+    self.arrange = arrange
+    local startIndex = arrange * self.number.x + 1
+    if self.scrollArgs.arrangement == "Horizontal" then startIndex = arrange * self.number.y + 1 end
+    local endIndex = startIndex + self.viewCount - 1
+
+    if updateIndex ~= nil then
+        if endIndex < updateIndex then 
+            self:SetDataCount()
+            return 
+        end
+        if startIndex < updateIndex then startIndex = updateIndex end
+    end
+    for index, itemClass in pairs(self.itemDict) do
+        if index >= startIndex then
+            itemClass:OnDisable()
+            self.itemDict[index] = nil
+            self:BackPool(itemClass)
+        end
+    end
+    endIndex = math.min(endIndex, #self.scrollArgs.itemData)
+    for i = startIndex, endIndex do
+        if self.itemDict[i] == nil then
+            local itemClass = self:TakePool()
+            itemClass.transform.localPosition = self:GetPosition(i)
+            itemClass:OnEnable(self.scrollArgs.itemData[i],i)
+            self.itemDict[i] = itemClass
+        end
+    end
+    self:SetDataCount()
+end
+--获取当前显示第几排（0开始）
+function ScrollRectView:GetArrangeNumber()
+    if self.scrollArgs.arrangement == "Horizontal" then
+        local posX = self.content.localPosition.x
+        return math.floor((posX) / -(self.scrollArgs.cellSize.x + self.scrollArgs.spacing.x))
+    end
+    if self.scrollArgs.arrangement == "Vertical" then
+        local posY = self.content.localPosition.y
+        return math.floor((posY) / (self.scrollArgs.cellSize.y + self.scrollArgs.spacing.y))
+    end
+    return 0
+end
+--根据索引获取坐标
+function ScrollRectView:GetPosition(i)
+    i = i - 1
+    if self.scrollArgs.arrangement == "Horizontal" then
+        return Vector3((self.scrollArgs.spacing.x + self.scrollArgs.cellSize.x) * math.floor(i / self.scrollArgs.maxPerLine), -(self.scrollArgs.cellSize.y + self.scrollArgs.spacing.y) * (i % self.scrollArgs.maxPerLine), 0)
+    end
+    if self.scrollArgs.arrangement == "Vertical" then
+        return Vector3((i % self.scrollArgs.maxPerLine) * (self.scrollArgs.spacing.x + self.scrollArgs.cellSize.x), -(self.scrollArgs.cellSize.y + self.scrollArgs.spacing.y) * math.floor(i / self.scrollArgs.maxPerLine), 0)
+    end
+    return Vector3.zero
+end
+--根据总数量设置底板大小
+function ScrollRectView:SetDataCount()
+    local lineCount = math.ceil(#self.scrollArgs.itemData / self.scrollArgs.maxPerLine)
+    local width = self.content.sizeDelta.x
+    local height = self.content.sizeDelta.y
+    if self.scrollArgs.arrangement == "Horizontal" then
+        width = self.scrollArgs.cellSize.x * lineCount + self.scrollArgs.spacing.x * (lineCount - 1)
+        width = math.max(width, self.rect.sizeDelta.x)
+    end
+    if self.scrollArgs.arrangement == "Vertical" then
+        height = self.scrollArgs.cellSize.y * lineCount + self.scrollArgs.spacing.y * (lineCount - 1)
+        height = math.max(height, self.rect.sizeDelta.y)
+    end
+    self.content.sizeDelta = Vector2(width, height)
+end
+--获取(itemClass)
+function ScrollRectView:TakePool()
+    local itemClass = nil
+    if #self.disableList > 0 then
+        itemClass = self.disableList[1]
+        itemClass.gameObject:SetActive(true)
+        table.remove(self.disableList, 1)
+    else
+        local obj = NGUITools.AddChild(self.content.gameObject, self.itemPrefab)
+        obj.transform.localScale = self.itemPrefab.transform.localScale
+        obj:SetActive(true)
+        itemClass = self.scrollArgs.itemClass.New(obj, self.args)
+    end
+    return itemClass
+end
+--交回(itemClass)
+function ScrollRectView:BackPool(itemClass)
+	itemClass.gameObject:SetActive(false)
+    table.insert(self.disableList, itemClass)
+
+end
+
+function ScrollRectView:RemoveListener()
+    self.scrollRect.onValueChanged:RemoveListener(self.UpdateTable)
+end
+
+function ScrollRectView:Destroy()
+    for _, item in pairs(self.itemDict) do
+        item:OnDestroy()
+        GameObject.Destroy(item.gameObject)
+    end
+    self.itemDict = {}
+    for _, item in pairs(self.disableList) do
+        item:OnDestroy()
+        GameObject.Destroy(item.gameObject)
+    end
+    self.disableList = {}
+end
+
+--滑动
+function ScrollRectView:Slider(speed,endPosY)
+    if self.scrollArgs.arrangement == "Vertical" then
+       local posY = self.content.anchoredPosition.y
+       posY = posY + speed
+       if posY >= endPosY then
+          posY = endPosY
+       end
+       self.content.anchoredPosition = Vector2(0, posY)
+       return posY >= endPosY  
+    end
+end
+--获根据Index获取滑动到该item的位置
+function ScrollRectView:GetSliderDistanceByIndex(index)
+    local endPosY = 0
+    if self.scrollArgs.arrangement == "Vertical" then
+       local arrange = math.ceil(index / self.number.x) - 2
+       endPosY = arrange * (self.scrollArgs.cellSize.y + self.scrollArgs.spacing.y)
+    end
+    return endPosY
+end
+
+function ScrollRectView:SetCanSlider(enable)
+    self.scrollRect.enabled = enable
+end

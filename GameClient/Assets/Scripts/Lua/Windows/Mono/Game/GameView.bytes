@@ -1,0 +1,224 @@
+GameView = Class("GameView",WindowBase)
+local this = GameView
+
+local RectTransformUtility = CS.UnityEngine.RectTransformUtility
+
+function this:ctor(transform,server)
+    this.super.ctor(self,transform,server)
+    self.scene = SceneManager:GetInstance().scene
+    self.pausing=false
+    local tf_top = transform:Find("Top")
+    -- tf_top:Find("btn_setting"):GetComponent("IceButton").OnClick:AddListener(function()
+    --     SoundManager:GetInstance():Play(3)
+    --     WindowManager:GetInstance():Open(Windows.SettingView,WindowType.Stack)
+    --     self:Stop()
+    -- end)
+    -- self.txt_time = tf_top:Find("Time/txt_time"):GetComponent("Text")
+
+    self.tf_middle = transform:Find("Middle")
+    -- self.obj_prefab = self.tf_middle:Find("Prefab").gameObject
+
+    local tf_bottom = transform:Find("Bottom")
+    -- local tf_freeze = tf_bottom:Find("btn_freeze")
+    -- self.obj_add_freeze = tf_freeze:Find("Add").gameObject
+    -- self.obj_num_freeze = tf_freeze:Find("Num").gameObject
+    -- self.txt_num_freeze = self.obj_num_freeze.transform:Find("txt_num"):GetComponent("Text")
+    -- tf_freeze:GetComponent("IceButton").OnClick:AddListener(function()
+    --     SoundManager:GetInstance():Play(3)
+    --     if self.scene.freezeCount > 0 then
+    --         self.scene:Freeze()
+    --     else
+    --         WindowManager:GetInstance():Open(Windows.ItemTIpsView,WindowType.Stack,nil,1)
+    --     end
+    -- end)
+
+    -- local tf_disorder = tf_bottom:Find("btn_disorder")
+    -- self.obj_add_disorder = tf_disorder:Find("Add").gameObject
+    -- self.obj_num_disorder = tf_disorder:Find("Num").gameObject
+    -- self.obj_Hint_disorder = tf_disorder:Find("Hint").gameObject
+    -- self.txt_num_disorder = self.obj_num_disorder.transform:Find("txt_num"):GetComponent("Text")
+    -- tf_disorder:GetComponent("IceButton").OnClick:AddListener(function()
+    --     SoundManager:GetInstance():Play(3)
+    --     if self.scene.disorderCount > 0 then
+    --         self.scene:Disorder()
+    --         self:OnShowHintChange(1,false);
+    --     else
+    --         WindowManager:GetInstance():Open(Windows.ItemTIpsView,WindowType.Stack,nil,2)
+    --     end
+    -- end)
+
+    -- local tf_tips = tf_bottom:Find("btn_tips")
+    -- self.obj_add_tips = tf_tips:Find("Add").gameObject
+    -- self.obj_num_tips = tf_tips:Find("Num").gameObject
+    -- self.txt_num_tips = self.obj_num_tips.transform:Find("txt_num"):GetComponent("Text")
+    -- tf_tips:GetComponent("IceButton").OnClick:AddListener(function()
+    --     SoundManager:GetInstance():Play(3)
+    --     if self.scene.tipsCount > 0 then
+    --         self.scene:Tips()
+    --     else
+    --         WindowManager:GetInstance():Open(Windows.ItemTIpsView,WindowType.Stack,nil,3)
+    --     end
+    -- end)
+
+    EventDispatcher:GetInstance():AddEventListener(self,EventID.FreezeCountChange,self.OnFreezeCountChange)
+    EventDispatcher:GetInstance():AddEventListener(self,EventID.DisorderCountChange,self.OnDisorderCountChange)
+    EventDispatcher:GetInstance():AddEventListener(self,EventID.TipsCountChange,self.OnTipsCountChange)
+end
+
+function this:OnEnable()
+    this.super.OnEnable(self)
+    self.lockDict = {}
+    -- self.poolComponent = PoolComponent.New(self.tf_middle,self.obj_prefab)
+    -- self:StartRound(self.server.curLevelId)
+    -- self:OnFreezeCountChange(self.scene.freezeCount)
+    -- self:OnDisorderCountChange(self.scene.disorderCount)
+    -- self:OnTipsCountChange(self.scene.tipsCount)
+    -- self:OnShowHintChange(1,false);
+end
+
+function this:ShowLock(cupboardUnit)
+    if not cupboardUnit or not cupboardUnit.tf_root then
+        return
+    end
+    if self.lockDict[cupboardUnit] then return end
+    local tf = self.poolComponent:Take(self.tf_middle.gameObject).transform
+    self:RefreshPos(tf,cupboardUnit.tf_root)
+    tf:GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        self.scene:PlayAdvertisement(function()
+            SoundManager:GetInstance():Play(5)
+            cupboardUnit:SetState(1)
+            self:HideLock(cupboardUnit)
+            EventDispatcher:GetInstance():DispatchEvent(EventID.UnLockClickChange)
+        end)
+    end)
+    self.lockDict[cupboardUnit] = tf
+end
+
+function this:RefreshPos(tf_ui,tf_target)
+    if not tf_target then
+        return
+    end
+
+    local camera = CameraManager:GetInstance().camera
+    local uiCamera = CameraManager:GetInstance().uiCamera
+    local screenPos = camera:WorldToScreenPoint(tf_target.position)
+    local worldPositionOut = nil
+    local pass, worldPosition = RectTransformUtility.ScreenPointToWorldPointInRectangle(self.tf_middle, GameUtils.Vector2(screenPos.x,screenPos.y) , uiCamera, worldPositionOut)
+    tf_ui.position = GameUtils.Vector3(worldPosition.x,worldPosition.y + 0.15,worldPosition.z)
+end
+
+function this:HideLock(cupboardUnit)
+    if not self.lockDict[cupboardUnit] then return end
+    self.poolComponent:Back(self.lockDict[cupboardUnit].gameObject)
+    self.lockDict[cupboardUnit] = nil
+end
+
+function this:StartRound(levelId)
+    -- 清理旧的柜子单元
+    self.scene:ClearCupboardUnits()
+    self.scene:CreateCupboard()
+    self.cfgLevel = self.scene.cfgLevel
+    self.remainTime = self.cfgLevel.time
+    self:StartCountDown()
+end
+
+function this:StartCountDown()
+    self:DestroyTimer()
+    self.txt_time.text = FormatTimeByCaculate4(self.remainTime)
+    self.timer = Timer.New(self,1,function()
+        self.remainTime = math.max(self.remainTime - 1,0)
+        self.txt_time.text = FormatTimeByCaculate4(self.remainTime)
+        if self.remainTime <= 0 then
+            self:StopCountDown()
+            WindowManager:GetInstance():Open(Windows.TimeUpTipsView,WindowType.Stack)
+        end
+        if self.remainTime<=10 then
+            SoundManager:GetInstance():Play(4)
+        end
+    end)
+end
+
+function this:AddTime(time)
+    self.remainTime = self.remainTime + time
+    if not self.timer then self:StartCountDown() end
+end
+
+function this:StopCountDown()
+
+    self:DestroyTimer()
+end
+
+function this:DestroyTimer()
+    if self.timer then self.timer:OnDestroy() self.timer = nil end
+end
+
+function this:Update(time)
+    this.super.Update(self,time)
+end
+
+function this:OnFreezeCountChange(value)
+    self.freezeCount = value
+    if value > 0 then
+        self.obj_add_freeze:SetActive(false)
+        self.obj_num_freeze:SetActive(true)
+        self.txt_num_freeze.text = value
+    else
+        self.obj_add_freeze:SetActive(true)
+        self.obj_num_freeze:SetActive(false)
+    end
+end
+
+function this:OnDisorderCountChange(value)
+    self.disorderCount = value
+    if value > 0 then
+        self.obj_add_disorder:SetActive(false)
+        self.obj_num_disorder:SetActive(true)
+        self.txt_num_disorder.text = value
+    else
+        self.obj_add_disorder:SetActive(true)
+        self.obj_num_disorder:SetActive(false)
+    end
+end
+
+function this:OnTipsCountChange(value)
+    self.tipsCount = value
+    if value > 0 then
+        self.obj_add_tips:SetActive(false)
+        self.obj_num_tips:SetActive(true)
+        self.txt_num_tips.text = value
+    else
+        self.obj_add_tips:SetActive(true)
+        self.obj_num_tips:SetActive(false)
+    end
+end
+-- **--- 展示功能按钮提示
+---@param value1 number
+---@param value2 boolean
+function this:OnShowHintChange(value1,value2)
+    -- TODO 可以根据需求添加不同Hint 展示
+    if value1 == 1 then
+        self.obj_Hint_disorder:SetActive(value2);
+    end
+   
+end
+
+function this:Stop()
+    if self.pausing then return end
+    self.pausing = true
+    self:StopCountDown()
+end
+
+function this:Restart()
+    if not self.pausing then return end
+    self.pausing = false
+    self:StartCountDown()
+end
+
+function this:Close()
+    self:DestroyTimer()
+    EventDispatcher:GetInstance():RemoveEventListener(self,EventID.FreezeCountChange)
+    EventDispatcher:GetInstance():RemoveEventListener(self,EventID.DisorderCountChange)
+    EventDispatcher:GetInstance():RemoveEventListener(self,EventID.TipsCountChange)
+    this.super.Close(self)
+end

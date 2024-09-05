@@ -1,0 +1,18 @@
+AccountPassView = Class("AccountPassView",WindowBase)
+local this = AccountPassView
+
+local LevelConfig = require "Config/Level"
+
+function this:ctor(transform,server)
+    transform:Find("btn_continue"):GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        SceneManager:GetInstance().scene:StartNextLevel()
+        WindowManager:GetInstance():Close(Windows.AccountPassView)
+    end)
+
+    transform:Find("btn_back"):GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        SceneManager:GetInstance().scene:BackToMainView()
+        WindowManager:GetInstance():Close(Windows.AccountPassView)
+    end)
+end

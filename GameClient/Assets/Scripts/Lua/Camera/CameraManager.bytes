@@ -1,0 +1,110 @@
+CameraManager = Class("CameraManager")
+local this = CameraManager
+
+local CameraRenderTypeOverlay = CS.UnityEngine.Rendering.Universal.CameraRenderType.Overlay
+local CameraRenderTypeBase = CS.UnityEngine.Rendering.Universal.CameraRenderType.Base
+local CameraClearFlagsDepth = CS.UnityEngine.CameraClearFlags.Depth
+local FarClipPlane = 1001
+local HideUIFarClipPlane
+
+function this:GetInstance()
+    if nil == self.m_Instance then
+        self.m_Instance = self:New()
+    end
+    return self.m_Instance
+end
+
+function this:ctor()
+	self.uiCamera = nil
+    self.uiSceneCamera = nil
+    self.uiCameraData = nil
+    self.showUI = true
+    self.camera = nil
+    self.normCamera = nil
+    self:Init()
+end
+
+function this:Init()
+    self.uiCamera, self.uiCameraData = self:CreateCamera("UICamera", CS.LuaUtils.LeftOperation(Layers.UI), 1, 3.2, 0, FarClipPlane, CameraClearFlagsDepth, CameraRenderTypeOverlay)
+    self.uiCamera.gameObject:AddComponent(typeof(CS.UnityEngine.EventSystems.EventSystem))
+    self.uiCamera.gameObject:AddComponent(typeof(CS.UnityEngine.EventSystems.StandaloneInputModule))
+
+end
+
+function this:CreateCamera(name, mask, depth, size, near, far, cameraClearFlags, renderType)
+	local go = CS.UnityEngine.GameObject(name)
+	local camera = go:AddComponent(typeof(CS.UnityEngine.Camera))
+	camera.clearFlags = cameraClearFlags
+	camera.cullingMask = mask
+	camera.orthographic = true
+	camera.orthographicSize = size
+    camera.depth = depth
+    camera.nearClipPlane = near
+    camera.farClipPlane = far
+    camera.allowMSAA = false
+    camera.allowHDR = false
+    CS.UnityEngine.GameObject.DontDestroyOnLoad(go)
+    local cameraData = CS.LuaUtils.GetUniversalAdditionalCameraData(camera)
+    cameraData.renderType = renderType
+    return camera, cameraData
+end
+
+function this:AddComponent()
+    self.camera = CS.UnityEngine.GameObject.Find("Main Camera"):GetComponent("Camera")
+    local cameraData = CS.LuaUtils.GetUniversalAdditionalCameraData(self.camera)
+    cameraData.renderType = CameraRenderTypeBase
+    if cameraData.cameraStack.Count == 0 then cameraData.cameraStack:Add(self.uiCamera) end
+    self.scene = SceneManager:GetInstance().scene
+    self.majorCamera = MajorCameraBase.New(self.camera)
+    self.normCamera = NormCamera.New(self.camera,6, 0.5)
+end
+
+function this:ExitScene()
+    self.camera = nil
+end
+
+function this:ShakeCamera(t,a)
+    if self.majorCamera.playing and self.majorCamera.canShake then
+        self.majorCamera:ShakeCamera(t,a)
+    elseif self.normCamera.playing then
+        self.normCamera:ShakeCamera(t,a)
+    end
+end
+
+function this:LateUpdate()
+    if self.majorCamera.playing then self.normCamera.playing = false
+    else self.normCamera.playing = true end
+
+    self.majorCamera:LateUpdate()
+    self.normCamera:LateUpdate()
+end
+
+function this:GetMajorCamera(name)
+    if name == "Skill" then
+        self.majorCamera = SkillMajorCamera.New(self.camera, self.normCamera)
+    end
+    return self.majorCamera
+end
+
+function this:UICameraShow(showUI)
+    self.showUI = showUI
+    self:UpdateUICameraFarClipPlane()
+end
+
+function this:UpdateUICameraFarClipPlane()
+    local farClipPlane = FarClipPlay
+    if not self.showUI then farClipPlane = HideUIFarClipPlane end
+    self.uiCamera.farClipPlane = farClipPlane
+end
+
+function this:SetCameraClearFlags(cameraClearFlags)
+    self.uiCamera.clearFlags = cameraClearFlags
+end
+
+function this:GetCameraClearFlags()
+    return self.uiCamera.clearFlags
+end
+
+function this:OnDestroy()
+    self.showUI = true
+end

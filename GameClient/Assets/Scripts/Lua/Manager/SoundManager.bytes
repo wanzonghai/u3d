@@ -1,0 +1,109 @@
+--音管理器
+SoundManager = Class("SoundManager")
+local SoundConfig = require"Config/Sound"
+local this = SoundManager
+
+--活动
+---读唯一实例
+function this:GetInstance()
+    if nil == self.m_Instance then
+        self.m_Instance = self:New()
+    end
+    return self.m_Instance
+end
+
+function this:ctor()
+	self.poolManager = PoolManager:GetInstance()
+    self.transform = CS.UnityEngine.GameObject("SoundManager").transform
+    CS.UnityEngine.Object.DontDestroyOnLoad(self.transform.gameObject)
+    self.transform.gameObject:AddComponent(typeof(CS.UnityEngine.AudioListener))
+    self.clipAudio = self.transform.gameObject:AddComponent(typeof(CS.UnityEngine.AudioSource))
+    self.groundAudio = self.transform.gameObject:AddComponent(typeof(CS.UnityEngine.AudioSource))
+    self.groundAudio.loop = true
+
+    self.nowGroundID = 0
+    self.nowAlongID = 0
+    self.groundVolume = 1
+    self.clipVolume = 0
+    self:SetClipVolume(PlayerPrefsUtils.GetClipVolume())
+    self:SetGroundVolume(PlayerPrefsUtils.GetGroundVolume())
+    self.clipAudioList = {}
+end
+
+function this:Update(time)
+    self.clipAudioList = {}
+end
+
+function this:AlonePlay(id)
+    if id == 0 then return end
+    local config = SoundConfig[id]
+    if config == nil then
+        L.LogError("Sound表没ID="..id.."的独立音")
+        return
+    end
+    self.nowAlongID = id
+    self.poolManager:TakeAudioClip(config.path, function(kClip)
+        if self.nowAlongID ~= id then return end
+        self.clipAudio.clip = kClip
+        self.clipAudio:Play()
+    end)
+end
+
+function this:AloneStop()
+    self.clipAudio:Stop()
+end
+
+function this:GroundStop()
+    self.groundAudio:Stop()
+end
+
+function this:Play(id)
+    if id == 0 or self.clipAudioList[id] == true then return end
+    local config = SoundConfig[id]
+    if config == nil then
+        L.LogError("Sound表没ID="..id.."的音效")
+        return
+    end
+    self.clipAudioList[id] = true
+    self.poolManager:TakeAudioClip(config.path, function(kClip)
+        self.clipAudio:PlayOneShot(kClip)
+    end)
+end
+
+function this:PlayGround(id)
+    if id==0 then return end
+    local config = SoundConfig[id]
+    if config == nil then
+        L.LogError("Sound表没ID="..id.."的背景音")
+        return
+    end
+    self.nowGroundID = id
+    self.poolManager:TakeAudioClip(config.path, function(kClip)
+        if self.nowGroundID ~= id then return end
+        self.groundAudio.clip = kClip
+        self.groundAudio:Play()
+    end)
+end
+
+function this:SetClipVolume(value)
+    if value == self.clipVolume then return end
+    self.clipVolume = value
+    PlayerPrefsUtils.SetClipVolume(value)
+    self.clipAudio.volume = value
+    if self.plotAudio then self.plotAudio.volume = value end
+end
+
+function this:GetClipVolume()
+    return self.clipVolume
+end
+
+function this:SetGroundVolume(value)
+    if value == self.groundVolume then return end
+    self.groundVolume = value
+    PlayerPrefsUtils.SetGroundVolume(value)
+    self.groundAudio.volume = value
+end
+
+function this:GetGroundVolume()
+    return self.groundVolume
+end

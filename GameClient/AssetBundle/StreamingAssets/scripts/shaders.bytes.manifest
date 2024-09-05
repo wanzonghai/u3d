@@ -1,0 +1,17 @@
+ManifestFileVersion: 0
+CRC: 200575237
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: 5be80ac5ace8017c6d3aacd203c732ca
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 87b0bba9d18ffc75f60c50b410bd4a4e
+HashAppended: 0
+ClassTypes:
+- Class: 48
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Resources/Base/111.shader
+Dependencies: []

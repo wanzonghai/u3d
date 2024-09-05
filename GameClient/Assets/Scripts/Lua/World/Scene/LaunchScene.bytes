@@ -1,0 +1,23 @@
+LaunchScene = Class("LaunchScene", SceneBase)
+local this = LaunchScene
+
+local StartUp = true
+
+function this:ctor()
+	LaunchScene.super.ctor(self)
+	
+	if StartUp then
+		QualityUtils.AutoQualityLevel()
+		QualityUtils.GetQualityLevel()
+		StartUp = false
+	end
+	WindowManager:GetInstance()
+end
+
+function this:AddComponent()
+	LaunchScene.super.AddComponent(self)
+end
+
+function this:Run()
+	LaunchScene.super.Run(self)
+end

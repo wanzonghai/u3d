@@ -1,0 +1,91 @@
+SettingView = Class("SettingView",WindowBase)
+local this = SettingView
+
+function this:ctor(transform,server)
+    this.super.ctor(self,transform,server)
+
+    self.isOpenByMainView = server.isOpenByMainView
+
+    local tf_root1 = transform:Find("root1")
+    local tf_root2 = transform:Find("root2")
+    local tf_root
+    if self.isOpenByMainView then
+        tf_root = tf_root2
+        tf_root1.gameObject:SetActive(false)
+        tf_root2.gameObject:SetActive(true)
+    else
+        tf_root = tf_root1
+        tf_root1.gameObject:SetActive(true)
+        tf_root2.gameObject:SetActive(false)
+    end
+
+    tf_root:Find("btn_close"):GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        WindowManager:GetInstance():Close(Windows.SettingView)
+    end)
+
+    self.playMusic = PlayerPrefsUtils.GetGroundVolume() == 0
+    local tf_btn_music = tf_root:Find("btn_music")
+    self.obj_open_musice = tf_btn_music:Find("img_open").gameObject
+    self.obj_close_music = tf_btn_music:Find("img_close").gameObject
+    tf_btn_music:GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        self:OnMusicCick()
+    end)
+    self:OnMusicCick(true)
+
+    self.playSound = PlayerPrefsUtils.GetClipVolume() == 0
+    local tf_btn_sound = tf_root:Find("btn_sound")
+    self.obj_open_sound = tf_btn_sound:Find("img_open").gameObject
+    self.obj_close_sound = tf_btn_sound:Find("img_close").gameObject
+    tf_btn_sound:GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        self:OnSoundCick()
+    end)
+    self:OnSoundCick(true)
+
+    if not self.isOpenByMainView then
+        local tf_btn_restart = tf_root:Find("btn_restart")
+        tf_btn_restart:GetComponent("IceButton").OnClick:AddListener(function()
+            SoundManager:GetInstance():Play(3)
+            SceneManager:GetInstance().scene:Restart()
+            WindowManager:GetInstance():Close(Windows.SettingView)
+        end)
+
+        local tf_btn_exit = tf_root:Find("btn_exit")
+        tf_btn_exit:GetComponent("IceButton").OnClick:AddListener(function()
+            SoundManager:GetInstance():Play(3)
+            SceneManager:GetInstance().scene:BackToMainView()
+            WindowManager:GetInstance():Close(Windows.SettingView)
+        end)
+    end
+end
+
+function this:OnMusicCick(isInit)
+    self.playMusic = not self.playMusic
+    self.obj_open_musice:SetActive(self.playMusic)
+    self.obj_close_music:SetActive(not self.playMusic)
+
+    if not isInit then
+        SoundManager:GetInstance():SetGroundVolume(self.playMusic and 1 or 0)
+    end
+end
+
+function this:OnSoundCick(isInit)
+    self.playSound = not self.playSound
+    self.obj_open_sound:SetActive(self.playSound)
+    self.obj_close_sound:SetActive(not self.playSound)
+
+    if not isInit then
+        SoundManager:GetInstance():SetClipVolume(self.playSound and 0.2 or 0)
+    end
+end
+
+function this:OnEnable()
+    this.super.OnEnable(self)
+end
+
+function this:Close()
+    SceneManager:GetInstance().scene:RestartCountDown()
+    this.super.Close(self)
+end

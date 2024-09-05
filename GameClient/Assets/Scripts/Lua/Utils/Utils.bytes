@@ -1,0 +1,934 @@
+function table.containKey( t, key )
+    for k, v in pairs(t) do
+        if key == k then
+            return true
+        end
+    end
+    return false
+end
+
+function table.containValue( t, value )
+    for k, v in pairs(t) do
+        if value == v then
+            return true
+        end
+    end
+    return false
+end
+function table.containValueOne( t, value )
+    for k, v in pairs(t) do
+        if value == v[1] then
+            return true
+        end
+    end
+    return false
+end
+
+function table.removeKey( t, key )
+    for k, v in pairs(t) do
+        if key == k then
+            table.remove(t, k) 
+            return true
+        end
+    end
+    return false
+end
+
+function table.removeValue( t, value )
+    for k, v in pairs(t) do
+        if value == v then
+            table.remove(t, k) 
+            return true
+        end
+    end
+    return false
+end
+
+function table.GetTableByValueID( t, value )
+    for k, v in pairs(t) do
+        if value == v.id then
+            return v
+        end
+    end
+    return false
+end
+
+function table.mergeValue( t, t1 )
+    for _,v in pairs(t1) do
+      table.insert(t, v)
+    end
+    return t
+end
+
+function table.distinctValue( t )
+    local t1 = {}
+    local t2 = {}
+    for _,v in pairs(t) do
+        t1[v] = true
+    end
+    for k,_ in pairs(t1) do
+        table.insert(t2, k)
+    end
+    return t2
+end
+
+function table.getKeyByValue( t, value )
+    for k, v in pairs(t) do
+        if value == v then
+            return k;
+        end
+    end
+    return nil
+end
+
+function table.nums(t)
+    if not t then return 0 end
+    local count = 0
+    for k, v in pairs(t) do
+        count = count + 1
+    end
+    return count
+end
+
+function table.keys(t)
+    local keys = {}
+    if t == nil then
+        return keys;
+    end
+    for k, v in pairs(t) do
+        keys[#keys + 1] = k
+    end
+    return keys
+end
+function table.values(t)
+    local values = {}
+    if t == nil then
+        return values;
+    end
+    for k, v in pairs(t) do
+        values[#values + 1] = v
+    end
+    return values
+end
+--a中插入b
+function table.merge(tba, tbb)
+  for k,v in pairs(tbb) do
+    tba[k] = v
+  end
+  return tba
+end
+
+function table.CompareTab(tabA,tabB)
+    local numA = table.nums(tabA)
+    local numB = table.nums(tabB)
+    if numA ~= numB then return false end
+    if numA == 0 then return true end 
+    for key,value in pairs(tabA) do 
+        if tabB[key] ~= value then return false end 
+    end
+    return true
+end
+
+--二分法查找(仅限于线性列表)
+function table.binarySearch(array,targetV,func)
+    local array = array
+    local low = 1
+    local high =  #array
+    local result = -1
+    while low <= high do
+        local middle = math.floor((low + high)/2)
+        local mData = array[middle]
+        local middleV = func(mData)
+        if middleV < targetV then
+           low = middle + 1
+        elseif middleV > targetV then
+          high = middle - 1
+        else
+          result = middle
+          break
+        end
+    end
+    if result == -1 then
+        return nil
+    else
+       return array[result]
+    end
+end
+
+--冒泡排序(仅限于线性列表)
+function table.bubbleSort(array,func)
+    local temp = nil
+    for i = 1,#array - 1 do
+        local flag = false
+        for j = 1,#array - i do
+            if func(array[j + 1],array[j]) then
+                array[j],array[j + 1] = array[j + 1],array[j]
+                flag = true
+            end
+        end
+
+        if not flag then
+            break
+        end
+    end
+end
+
+
+--选择排序(仅限于线性列表)
+function table.selectSort(array,func)
+    for i = 1,#array do
+        local index = i
+        for j = index + 1,#array do
+            if func(array[index],array[j]) then
+                index = j
+            end
+        end
+
+        if i ~= index then
+            local temp = array[index]
+            array[index] = array[i]
+            array[i] = temp
+        end
+    end
+end
+
+--希尔排序(仅限于线性列表)(暂时不能用)
+function table.shellSort(array,func)
+   for gap = math.floor(#array / 2),1,-1 do
+        for i = gap,#array, 1 do
+            for j = i - gap, 1 ,-1 do
+                if func(array[j + gap],array[j]) then
+                    local temp = array[j]
+                    array[j] = array[j + gap]
+                    array[j + gap] = temp
+                end
+
+                j = j - gap + 1
+            end
+        end
+
+        gap = math.floor(gap / 2) + 1
+   end
+end
+--字符串转化为表
+function table:stringToTable(str)
+   return load("return ".. str)() 
+end
+function table.tblCopy(orig)
+    local orig_type = type(orig)
+    local copy
+    if orig_type == "table" then
+        copy = {}
+        for orig_key, orig_value in next, orig, nil do
+            copy[table.tblCopy(orig_key)] = table.tblCopy(orig_value)
+        end
+    else -- number, string, boolean, etc
+        copy = orig
+    end
+    return copy
+end
+function table.tableToString(tb)
+    if type(tb) ~= "table" then
+        L.Log("Sorry, it's not table, it is " .. type(tb) .. ".")
+        return "nil"
+    end
+
+    local function _list_table(tb, table_list, level)
+        local ret = ""
+        local indent = string.rep(" ", level*4)
+
+        for k, v in pairs(tb) do
+            local quo = type(k) == "string" and "\"" or ""
+            ret = ret .. indent .. "[" .. quo .. tostring(k) .. quo .. "] = "
+
+            if type(v) == "table" then
+                local t_name = table_list[v]
+                if t_name then
+                    ret = ret .. tostring(v) .. " -- > [\"" .. t_name .. "\"]\n"
+                else
+                    table_list[v] = tostring(k)
+                    ret = ret .. "{\n"
+                    ret = ret .. _list_table(v, table_list, level+1)
+                    ret = ret .. indent .. "}\n"
+                end
+            elseif type(v) == "string" then
+                ret = ret .. "\"" .. tostring(v) .. "\"\n"
+            else
+                ret = ret .. tostring(v) .. "\n"
+            end
+        end
+
+        local mt = getmetatable(tb)
+        if nil then 
+            ret = ret .. "\n"
+            local t_name = table_list[mt]
+            ret = ret .. indent .. "<metatable> = "
+
+            if t_name then
+                ret = ret .. tostring(mt) .. " -- > [\"" .. t_name .. "\"]\n"
+            else
+                ret = ret .. "{\n"
+                ret = ret .. _list_table(mt, table_list, level+1)
+                ret = ret .. indent .. "}\n"
+            end
+        
+        end
+
+        return ret
+    end    
+
+    local ret = " = {\n"
+    local table_list = {}
+    table_list[tb] = "root table"
+    ret = ret .. _list_table(tb, table_list, 1)
+    ret = ret .. "}"
+    return ret
+end
+function table.tableToString1(tb)
+   local szRet = "{"
+    for _i, _v in pairs(tb) do
+        if "number" == type(_i) then
+            szRet = szRet .. "[" .. _i .. "]="
+            if "number" == type(_v) then
+                szRet = szRet .. _v .. ","
+            elseif "string" == type(_v) then
+                szRet = szRet .. '"' .. _v .. '"' .. ","
+            elseif "table" == type(_v) then
+                szRet = szRet .. table.tableToString1(_v) .. ","
+            else
+                szRet = szRet .. "nil,"
+            end
+        elseif "string" == type(_i) then
+            szRet = szRet .. '["' .. _i .. '"]='
+            if "number" == type(_v) then
+                szRet = szRet .. _v .. ","
+            elseif "string" == type(_v) then
+                szRet = szRet .. '"' .. _v .. '"' .. ","
+            elseif "table" == type(_v) then
+                szRet = szRet .. table.tableToString1(_v) .. ","
+            else
+                szRet = szRet .. "nil,"
+            end
+        end
+    end
+    szRet = szRet .. "}"
+    return szRet
+end
+--20200317  数据化文本(data数据,sSpace留空(内部用))
+--用法:L.LogError(table.ToString(TotalManager))
+function table.ToString(data,sSpace)
+	--20200317  空
+	if data==nil then return "nil" end
+	
+	--20200317  常量,函数
+	local sType = type(data)
+	if sType=="number" then return data end
+	if sType=="boolean" then return tostring(data) end
+	if sType=="string" then return '"'..data..'"' end
+    if sType=="function" then return "(function)" end
+	
+	--20200317  C#类型
+    if sType~="table" then return tostring(data) end
+	
+	--20200317  类
+	sType = data.__cname
+	local sClass = ""
+    if sType~=nil then
+        sClass = "(class)"..sType
+        if sSpace~=nil then return sClass end--20200318  2级类不展开,防类调类死循环
+    end
+	
+	--20200317  table
+    local iShowMax = 10
+	if sSpace==nil then
+        sSpace = ""
+        iShowMax = 40--20200318  1级属性可以显示多点,2级的只能10个防打印溢出
+	end
+	local sSpace2 = " "..sSpace
+    local sEnd = sClass.."{\n"
+    local iShow = 0
+    for key,value in pairs(data) do
+        --20200318  防table太长,导致打印溢出
+        if iShow<iShowMax then
+            if type(key)=="number" then
+                key = "["..key.."]"
+            end
+            sEnd = sEnd..sSpace2..key.."="..table.ToString(value,sSpace2)..",\n"
+        end
+        iShow = iShow+1
+    end
+
+	--20200317  空table
+    if iShow==0 then return sClass.."{}" end
+
+    --20200318  防table太长,导致打印溢出
+    if iShow>iShowMax then
+        sEnd = sEnd..sSpace2.."...(共"..iShow.."个属性)\n"
+    end
+	return sEnd..sSpace.."}"
+end
+--递归打印root下table内容
+function table.printTable(root,title)
+    print( (title or tostring(root)) .. table.tableToString(root))
+end
+--递归打印table内容
+function table.print(sth)
+    if type(sth) ~= "table" then
+    print(sth)
+    return
+  end
+
+  local cache = {  [sth]="<self>" }
+
+  local space, deep = string.rep(' ', 2), 0
+  local function _dump(pkey, t)
+
+    for k,v in pairs(t) do
+      local key
+      if type(k)=='number' then
+        key = string.format("[%s]", k)
+      else
+        key= tostring(k)
+      end
+
+      if cache[v] then
+        print(string.format("%s%s=%s,", string.rep(space, deep + 1),key,cache[v])) --print.
+      elseif type(v) == "table" then
+        deep = deep + 2
+        cache[v]= string.format("%s.%s",pkey,key)
+                print(string.format("%s%s=", string.rep(space, deep - 1), key)) --print.
+                print(string.format("%s{", string.rep(space, deep))) --print.
+                _dump(string.format("%s.%s", pkey, key), v)
+                print(string.format("%s},", string.rep(space, deep)))
+        deep = deep - 2
+      else
+        if type(v) == 'string' then
+          print(string.format("%s%s='%s',", string.rep(space, deep + 1),key,v)) --print.
+        else
+          print(string.format("%s%s=%s,", string.rep(space, deep + 1),key,tostring(v))) --print.
+        end
+      end
+    end
+  end
+
+  print(string.format("{"))
+  _dump("<self>", sth)
+  print(string.format("}"))
+end
+--判断字符串是否为空
+function string.IsNullOrEmpty(str)
+  return not str or str == ""
+end
+--字符串分割
+function string.split(str, delimiter)
+    if (delimiter=='') then return false end
+    local pos,arr = 0, {}
+    -- for each divider found
+    for st, sp in function() return string.find(str, delimiter, pos, true) end do
+        table.insert(arr, string.sub(str, pos, st - 1))
+        pos = sp + 1
+    end
+    table.insert(arr, string.sub(str, pos))
+    return arr
+end
+
+--判断string是否以某个字符开头
+function string.Start(str,startStr)
+    return string.sub(str,1,string.len(startStr)) == startStr
+end
+--判断string是否以某个字符结尾
+function string.End(str,endStr)
+    return endStr == " "or string.sub(str,-string.len(endStr)) == endStr
+end
+
+function string.trim(str)
+  return (str:gsub("^%s*(.-)%s*$", "%1"))
+end
+function string.ltrim(str)
+    return string.gsub(str, "^[ \t\n\r]+", "")
+end
+function string.rtrim(str)
+    return string.gsub(str, "[ \t\n\r]+$", "")
+end
+--num的y次方
+function Pow(num,y)
+    local result=1
+    for i=1,y do
+        result=num*result
+    end
+    return result
+end
+function string.utf8len(str)
+    local len  = #str
+    local left = len
+    local cnt  = 0
+    local arr  = {0, 0xc0, 0xe0, 0xf0, 0xf8, 0xfc}
+    while left ~= 0 do
+        local tmp = string.byte(str, -left)
+        local i   = #arr
+        while arr[i] do
+            if tmp >= arr[i] then
+                left = left - i
+                break
+            end
+            i = i - 1
+        end
+        cnt = cnt + 1
+    end
+    return cnt
+end
+
+math.deg2rad = 0.01745329
+
+function TableUtils_Add(myTable, value)
+    if type(myTable) == "table" then
+        myTable[#myTable + 1] = value
+    else
+        L.LogError("TableUtils:Add的第一个参数应该为table，现在为" .. type(myTable))
+    end
+end
+function handler(target, method)
+    return function(...) return method(target, ...) end
+end
+--用来判断unity空对象
+function IsNil(uobj)
+  return uobj == nil or uobj:IsNull()
+end
+function tobool(str)
+    return str == "true" or str == "TRUE"
+end
+--是否是偶数
+function IsOuNumber(num)
+    local num1,num2=math.modf(num/2)--返回整数和小数部分
+    if(num2==0)then
+        return true
+    else
+        return false
+    end
+end
+--把时间秒，转化为xx时xx分xx秒 的形式
+function FormatTime(time)
+    return os.date("%H:%M:%S",time)
+end
+function FormatTimeByCaculate(time)
+    local hour=math.floor(time/3600)
+    local minutes=math.floor((time-hour*3600)/60)
+    local seconds=time-hour*3600-minutes*60
+    if hour<10 then
+        hour="0"..hour
+    end
+    if minutes<10 then
+        minutes="0"..minutes
+    end
+    if seconds<10 then
+        seconds="0"..seconds
+    end
+    return hour..":"..minutes..":"..seconds
+end
+function FormatTimeByCaculate1(time)
+    local hour=math.floor(time/3600)
+    local minutes=math.floor((time-hour*3600)/60)
+    local seconds=time-hour*3600-minutes*60
+    if hour<10 then
+        hour="0"..hour
+    end
+    if minutes<10 then
+        minutes="0"..minutes
+    end
+    if seconds<10 then
+        seconds="0"..seconds
+    end
+    seconds = math.floor(seconds)
+    return hour..L.Language(2002)..minutes..L.Language(2003)..seconds..L.Language(2004)
+end
+function FormatTimeByCaculate2(time)
+    local day=math.floor(time/(3600*24))
+    time=time-3600*24*day
+    local hour=math.floor(time/3600)
+    time=time-hour*3600
+    local minutes=math.floor(time/60)
+    local seconds=time-minutes*60
+    if day<10 then
+        day="0"..day
+    end
+    if hour<10 then
+        hour="0"..hour
+    end
+    if minutes<10 then
+        minutes="0"..minutes
+    end
+    if seconds<10 then
+        seconds="0"..seconds
+    end
+    return day..L.Language(2001).. hour..L.Language(2002)..minutes..L.Language(2003)..seconds..L.Language(2004)
+end
+function FormatTimeByCaculate3(time)
+    local hour=math.floor(time/3600)
+    local minutes=math.floor((time-hour*3600)/60)
+    local seconds=time-hour*3600-minutes*60
+    if hour<10 then
+        hour="0"..hour
+    end
+    if minutes<10 then
+        minutes="0"..minutes
+    end
+    seconds = math.floor(seconds)
+    if seconds<10 then
+        seconds="0"..seconds
+    end
+    return hour..":"..minutes..":"..seconds
+end
+function FormatTimeByCaculate4(time)
+    local minutes = math.floor(time/60)
+    local seconds = time - minutes*60
+    if minutes < 10 then
+        minutes = "0" .. minutes
+    end
+    seconds = math.floor(seconds)
+    if seconds < 10 then
+        seconds = "0" .. seconds
+    end
+    return minutes .. ":" .. seconds
+end
+--把时间秒，转化为xx分xx秒 的形式
+function FormatTime1(time)
+    return os.date("%M:%S",time)
+end
+--把时间秒，转化为xx天xx时xx分 的形式
+function FormatTime2(time)
+    return os.date("%d:%M:%S",time)
+end
+--把时间秒，转化为xx年xx月xx日 xx时xx分xx秒 的形式
+function FormatAllTime(time)
+    return os.date("%Y/%m/%d %H:%M:%S",time)
+end
+--把时间秒，转化为xx月xx日xx时 的形式
+function FormatAllTime2(time)
+    local times = os.date("%m",time)..L.Language(2008) .. os.date("%d",time) ..L.Language(2009) ..os.date("%m",time)..L.Language(2002)
+    return times
+end
+--把时间秒，转化为XX年xx月xx日  格式，time为nil时得到当前日期
+function FormatAllTime1(time)
+    return os.date("%Y/%m/%d",time)
+end
+
+--把时间秒，转化为xx月xx日 xx时xx分 的形式
+function FormatAllTime3(time)
+    return os.date(L.Language(13823),time)
+end
+--把时间戳，转化为 xx时xx分 的形式
+function FormatAllTime4(time)
+    return os.date("%H:%M", time)
+end
+--把时间戳，转化为 xx分xx秒 的形式
+function FormatAllTime5(time)
+    return os.date("%M:%S", time)
+end
+--把时间秒，转化为xx/xx/xx (年月日)
+function FormatAllTime6(time)
+    local times = os.date("%Y",time).."/" .. os.date("%m",time) .."/" ..os.date("%d",time)
+    return times
+end
+
+--把时间秒，转化为xx时xx分xx秒 (时分秒)
+function FormatAllTime7(time)
+    local times = os.date("%H",time)..L.Language(2002) .. os.date("%M",time)..L.Language(2003)..os.date("%S",time)..L.Language(2004)
+    return times
+end
+
+--把时间戳，转化为 xx月xx日 的形式
+function FormatAllTime8(time)
+    return L.Language(11027,os.date("%m", time),os.date("%d",time))
+end
+
+--把时间秒，转化为xx:xx:xx (时分秒)
+function FormatAllTime9(time)
+    local times = os.date("%H:%M:%S",time)
+    return times
+end
+--把时间秒，xx-xx xx:xx:xx （月日时分秒）
+function FormatAllTime10(time)
+    local times = os.date("%m-%d %H:%M:%S",time)
+    return times
+end
+
+--把时间戳转换成 xxxx年xx月xx日
+function FormatAllTime11(time)
+    local date = os.date("*t",time)
+    return date.year .. L.Language(12231) .. date.month .. L.Language(2008) .. date.day .. L.Language(2009)
+end
+
+--把时间秒，转化为xx.xx.xx (年月日)
+function FormatAllTime12(time)
+    local times = os.date("%Y.%m.%d",time)
+    return times
+end
+
+function GetYDay(time)
+    return os.date("%j",time)
+end
+
+function GetDayDist(time1,time2)
+    local ret = 0 
+    local now = os.date("*t",time1)
+    local next = os.date("*t",time2)
+    local num1 = os.time({year = now.year,month = now.month,day = now.day})
+    local num2 = os.time({year = next.year,month = next.month,day = next.day})
+    return math.abs(num1 - num2) / 86400
+end
+
+function GetWeekDay(timestamp)
+    local wday = tonumber(os.date("%w", timestamp or GameUtils.GetCurServerTime()))
+    return wday == 0 and 7 or wday
+end
+
+-- get next weekday time, if alreay pass in this week, will get next week time
+function GetNextWeekdayTime(weekday, hour, min, sec)
+    local now_time = GameUtils.GetCurServerTime()
+    local now_weekday = tonumber(os.date("%w", now_time)) -- %w: monday is 1, wday: sunday is 1
+    local day_start_time = GetDayStartTime(now_time)
+
+    local dtime = hour * 60 * 60 + min * 60 + sec
+
+    if weekday > now_weekday then
+        local next_time = day_start_time + (weekday - now_weekday) * 86400 + dtime
+        return next_time, next_time - now_time
+    end
+
+    if weekday < now_weekday then
+        local next_time = day_start_time + (weekday + 7 - now_weekday) * 86400 + dtime
+        return next_time, next_time - now_time
+    end
+
+    -- same weekday
+    local next_time = day_start_time + dtime
+    if next_time < now_time then
+        next_time = next_time + 7 * 86400
+    end
+    return next_time, next_time - now_time
+end
+
+---使单纯的秒(非时间戳) 转化为时间戳(以客户端当前时间为准)
+---@param sec : number
+function SecToTimestamp(timestampBase, sec)
+    local curDate = os.date("*t", timestampBase)
+    curDate.hour = 0
+    curDate.min = 0
+    curDate.sec = 0
+    return os.time(curDate) + sec
+end
+
+function IsTheSameWeek(stamp1,stamp2)
+    if not stamp1 or stamp1 <= 0 or not stamp2 or stamp2 <= 0 then
+        return false
+    end
+    if math.abs(stamp1-stamp2) > 7*24*3600 then
+        return false
+    end
+    local date1 = os.date("*t", stamp1)
+    local weekday1 = date1.wday
+    if weekday1 == 1 then
+        weekday1 = 7
+    else
+        weekday1 = weekday1 - 1
+    end --从星期1到星期7
+
+    date1.hour=0
+    date1.min=0
+    date1.sec = 0
+
+    local monday_time = os.time(date1) - (weekday1-1)*24*3600
+    local sunday_time = monday_time+7*24*3600
+
+    if monday_time <= stamp2 and stamp2 <= sunday_time then
+        return true
+    end
+    return false
+end
+function IsTheSameDay(stamp1,stamp2)
+    if not stamp1 or stamp1 <= 0 or not stamp2 or stamp2 <= 0 then
+        return false
+    end
+    if math.abs(stamp1-stamp2) > 24*3600 then
+        return false
+    end
+    local date1 = os.date("*t", stamp1)
+    date1.hour=0
+    date1.min=0
+    date1.sec = 0
+
+    local start_time = os.time(date1)
+    local end_time = start_time+24*3600
+
+    if start_time <= stamp2 and stamp2 <= end_time then
+        return true
+    end
+    return false
+end
+--input:指定的开服天数
+--output:指定开服天数，到当前时间的转换时间。Ps：如果返回的值为空,即当前时间超过指定时间
+function GetLastOpenTime(days)
+    local lastTime = nil
+    local curServerDay = GameUtils.GetCurServerDay()
+    local curServerTime = GameUtils.GetCurServerTime()
+    local lastDay = days - curServerDay
+    local isOverEndDay = lastDay > 0 and 1 or 2 
+    if isOverEndDay == 2 then
+        return lastTime
+    end
+    --获取指定开服天数0点的时间戳
+    local curDate = os.date("*t", curServerTime)
+    curDate.hour = 0
+    curDate.min = 0
+    curDate.sec = 0
+    curDate.day = curDate.day + lastDay
+    local endDayZeroTime = os.time(curDate)
+    --计算俩者相差的时间
+    local timeTag = endDayZeroTime - curServerTime
+    lastTime = FormatTimeByCaculate1(timeTag)
+    return lastTime
+end
+--把字符串 xx年/x月/日  转换成number类型  "2018/07/18" --> 20180718
+function StringDateToNum(date)
+    local arr= string.split(date,"/")
+    local strNum=""
+    for i=1,#arr do
+        strNum=strNum..arr[i]
+    end
+    return tonumber(strNum)
+end
+--字符串替换   --UGUI 的text在读取配置文件的"\n"换行符时，会变成"\\n",所以要替换回来才能实现换行
+function String_Replace(s,old,new)
+    if  s~=nil and  type(s)=="string" then 
+        s = string.gsub(s, old, new)
+    end 
+    return s
+end
+--替换敏感词
+function FindBlockWord(str)
+	for _,v in ipairs(csv.BlockWord) do
+		if string.find(str,v.name) then
+			str = string.gsub(str, v.name, "*****")
+			break
+		end
+	end
+	return str
+end
+--保留小数点后1位
+function FloatToPercent(value)
+    value=value*1000
+    value=math.floor(value+0.5)
+    return (value/10).."%"
+end
+--不保留小数点
+function FloatToPercent1(value)
+    value=value*100
+    value=math.floor(value+0.5)
+    return value.."%"
+end
+--小数部分是0  不显示  20.0 =》20  10.50 =》10.5
+function FloatFormat(value)
+    local t1, t2 = math.modf(value)
+	---小数如果为0，则去掉
+	if t2 > 0 then
+		return value
+	else
+		return t1
+	end
+end
+--number^power
+function PowerFuction(number,power)
+    if number == 0 or number == 1 then return number end
+    if power == 0 then return 1 end
+
+    local value = 1
+    number = power >0 and number or (1/number)
+    for i=1,math.abs( power) do
+        value = value * number
+    end
+    return value
+end
+
+--日期相减求出天数差  格式：20180808   
+function Datediff(date1,date2)
+	local day1 = {};
+	local day2 = {};
+	local numDay1;
+	local numDay2;
+	
+	if date1 < 19700101 or date2 < 19700101 then
+		return 0;
+	end
+	day1.year,day1.month,day1.day = string.match(date1,"(%d%d%d%d)(%d%d)(%d%d)");
+	day2.year,day2.month,day2.day = string.match(date2,"(%d%d%d%d)(%d%d)(%d%d)");
+	numDay1 = os.time(day1);
+	numDay2 = os.time(day2);
+	return math.modf((numDay1-numDay2)/(3600*24));
+end
+function GetRelativeDay(time1, time2)
+    local interval_time = math.abs(GetDayStartTime(time1) - GetDayStartTime(time2))
+    return interval_time / (24 * 3600) + 1
+end
+function GetDayStartTime(input_time)
+    if not input_time or input_time == 0 then
+        input_time = os.time()
+    end
+
+    local d = os.date("*t", input_time)
+    d.hour = 0
+    d.min = 0
+    d.sec = 0
+    local day_start_time = os.time(d)
+
+    return day_start_time
+end
+--去除表中相同的元素
+function RemoveTheRepeatElement(theList)
+    local list1={}
+    for k,v in pairs(theList) do
+        list1[v]=true
+    end
+    local list2={}
+    for k,v in pairs(list1) do
+        table.insert(list2,k)               
+    end
+    return list2
+end
+--去除表中相同的元素
+function RemoveTheRepeatElementById(theList)
+    local list1={}
+    for k,v in pairs(theList) do
+        list1[v.item_id]= v
+    end
+    local list2={}
+    for k,v in pairs(list1) do
+        table.insert(list2,v)               
+    end
+    return list2
+end
+---int转bool表(iData整数值,len表长度)
+table.IntToBools = function(iData,len)
+    local bools={}
+    for i=1,len do
+        local b=iData%2==1
+        bools[i]=b
+
+        if b then
+            iData=iData-1
+        end
+        iData=iData/2
+    end
+    return bools
+end
+---和上面的IntToBools配合使用
+table.BoolsToInt = function(boolTable)
+    local iValue = 0
+	local iAdd = 1
+	for i=1,#boolTable do
+		if  boolTable[i] then
+			iValue = iValue+iAdd
+		end
+		iAdd = iAdd*2
+	end
+    return iValue
+end

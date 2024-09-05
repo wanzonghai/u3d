@@ -1,0 +1,34 @@
+PoolAudioClip = Class("PoolAudioClip")
+
+local DownLoaderState = CS.DownLoaderState
+local ABDLManager = CS.ABDLManager:GetInstance()
+local ABDownLoader = CS.ABDownLoader
+function PoolAudioClip:ctor(path)
+	self.path = path
+	self.sign = "PoolAudioClip-" .. path
+	self.downLoader = ABDownLoader(path, self.sign, true)
+
+	self.audioClip = nil
+	self.poolTakeList = {}		--加载等待缓存队列
+end
+
+function PoolAudioClip:Take(evt)
+	if self.audioClip ~= nil then evt(self.audioClip) 
+	else
+		table.insert(self.poolTakeList, 1, evt)
+
+		if self.downLoader.State == DownLoaderState.None then
+			self.downLoader:Load(function() self:DownLoaderTake() end)
+		elseif self.downLoader.State == DownLoaderState.Complete then
+			self:DownLoaderTake()
+		end
+	end
+end
+
+function PoolAudioClip:DownLoaderTake()
+	self.audioClip = ABDLManager:GetAsset(self.path, self.sign)
+	while #self.poolTakeList > 0 do
+		self.poolTakeList[1](self.audioClip)
+		table.remove(self.poolTakeList, 1)
+	end
+end

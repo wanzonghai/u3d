@@ -1,0 +1,295 @@
+MainScene = Class("MainScene",SceneBase)
+local this = MainScene
+
+MainScene.PosX = -0.42
+MainScene.PosY = 0.3
+MainScene.CupboardCnt = 18          --固定18个规则
+MainScene.NumberThree = 3    --一个柜子放多少个道具
+MainScene.FollowPosZ = 0.085
+MainScene.PosZ = 0.08
+MainScene.PosFront = GameUtils.Vector3(0,0,MainScene.PosZ)
+MainScene.PosBehive = GameUtils.Vector3(0,0,-MainScene.PosZ)
+MainScene.NormalColor = GameUtils.color(1,1,1,1)
+MainScene.GrayColor = GameUtils.color(180/255,180/255,180/255,1)
+MainScene.AdditionTime = 60
+MainScene.FreezeTime = 30
+MainScene.TipsPos = {
+    [1] = GameUtils.Vector3(-1.208,0.813,0.03),
+    [2] = GameUtils.Vector3(-1.068,0.813,0.03),
+    [3] = GameUtils.Vector3(-0.928,0.813,0.03),
+}
+
+local LuaUIUtils = CS.LuaUIUtils
+local LevelConfig = require "Config/Level"
+local SoundConfig = require "Config/Sound"
+local GameObject = CS.UnityEngine.GameObject
+local ABDownLoader = CS.ABDownLoader
+local ABDLManager = CS.ABDLManager:GetInstance()
+
+function this:ctor(id)
+	this.super.ctor(self, id)
+    self:initData()
+end
+
+function this:initData()
+    self.cupboardRoot = nil
+    self.cupboradPrefab = nil
+    self.cupboardUnitList = {}
+
+    self.curScore = 0   --消除一组加1
+    self.clearUpCount = 0       --已消除数量
+    self.levelMgr = nil
+    self.curUnconfigGird=0;
+end
+
+function this:Start()
+    this.super.Start(self)
+    --[[self.mainCamera = CS.UnityEngine.GameObject.Find("Main Camera"):GetComponent("Camera")
+    self.mainCamera.orthographicSize = 0.48 * SceneManager:GetInstance().rate]]--
+    self.freezeCount = PlayerPrefsUtils.GetCurFreezeCount()
+    self.disorderCount = PlayerPrefsUtils.GetCurDisorderCount()
+    self.tipsCount = PlayerPrefsUtils.GetCurTipsCount()
+
+    local scaleValue = 1.2 * SceneManager:GetInstance().rate
+    GameObject.Find("Scene1_Background").transform.localScale = GameUtils.Vector3(scaleValue,scaleValue,1)
+    WindowManager:GetInstance():Open(Windows.MainView)
+    -- SoundManager:GetInstance():PlayGround(1)
+end
+-- 开始一个新关卡
+function this:StartRound(levelId)
+    
+    -- 更新当前关卡 ID
+	self.curLevelId = levelId
+    -- 获取当前关卡的配置
+    self.cfgLevel = LevelConfig[levelId]
+    WindowManager:GetInstance():Open(Windows.JoystickView)
+
+    self.curScore = 0
+    WindowManager:GetInstance():GetServerByName(Windows.GameView):StartRound(levelId)
+    
+    self.currentUnlockIndex = 1
+end
+
+function this:AddTime(time)
+    WindowManager:GetInstance():GetServerByName(Windows.GameView):AddTime(time)
+end
+
+function this:StopTime()--Gameview中的暂停时间
+    WindowManager:GetInstance():GetServerByName(Windows.GameView):Stop()
+end
+function this:RestartTime()--Gameview中的重启时间
+    WindowManager:GetInstance():GetServerByName(Windows.GameView):Restart()
+end
+
+function this:StartNextLevel()
+    if self.levelMgr then self.levelMgr:Destroy() self.levelMgr = nil end
+    self:StartRound(self.curLevelId + 1)
+end
+
+function this:Restart()
+   if self.levelMgr then self.levelMgr:Destroy() self.levelMgr = nil end
+   self:StartRound(self.curLevelId)
+   WindowManager:GetInstance():GetServerByName(Windows.GameView):OnShowHintChange(1,false);
+end
+
+function this:BackToMainView()
+    if self.levelMgr then self.levelMgr:Destroy() self.levelMgr = nil end   
+    self:ClearCupboardUnits()
+    WindowManager:GetInstance():Close(Windows.GameView)
+    WindowManager:GetInstance():Open(Windows.MainView)
+end
+
+--道具消除
+function this:OnItemEliminate()
+    SoundManager:GetInstance():Play(2)
+    self.curScore = self.curScore + 1
+    self.levelMgr:OnItemEliminate()
+    self:OnLevelScoreChange()
+    -- EventDispatcher:GetInstance():DispatchEvent(EventID.LevelScoreChange,self.curScore)
+    WindowManager:GetInstance():GetServerByName(Windows.GameView):OnShowHintChange(1,false);
+    for _, unit in ipairs(self.cupboardUnitList) do
+        unit:Check()
+    end
+end
+function this:OnLevelScoreChange()
+    -- 更新每个柜子的分数，并尝试逐个解锁
+    for _, unit in ipairs(self.cupboardUnitList) do
+        if self.curScore <= 0 then break end
+        if unit:IsLocked() then
+            -- 尝试解锁当前柜子，并获取剩余的分数
+            self.curScore = unit:OnLevelScoreChange(self.curScore)
+            return
+        end
+    end
+    
+end
+function this:CheckImpasse()
+    self.levelMgr:CheckImpasse()
+end
+
+function this:FinishLevel(isPass)
+    WindowManager:GetInstance():GetServerByName(Windows.GameView):Stop()
+    SoundManager:GetInstance():Play(isPass and 6 or 7)
+    WindowManager:GetInstance():Open(isPass and Windows.AccountPassView or Windows.AccountFailView,WindowType.Stack,nil)
+    if isPass then PlayerPrefsUtils.SetCurLevelId(self.curLevelId) end
+end
+
+function this:Freeze()
+    -- 检查并移除已有计时器
+    if self.timer then
+        self.timer:OnDestroy()
+        self.timer = nil
+    end
+    -- self:AddTime(MainScene.FreezeTime)
+    self:StopTime()
+    self:SetFreezeCount(self.freezeCount - 1)
+
+     -- 设置计时器，在30秒后恢复时间
+     self.timer = Timer.New(self, 30, function()
+        self:RestartTime()  -- 30秒后恢复时间
+    end, 1, false)  -- `1` 表示只执行一次，`false` 表示不随场景销毁
+end
+
+function this:Disorder()
+    self.levelMgr:Disorder()
+    self:SetDisorderCount(self.disorderCount - 1)
+end
+
+function this:Tips()
+    self.levelMgr:Tips()
+    self:SetTipsCount(self.tipsCount - 1)
+end
+
+function this:OnDestroy()
+    this.super.OnDestroy(self)
+end
+-- 创建柜子
+function this:CreateCupboard()    
+    if not self.cupboardRoot then
+        local abDownLoader = ABDownLoader("Art/images/Prefab/Huojia01.prefab",ABDLUtils.Inventory,true)
+        abDownLoader:Load(function(transform)
+            self.cupboradPrefab = ABDLManager:GetAsset("Art/images/Prefab/Huojia01.prefab",ABDLUtils.Inventory)
+            self.cupboardRoot = GameObject("Root")
+            local idx
+            for i=1,MainScene.CupboardCnt do
+                local obj = GameObject.Instantiate(self.cupboradPrefab)
+                local tf = obj.transform
+                obj.name = i
+                tf:SetParent(self.cupboardRoot.transform)
+                local unit = CupboardUnit.New(tf,i,self)
+                idx = (i % MainScene.NumberThree)
+                idx = idx == 0 and MainScene.NumberThree or idx
+                tf.localPosition = GameUtils.Vector3(idx * MainScene.PosX,(math.ceil(i / MainScene.NumberThree) - 1) * MainScene.PosY)
+                unit:Init()
+                if not self.cfgLevel["grid" .. i] or #self.cfgLevel["grid" .. i] == 0 then
+                    self.curUnconfigGird=self.curUnconfigGird+1
+                end
+                unit:SetConfig(self.cfgLevel["grid" .. i])
+                table.insert(self.cupboardUnitList,unit)
+                 -- 添加日志打印
+                --  print("Cupboard created with index:", i)
+            end
+
+            self:CreateLevel()
+        end)
+    else
+        self:CreateLevel()
+    end
+end
+function this:ClearCupboardUnits()
+    -- 清理所有的格子数据
+    if self.cupboardUnitList then
+        for _, unit in ipairs(self.cupboardUnitList) do
+            unit.gameView:HideLock(unit)
+            unit:Clear()
+            GameObject.Destroy(unit.gameObject) -- 销毁游戏对象
+            unit:Init() -- 初始化每个柜子的解锁标志
+        end
+    end
+    -- 清空格子列表
+    self.cupboardUnitList = {}
+    if self.cupboardRoot then
+        GameObject.Destroy(self.cupboardRoot)
+        self.cupboardRoot = nil
+    end
+    self:initData()
+end
+function this:GetEmptyCupboard()
+    return self.curUnconfigGird*3;
+end
+function this:LoadBenDai(cb)
+    if not self.bendaiPrefab then
+        local abDownLoader = ABDownLoader("Art/images/Prefab/Bendai.prefab",ABDLUtils.Inventory,true)
+        abDownLoader:Load(function(transform)
+            self.bendaiPrefab = ABDLManager:GetAsset("Art/images/Prefab/Bendai.prefab",ABDLUtils.Inventory)
+            cb(GameObject.Instantiate(self.bendaiPrefab))
+        end)
+    else
+        cb(GameObject.Instantiate(self.bendaiPrefab))
+    end
+end
+
+function this:LoadAdsLock(cb)
+    if not self.adsLockPrefab then
+        local abDownLoader = ABDownLoader("Art/images/Prefab/AdsLock.prefab",ABDLUtils.Inventory,true)
+        abDownLoader:Load(function(transform)
+            self.adsLockPrefab = ABDLManager:GetAsset("Art/images/Prefab/AdsLock.prefab",ABDLUtils.Inventory)
+            cb(GameObject.Instantiate(self.adsLockPrefab))
+        end)
+    else
+        cb(GameObject.Instantiate(self.adsLockPrefab))
+    end
+end
+
+function this:SetClearUpCount(value)
+    if self.clearUpCount == value then return end
+    self.clearUpCount = value
+end
+
+function this:GetClearUpCount()
+    return self.curClearUpCount
+end
+
+function this:CreateLevel()
+    if self.levelMgr then self.levelMgr:Destroy() self.levelMgr = nil end
+    self.levelMgr = LevelMgr.New(self.cfgLevel,self)
+
+    -- 添加日志打印
+    print("Level created with levelId:", self.cfgLevel.id)
+end
+
+function this:SetFreezeCount(value)
+    if self.freezeCount == value then return end
+    self.freezeCount = value
+    PlayerPrefsUtils.SetCurFreezeCount(value)
+    EventDispatcher:GetInstance():DispatchEvent(EventID.FreezeCountChange,value)
+end
+
+function this:SetDisorderCount(value)
+    if self.disorderCount == value then return end
+    self.disorderCount = value
+    PlayerPrefsUtils.SetCurDisorderCount(value)
+    EventDispatcher:GetInstance():DispatchEvent(EventID.DisorderCountChange,value)
+end
+
+function this:SetTipsCount(value)
+    if self.tipsCount == value then return end
+    self.tipsCount = value
+    PlayerPrefsUtils.SetCurTipsCount(value)
+    EventDispatcher:GetInstance():DispatchEvent(EventID.TipsCountChange,value)
+end
+
+function this:RestartCountDown()
+    WindowManager:GetInstance():GetServerByName(Windows.GameView):Restart()
+end
+
+--播放广告
+function this:PlayAdvertisement(cb)
+    if CS.AssetDataPath.ChannelStatus == 0 then
+		if cb then cb() end
+	elseif CS.AssetDataPath.ChannelStatus == 1 then
+
+	elseif CS.AssetDataPath.ChannelStatus == 2 then
+		CS.GooglePlay.GetInstance():Play(cb)
+	end
+end

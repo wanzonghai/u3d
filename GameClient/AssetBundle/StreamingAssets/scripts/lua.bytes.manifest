@@ -1,0 +1,92 @@
+ManifestFileVersion: 0
+CRC: 3380149264
+Hashes:
+  AssetFileHash:
+    serializedVersion: 2
+    Hash: ae1d83614edcb09fbcf31178f8c522b2
+  TypeTreeHash:
+    serializedVersion: 2
+    Hash: 5ad585dd02dfb5016c0dad519eab8f49
+HashAppended: 0
+ClassTypes:
+- Class: 49
+  Script: {instanceID: 0}
+SerializeReferenceClassIdentifiers: []
+Assets:
+- Assets/Scripts/Lua/Utils/GameUtils.bytes
+- Assets/Scripts/Lua/Utils/Utils.bytes
+- Assets/Scripts/Lua/Utils/ABDLUtils.bytes
+- Assets/Scripts/Lua/Windows/Server/Account/AccountPassServer.bytes
+- Assets/Scripts/Lua/Windows/Utils/PoolComponent.bytes
+- Assets/Scripts/Lua/Windows/Mono/Account/AccountPassView.bytes
+- Assets/Scripts/Lua/Windows/Mono/Loading/LoadingView.bytes
+- Assets/Scripts/Lua/Windows/Mono/Game/GameView.bytes
+- Assets/Scripts/Lua/Windows/Mono/ItemTips/ItemTipsView.bytes
+- Assets/Scripts/Lua/Windows/Server/TimeUpTips/TimeUpTipsServer.bytes
+- Assets/Scripts/Lua/3rd/json/json.bytes
+- Assets/Scripts/Lua/Windows/Utils/ScrollRectItem.bytes
+- Assets/Scripts/Lua/World/Pool/TransPool/EffectPool.bytes
+- Assets/Scripts/Lua/World/Scene/ItemUnit.bytes
+- Assets/Scripts/Lua/Utils/Class.bytes
+- Assets/Scripts/Lua/World/Pool/Pool/PoolTransform.bytes
+- Assets/Scripts/Lua/World/Component/EnumGather.bytes
+- Assets/Scripts/Lua/Windows/Mono/Game/QuestionUnit.bytes
+- Assets/Scripts/Lua/Windows/Server/Loading/LoadingServer.bytes
+- Assets/Scripts/Lua/World/Scene/LevelMgr.bytes
+- Assets/Scripts/Lua/World/SceneManager.bytes
+- Assets/Scripts/Lua/World/Scene/LaunchScene.bytes
+- Assets/Scripts/Lua/World/Pool/TransPool/TransPool.bytes
+- Assets/Scripts/Lua/Windows/Manager/WindowManager.bytes
+- Assets/Scripts/Lua/3rd/md5.bytes
+- Assets/Scripts/Lua/Windows/Mono/Game/ChipUnit.bytes
+- Assets/Scripts/Lua/Windows/Mono/TimeUpTips/TimeUpTipsView.bytes
+- Assets/Scripts/Lua/Windows/Server/ItemTips/ItemTipsServer.bytes
+- Assets/Scripts/Lua/Windows/Server/Joystick/JoystickServer.bytes
+- Assets/Scripts/Lua/Windows/Mono/Account/AccountFailView.bytes
+- Assets/Scripts/Lua/Manager/TimerManager.bytes
+- Assets/Scripts/Lua/Manager/EventDispatcher.bytes
+- Assets/Scripts/Lua/Utils/StringUtils.bytes
+- Assets/Scripts/Lua/Windows/Server/Setting/SettingServer.bytes
+- Assets/Scripts/Lua/Camera/Major/SkillMajorCamera.bytes
+- Assets/Scripts/Lua/Windows/Mono/Game/GameProgressBar.bytes
+- Assets/Scripts/Lua/Utils/ProtoUtils.bytes
+- Assets/Scripts/Lua/Windows/Manager/ViewData.bytes
+- Assets/Scripts/Lua/XLua/tdr/tdr.bytes
+- Assets/Scripts/Lua/Windows/Server/Base/WindowServerBase.bytes
+- Assets/Scripts/Lua/Utils/QualityUtils.bytes
+- Assets/Scripts/Lua/World/Scene/SceneBase.bytes
+- Assets/Scripts/Lua/Utils/TimeUtils.bytes
+- Assets/Scripts/Lua/Windows/Mono/Game/GameProgressUnit.bytes
+- Assets/Scripts/Lua/Camera/NormCamera.bytes
+- Assets/Scripts/Lua/Utils/TableUtils.bytes
+- Assets/Scripts/Lua/Windows/Mono/Game/ChipGroup.bytes
+- Assets/Scripts/Lua/XLua/perf/memory.bytes
+- Assets/Scripts/Lua/World/Scene/MainScene.bytes
+- Assets/Scripts/Lua/3rd/protobuf/protobuf.bytes
+- Assets/Scripts/Lua/Camera/Major/MajorCameraBase.bytes
+- Assets/Scripts/Lua/Utils/L.bytes
+- Assets/Scripts/Lua/Windows/Utils/NGUITools.bytes
+- Assets/Scripts/Lua/Utils/PlayerPrefsUtils.bytes
+- Assets/Scripts/Lua/Windows/Mono/Setting/SettingView.bytes
+- Assets/Scripts/Lua/Windows/Server/Main/MainServer.bytes
+- Assets/Scripts/Lua/World/Pool/PoolUnit.bytes
+- Assets/Scripts/Lua/World/Scene/CupboardUnit.bytes
+- Assets/Scripts/Lua/Windows/Server/Account/AccountFailServer.bytes
+- Assets/Scripts/Lua/Windows/Utils/NumberUnit.bytes
+- Assets/Scripts/Lua/Launch.bytes
+- Assets/Scripts/Lua/Utils/Require.bytes
+- Assets/Scripts/Lua/XLua/perf/profiler.bytes
+- Assets/Scripts/Lua/Utils/Delegate.bytes
+- Assets/Scripts/Lua/Windows/Mono/Joystick/JoystickView.bytes
+- Assets/Scripts/Lua/Windows/Mono/Base/WindowBase.bytes
+- Assets/Scripts/Lua/Manager/SoundManager.bytes
+- Assets/Scripts/Lua/Windows/Server/Game/GameServer.bytes
+- Assets/Scripts/Lua/XLua/xlua/util.bytes
+- Assets/Scripts/Lua/World/Pool/PoolManager.bytes
+- Assets/Scripts/Lua/Windows/Mono/Main/MainView.bytes
+- Assets/Scripts/Lua/Utils/cs_coroutine.bytes
+- Assets/Scripts/Lua/Camera/CameraManager.bytes
+- Assets/Scripts/Lua/Windows/Manager/Windows.bytes
+- Assets/Scripts/Lua/World/Pool/Pool/PoolAudioClip.bytes
+- Assets/Scripts/Lua/Windows/Utils/ScrollRectView.bytes
+Dependencies: []

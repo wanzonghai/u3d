@@ -1,0 +1,12 @@
+--Z_资源.xlsx
+local team = {}
+local config = 
+{
+	[1] =
+	{
+		id = 1,
+		path = "Atlas/",
+		state = 2,
+	},
+}
+return config

@@ -1,0 +1,222 @@
+WindowManager = Class("WindowManager")
+local this = WindowManager
+
+local ABDLManager = CS.ABDLManager:GetInstance()
+local ABDownLoader = CS.ABDownLoader
+
+function this:GetInstance()
+	if nil == self.m_Instance then
+		self.m_Instance = self:New()
+	end
+	return self.m_Instance
+end
+
+function this:ctor()
+	self.winServerDic = nil						--初始化的时候定义server Dictionary ，Data Dic
+	self.winDataDic = nil						
+	self.openList = {}                          --规则打开的UI[List]
+	self.defaultLayer = 11						--默认层级11		
+	self.layerCount = self.defaultLayer		
+	self:OnLaunch()
+end
+
+function this:OnDestroy()
+	self.openList = {}
+	for _, v in pairs(self.winDataDic) do
+		v:OnDestroy()
+	end
+	self.class.m_Instance = nil
+end
+
+---打开界面(界面名称，打开规则，显示页签{})
+function this:Open(winName, winType, label, ...)
+--	FunctionTestManager:GetInstance():Start("WindowManager_Open_"..winName)
+	if not self.winDataDic[winName] then
+		L.LogError("没界面" .. winName)
+		return
+	end
+		
+	winType = winType or WindowType.Normal		--打开类型
+	local layerCount = self.defaultLayer		--层级
+	if winType == WindowType.Normal then		--窗口规则如果等于正常的，没有任何ui规则
+		if WindowsLayer[winName] ~= nil then layerCount = WindowsLayer[winName]
+		else L.LogError(winName .. "  默认打开方式未添加WindowsLayer") end
+	else
+		if self:CheckWindowOpened(winName) then return end		--界面是否是真面打开
+		--替换,新的界面替换已经打开的界面,关闭新界面的时候会重新打开就的界面
+		if winType == WindowType.Replace then
+			if #self.openList > 0 then self.openList[#self.openList]:Close()
+			else self.layerCount = self.defaultLayer + 5 end
+			--堆叠,新打开的界面将叠在旧的界面上。用于子界面
+		elseif winType == WindowType.Stack then
+			self.layerCount = self.layerCount + 5
+			--移除,新打开的界面将已经打开的界面全部清除掉,但是关闭时并不会重新打开旧的界面,用于一级界面
+		elseif winType == WindowType.Remove then
+			while(#self.openList > 0)
+			do
+				self.openList[1]:Close()
+				table.remove(self.openList, 1)
+			end
+			self.layerCount = self.defaultLayer + 5
+		end
+		layerCount = self.layerCount
+		table.insert(self.openList, self.winDataDic[winName])
+	end
+	self.winDataDic[winName]:Open(winType, layerCount, label, ...)		--self.winDataDic[winName]是一个ViewData
+end
+
+---关闭界面
+function this:Close(winName, mute)
+	local index = - 1
+	local stack = false
+	if #self.openList > 0 then
+		for i = 1, #self.openList do
+			local data = self.openList[i]
+			if data.name == winName then
+				index = i
+				table.remove(self.openList, i)
+				-- 替换，新打开的界面替换上一次打开的界面，关闭新界面后会重新打开旧的界面
+				if data.winServer.showBgEffect then
+					self.layerCount = self.layerCount - 2
+				end
+				if data.winType == WindowType.Replace then
+					if #self.openList > 0 then
+						self.openList[#self.openList]:Open(nil, self.layerCount, self.openList[#self.openList].label)
+					else self.layerCount = self.defaultLayer end
+					-- 堆叠，新打开的界面将会堆叠到旧界面上面，多用于子界面
+				elseif data.winType == WindowType.Stack then
+					self.layerCount = data.winServer.sortingOrder - 5
+					if self.layerCount < self.defaultLayer then self.layerCount = self.defaultLayer end
+					stack = true
+					-- 移除，新打开的界面将已经打开的界面清除掉，但在关闭的时候不会重新打开就的界面，用于一级界面
+				elseif data.winType == WindowType.Remove then
+					
+				end
+				break
+			end
+		end
+	end
+	self.winDataDic[winName]:Close(mute)
+	if stack then
+		for i = index, #self.openList do
+			if self.openList[i].winType == WindowType.Stack then
+				self.layerCount = self.layerCount + 5
+				self.openList[i].winServer:SetLayerIndex(self.layerCount)
+			end
+		end
+	end
+end
+
+---关闭所有界面(otherlist要留下的界面表)
+function this:OnCloseAll(otherlist)
+	for i = #self.openList, 1, - 1 do
+		local viewData = self.openList[i]
+		if not table.containValue(otherlist, viewData.name) then
+			self:Close(viewData.name)
+		end
+	end
+end
+
+---退出场景
+function this:ExitScene()
+	for _, v in pairs(self.winDataDic) do
+		v:ExitScene()
+	end
+	self.aniViewList = {}
+	self.lastAniCount = 0
+end
+
+function this:OnLaunch()
+	if self.winServerDic ~= nil then return end
+	self.winServerDic =
+	{
+		[Windows.LoadingView] = LoadingServer.New(),
+		[Windows.JoystickView] = JoystickServer.New(),
+		[Windows.MainView] = MainServer.New(),
+		[Windows.GameView] = GameServer.New(),
+		[Windows.AccountPassView] = AccountPassServer.New(),
+		[Windows.AccountFailView] = AccountFailServer.New(),
+		[Windows.SettingView] = SettingServer.New(),
+		[Windows.ItemTIpsView] = ItemTipsServer.New(),
+		[Windows.TimeUpTipsView] = TimeUpTipsServer.New(),
+	}
+	self.winDataDic = {}
+	self.atlasList = {}
+	for key, _ in pairs(self.winServerDic) do
+		self.winDataDic[key] = ViewData.New(key, self)		--打开viewdata界面
+	end
+end
+
+---获取单个模块的server类
+function this:GetServerByName(name)
+	if table.containKey(self.winServerDic, name) then return self.winServerDic[name]
+	else
+		L.LogError("GetServerByName_Error:" .. name .. "is not exited")
+		return nil
+	end
+end
+
+function this:Update(time)
+	for _, v in pairs(self.winServerDic) do
+		v:Update(time)
+	end
+end
+
+function this:LateUpdate()
+	for _, v in pairs(self.winServerDic) do
+		v:LateUpdate()
+	end
+end
+
+---检查某个界面是否已经打开并显示(正在打开也在此列)
+function this:CheckWindowOpened(name)
+	if self.winDataDic[name] == nil then return false
+	else
+		return self.winDataDic[name]:IsOpened()
+	end
+end
+
+---检查某个界面是否正在打开
+function this:CheckWindowOpening(name)
+	if self.winDataDic[name] == nil then return false
+	else
+		return self.winDataDic[name]:IsOpening()
+	end
+end
+
+--检查某个界面是否已经打开 所有界面
+function this:IsCheckWindowOpened()
+	for k, v in pairs(self.winDataDic) do
+		if v:IsOpened() then
+			return true
+		end
+	end
+	return false
+end
+
+
+function this:GetSpriteByPath(path,spriteName)
+	if path == "" then 
+		L.LogError("Path is empty," .. " Mistake id = " .. id)
+        return self:GetDefaultSprite()
+	end
+
+	if self.atlasList[path] == nil then
+		local ABDL = ABDownLoader(path, ABDLUtils.Inventory)
+		ABDL:Load()
+		local object = ABDLManager:DownLoader(path)
+		self.atlasList[path] = object
+	end
+	local sprite = self.atlasList[path]:AssetByName(spriteName)
+	if sprite == nil then sprite = self:GetDefaultSprite() end
+	return sprite
+end
+
+
+function this:GetDefaultSprite()
+	return nil
+end
+
+function this:SetLayerCount(layer)
+	self.layerCount = self.layerCount + layer
+end

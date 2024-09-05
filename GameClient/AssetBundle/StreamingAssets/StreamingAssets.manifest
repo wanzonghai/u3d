@@ -1,0 +1,31 @@
+ManifestFileVersion: 0
+CRC: 123163957
+AssetBundleManifest:
+  AssetBundleInfos:
+    Info_0:
+      Name: scripts/shaders.bytes
+      Dependencies: {}
+    Info_1:
+      Name: environments/level/scene1.unity
+      Dependencies: {}
+    Info_2:
+      Name: environments/level/scene2.unity
+      Dependencies: {}
+    Info_3:
+      Name: prefabs/windows/account/popview.prefab
+      Dependencies: {}
+    Info_4:
+      Name: prefabs/windows/game/gameview.prefab
+      Dependencies: {}
+    Info_5:
+      Name: prefabs/windows/joystick/joystickview.prefab
+      Dependencies: {}
+    Info_6:
+      Name: prefabs/windows/loading/loadingview.prefab
+      Dependencies: {}
+    Info_7:
+      Name: prefabs/windows/main/mainview.prefab
+      Dependencies: {}
+    Info_8:
+      Name: prefabs/windows/setting/settingview.prefab
+      Dependencies: {}

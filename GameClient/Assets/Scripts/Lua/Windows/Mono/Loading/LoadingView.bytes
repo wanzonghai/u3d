@@ -1,0 +1,67 @@
+LoadingView = Class("LoadingView",WindowBase)
+local this = LoadingView
+
+local yield_return = (require 'Utils/cs_coroutine').yield_return
+
+function this:ctor(transform, server)
+    this.super.ctor(self, transform, server)
+    CS.UnityEngine.GameObject.DontDestroyOnLoad(self.transform.gameObject)
+
+    self.panel = self.transform:Find("Panel")
+    self.start = false
+
+    --滑动条
+    self.uiSlider = self.panel:Find("progress_bar/bar")
+    self.uiSlider.localScale = GameUtils.Vector3(0,1,1)
+
+    --self.panel:Find("LoadTipText").gameObject:SetActive(true)
+    --self.loadTipText = self.panel:Find("LoadTipText"):GetComponent("Text")
+    --self.loadTipText.text = L.Language(2300,0)
+    local co = coroutine.create(function()
+    
+        yield_return(SceneManager:GetInstance():SwitchScene("Loading"))
+        yield_return(CS.UnityEngine.WaitForEndOfFrame())
+        
+        PoolManager:GetInstance():ExitScene()
+        CS.ABDLManager:GetInstance():UnLoadUnnecessary( { ABDLUtils.Inventory, ABDLUtils.Temporary, self.server.sign}, ABDLUtils.KeepStartsWith)
+        CS.System.GC.Collect()
+        yield_return(CS.UnityEngine.WaitForEndOfFrame())
+        self.server.ABLoader:Load(function() self:LoadLevel() end, function(progress) self:Progress(progress) end)
+    end)
+    coroutine.resume(co)
+end
+
+function this:LoadLevel()
+    local co = coroutine.create(function()
+        if SceneManager:GetInstance():IsSameScene() then
+            self:Progress1(1)
+        else
+            local yield = SceneManager:GetInstance():SwitchScene(self.server.level)
+            if yield then yield_return(yield) end
+            self:Progress1(0.98)
+            yield_return(CS.UnityEngine.WaitForEndOfFrame())
+            self:Progress1(1)
+            yield_return(CS.UnityEngine.WaitForEndOfFrame())
+            WindowManager:GetInstance():Close(Windows.LoadingView)
+            SceneStart()
+        end
+    end)
+    coroutine.resume(co)
+end
+
+function this:Progress(progress)
+    progress = progress * 0.98
+    local str = math.floor(progress * 100)
+    --self.loadTipText.text = L.Language(2300,str)
+    self.uiSlider.localScale = GameUtils.Vector3(progress,1,1)
+end
+
+function this:Progress1(progress)
+    local str = math.floor(progress * 100)
+    --self.loadTipText.text = L.Language(2300,str)
+    self.uiSlider.localScale = GameUtils.Vector3(progress,1,1)
+end
+
+function this:Close()
+    this.super.Close(self)
+end

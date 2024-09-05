@@ -1,0 +1,310 @@
+ChipGroup = Class("ChipGroup")
+local this = ChipGroup
+
+local GameObject = CS.UnityEngine.GameObject
+local RectTransformUtility = CS.UnityEngine.RectTransformUtility
+local LuaUIUtils = CS.LuaUIUtils
+
+function this:ctor(target,transform,root,isTemp,index)
+    self.target = target
+    self.transform = transform
+    self.root = root
+    self.index = index
+
+    self.gameView = WindowManager:GetInstance():GetServerByName(Windows.GameView).view
+
+    self.obj_lock = transform:Find("img_lock").gameObject
+    self.obj_can_unlock = transform:Find("img_can_unlock").gameObject
+    self.obj_temp_lock = transform:Find("img_temp_lock").gameObject
+
+    local sizeDelta = transform.sizeDelta
+    transform.sizeDelta = GameUtils.Vector2(sizeDelta.x * SceneManager:GetInstance().rate,sizeDelta.y * SceneManager:GetInstance().rate)
+
+    self.isTemp = isTemp --是否临时槽
+    self.state = -1      --0代表未解锁  1代表可解锁  2代表已解锁
+    self.duration = 0.15
+    self.chipUnitList = {}
+    self.startPos = GameUtils.Vector3(-0.1,0.06,0.127)
+
+    self:RefreshPos()
+
+    self.questionUnitList = {}
+
+    self.isSelected = false
+    self.transform:GetComponent("IceButton").OnClick:AddListener(function()
+        SoundManager:GetInstance():Play(3)
+        if MainScene.Controling then return end
+        if self.state == 0 then
+            if self.isTemp then
+                if self.gameView:IsPreviousOneOpen(self) then self.gameView:OnGroupClick(self) end
+            end
+        else
+            self.gameView:OnGroupClick(self)
+        end
+    end)
+end
+
+function this:IsEmpty()
+    return #self.chipUnitList == 0
+end
+
+function this:SetState(state)
+    if self.state == state then return end
+    self.state = state
+    self.obj_lock:SetActive(self.state == 0 and not self.isTemp)
+    self.obj_can_unlock:SetActive(self.state == 1 and not self.isTemp)
+    self.obj_temp_lock:SetActive(self.state == 0 and self.isTemp)
+end
+
+function this:OnClickMySelf()
+    if self.isSelected then
+        self.isSelected = false
+        for i =1,#self.chipUnitList do
+            if self.chipUnitList[i].isUp then self.chipUnitList[i]:Down() end
+        end
+    else
+        self.isSelected = true
+        local num = self:GetSelectNum()
+        for i=#self.chipUnitList,1,-1 do
+            if self.chipUnitList[i].num == num then
+                self.chipUnitList[i]:Up()
+            else
+                break
+            end
+        end
+    end
+end
+
+function this:Update()
+    self:RefreshPos()
+end
+
+function this:GetSelectNum()
+    local len = #self.chipUnitList
+    if len == 0 then return - 1 end
+    return self.chipUnitList[len].num
+end
+
+function this:RelieveUnitListByNum(num,remainNum)
+    local list = {}
+    for i=#self.chipUnitList,1,-1 do
+        if self.chipUnitList[i].num == num then
+            table.insert(list,self.chipUnitList[i])
+            table.remove(self.chipUnitList,i)
+            if #list >= remainNum then break end
+        else
+            break
+        end
+    end
+    self:RefreshNumActive()
+    if self.isTemp then
+        if #self.chipUnitList == 0 then self:SetState(0) end
+    end
+    return list
+end
+
+function this:GetRemainNum()
+    return MainScene.GroupLen - #self.chipUnitList
+end
+
+--倒叙拿筹码，需要判断数字，如果数字不相等，直接就返回当前不相等的筹码
+function this:GetChipUnitAtLastIndex(index,num)
+    for i=#self.chipUnitList,1,-1 do
+        if not self.chipUnitList[i] then
+            return nil
+        elseif self.chipUnitList[i].num ~= num then return self.chipUnitList[i]
+
+        else
+            index = index - 1
+        end
+    end
+    return nil
+end
+
+function this:IsAllTheSame()
+    if #self.chipUnitList == 0 or #self.chipUnitList == 1 then return true end
+    local num = self.chipUnitList[1].num
+    for i=2,#self.chipUnitList do
+        if self.chipUnitList[i].num ~= num then return false end
+    end
+    return true
+end
+
+function this:CanCombine()
+    if #self.chipUnitList < MainScene.GroupLen then return false end
+    local num
+    for i=1,MainScene.GroupLen do
+        if num then
+            if num ~= self.chipUnitList[i].num then return false end
+        else
+            num = self.chipUnitList[i].num
+        end
+    end
+    return true
+end
+
+--倒叙插入
+function this:AddUnitListReverse(list)
+    for i=#list,1,-1 do
+        self:AddUnit(list[i])
+    end
+    self:RefreshNumActive()
+end
+
+function this:AddUnitList(list)
+    for i=1,#list do
+        self:AddUnit(list[i])
+    end
+    self:RefreshNumActive()
+end
+
+function this:AddUnit(chipUnit)
+    chipUnit.isUp = false
+    table.insert(self.chipUnitList,chipUnit)
+    chipUnit:SetParent(self.target,GameUtils.Vector3(MainScene.ChipPosX,MainScene.PosYDown,0.0015 + (#self.chipUnitList - 1) * MainScene.ChipInterval))
+end
+
+--生成筹码
+function this:CreateChips(num,count,playAni)
+    local curLen = #self.chipUnitList
+    local randomList = {}
+    for i=1,count do
+        local chipUnit = ChipUnit.New(num)
+        table.insert(self.chipUnitList,chipUnit)
+        if num == 0 then table.insert(randomList,chipUnit) end
+        chipUnit:Create(self.target,GameUtils.Vector3(MainScene.ChipPosX,MainScene.PosYDown,0.0015 + (i + curLen - 1) * MainScene.ChipInterval),playAni and self.startPos or nil)
+    end
+    local len = curLen + count
+    self.chipUnitList[len]:SetNumActive(true)
+    self.chipUnitList[len]:SetNum()
+    self:RefreshNumActive()
+    if num == 0 then
+        self:CreateQuestUnit(randomList)
+    end
+end
+
+function this:CreateQuestUnit(chipList)
+    self:DestroyTimer()
+    self.timer = Timer.New(self,0.2,function()
+        local questionUnit = QuestionUnit.New(self)
+        questionUnit:SetChipUnitList(chipList)
+        table.insert(self.questionUnitList,questionUnit)
+    end,1)
+end
+
+function this:RefreshNumActive()
+    local len = #self.chipUnitList
+    for i=1,len do
+        self.chipUnitList[i]:SetNumActive(i == len)
+    end
+end
+
+function this:OnMoveUnright()
+    if not self.isSelected then return end
+    self.isSelected = false
+    for i =1,#self.chipUnitList do
+        if self.chipUnitList[i].isUp then self.chipUnitList[i]:OnMoveUnright() end
+    end
+end
+
+function this:Combine(cb)
+    self:KillTweener()
+    self.tweener = LuaUIUtils.DoFloat(1,0,self.duration,function(value)
+        self.target.localScale = GameUtils.Vector3(1,1,value)
+    end)
+    LuaUIUtils.OnComplete(self.tweener,function()
+        self.target.localScale = GameUtils.Vector3One
+        local num = self.chipUnitList[1].num
+        for i =1,#self.chipUnitList do
+            self.chipUnitList[i]:Destroy()
+        end
+        self.chipUnitList = {}
+
+        local newNum = num + 1
+        local result = self.gameView:OnNewNum(newNum)
+        self.target.localScale = GameUtils.Vector3One
+        if result then
+            self:CreateChips(newNum,MainScene.CombineCreateNum)
+            if self.isTemp then
+                self:MoveToNormalGroup(newNum)
+            end
+        end
+        if cb then cb() end
+        self.tweener = nil
+    end)
+end
+
+function this:MoveToNormalGroup(newNum)
+    local group = self.gameView:GetCanMoveGroup(newNum,2)
+    if group then
+        group:AddUnitList(self.chipUnitList)
+        self.chipUnitList = {}
+        self:SetState(0)
+    end
+end
+
+function this:KillTweener()
+    if self.tweener then LuaUIUtils.Kill(self.tweener) self.tweener = nil end
+end
+
+function this:DestroyTimer()
+    if self.timer then self.timer:OnDestroy() self.timer = nil end
+end
+
+function this:RefreshPos()
+    local camera = CameraManager:GetInstance().camera
+    local uiCamera = CameraManager:GetInstance().uiCamera
+    local screenPos = camera:WorldToScreenPoint(self.target.position)
+    local worldPositionOut = nil
+    local pass, worldPosition = RectTransformUtility.ScreenPointToWorldPointInRectangle(self.root, GameUtils.Vector2(screenPos.x,screenPos.y) , uiCamera, worldPositionOut)
+    self.transform.position = GameUtils.Vector3(worldPosition.x,worldPosition.y + 0.15,worldPosition.z)
+end
+
+function this:Destroy()
+    self:KillTweener()
+    self:DestroyTimer()
+    for _,chipUnit in ipairs(self.chipUnitList) do
+        chipUnit:Destroy()
+    end
+    for _,questionUnit in ipairs(self.questionUnitList) do
+        questionUnit:Destroy()
+    end
+    GameObject.Destroy(self.transform.gameObject)
+end
+
+--检测是否有随机筹码需要操作
+function this:CheckIsHasRandomChip()
+    if #self.chipUnitList == 0 then return false end
+    if self.chipUnitList[#self.chipUnitList].num ~= 0 then return false end
+    local len = #self.questionUnitList
+    if len == 0 then return false end
+    if self.questionUnitList[len].chipUnitList[1].num ~= 0 then return false end
+    local questionUnit = self.questionUnitList[len]
+    table.remove(self.questionUnitList,len)
+
+    questionUnit:Play(self.gameView:GetRandomNum(),function()
+        self:RefreshNumActive()
+        self.gameView:CheckCanShuffle()
+    end)
+    return true
+end
+
+function this:RefreshAllQuestUnit()
+    for _,unit in ipairs(self.questionUnitList) do
+        unit:Change(self.gameView:GetRandomNum())
+    end
+    self.questionUnitList = {}
+end
+
+function this:Shuffle(newChipList)
+    self.chipUnitList = {}
+    for i=1,#newChipList do
+        if i <= MainScene.GroupLen then
+            table.insert(self.chipUnitList,newChipList[i])
+            newChipList[i]:SetParent(self.target,GameUtils.Vector3(MainScene.ChipPosX,MainScene.PosYDown,0.0015 + (i - 1) * MainScene.ChipInterval),MainScene.ShuffleTime)
+        else
+            newChipList[i]:Destroy()
+        end
+    end
+    self:RefreshNumActive()
+end
