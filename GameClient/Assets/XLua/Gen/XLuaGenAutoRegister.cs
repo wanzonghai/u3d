@@ -172,12 +172,15 @@ namespace XLua.CSObjectWrap
             translator.DelayWrapLoader(typeof(NetworkManager), NetworkManagerWrap.__Register);
         
         
-            translator.DelayWrapLoader(typeof(OperatingSystem), OperatingSystemWrap.__Register);
+            translator.DelayWrapLoader(typeof(HTTPManager), HTTPManagerWrap.__Register);
         
         }
         
         static void wrapInit1(LuaEnv luaenv, ObjectTranslator translator)
         {
+        
+            translator.DelayWrapLoader(typeof(OperatingSystem), OperatingSystemWrap.__Register);
+        
         
             translator.DelayWrapLoader(typeof(LuaUtils), LuaUtilsWrap.__Register);
         

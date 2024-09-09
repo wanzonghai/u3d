@@ -8,6 +8,8 @@ using System.Collections;
 using System.IO;
 using System.Collections.Generic;
 
+using UnityEngine.Networking;
+
 public class NetworkManager : MonoBehaviour
 {
     private static NetworkManager _instance;
@@ -492,6 +494,7 @@ public class NetworkManager : MonoBehaviour
             OnError(new Exception("Error during OnApplicationQuit.", ex));
         }
     }
+
 }
 
 

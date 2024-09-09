@@ -48,6 +48,8 @@ local ScriptPath =
 	"Manager/SoundManager",
 	"Manager/TimerManager",
 
+	-- module
+	"Modules/Player/PlayerManager",
 	--Windows
 	"Windows/Utils/NGUITools",
 	"Windows/Utils/NumberUnit",

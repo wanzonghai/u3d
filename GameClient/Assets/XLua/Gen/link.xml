@@ -11,6 +11,7 @@
 		<type fullname="TotalManager" preserve="all"/>
 		<type fullname="HotFixManager" preserve="all"/>
 		<type fullname="NetworkManager" preserve="all"/>
+		<type fullname="HTTPManager" preserve="all"/>
 		<type fullname="OperatingSystem" preserve="all"/>
 		<type fullname="LuaUtils" preserve="all"/>
 		<type fullname="LuaUIUtils" preserve="all"/>

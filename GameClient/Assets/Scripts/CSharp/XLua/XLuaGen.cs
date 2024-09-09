@@ -71,6 +71,7 @@ public static class XLuaGen
         typeof(TotalManager),
         typeof(HotFixManager),
         typeof(NetworkManager),
+        typeof(HTTPManager),
         typeof(OperatingSystem),
         typeof(LuaUtils),
         typeof(LuaUIUtils),

@@ -17,11 +17,20 @@ function this:ctor(transform,server)
 
     self.tf_middle = transform:Find("Middle")
     -- self.obj_prefab = self.tf_middle:Find("Prefab").gameObject
-    local btn_changeNet= self.tf_middle:Find("btn_changeNet").gameObject
-    btn_changeNet:GetComponent("IceButton").OnClick:AddListener(function()
-        CS.NetworkManager.GetInstance():SwitchToStrongNetworkMode()
-    end)
+    -- local btn_changeNet= self.tf_middle:Find("btn_changeNet").gameObject
+    -- btn_changeNet:GetComponent("IceButton").OnClick:AddListener(function()
+    --     CS.NetworkManager.GetInstance():SwitchToStrongNetworkMode()
+    -- end)
     
+    -- -- // 添加新玩家
+    -- PlayerManager:GetInstance():AddPlayerInfo("Bob1", 1, 0);
+    -- PlayerManager:GetInstance():AddPlayerInfo("Bob2", 2, 1);
+    -- PlayerManager:GetInstance():AddPlayerInfo("Bob3", 3, 2);
+    -- PlayerManager:GetInstance():AddPlayerInfo("Bob4", 4, 3);
+    -- -- // 获取玩家信息
+    -- PlayerManager:GetInstance():GetPlayerInfo("Bob1");
+
+
     local tf_bottom = transform:Find("Bottom")
     -- local tf_freeze = tf_bottom:Find("btn_freeze")
     -- self.obj_add_freeze = tf_freeze:Find("Add").gameObject

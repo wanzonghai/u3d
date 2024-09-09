@@ -8,8 +8,7 @@
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ProductVersion>10.0.20506</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <RootNamespace>
-    </RootNamespace>
+    <RootNamespace></RootNamespace>
     <ProjectGuid>{70B263AF-5707-DA2D-B24B-B59941E3F798}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
@@ -196,6 +195,7 @@
     <Compile Include="Assets\XLua\Gen\UnityEngine_ParticleSystem_EmissionModuleWrap.cs" />
     <Compile Include="Assets\Scripts\CSharp\Manager\TotalManager.cs" />
     <Compile Include="Assets\XLua\Gen\UnityEngine_MonoBehaviourWrap.cs" />
+    <Compile Include="Assets\XLua\Gen\HTTPManagerWrap.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Assets\EditorExtend\MyExcel\EPPlus\EPPlus.XML" />

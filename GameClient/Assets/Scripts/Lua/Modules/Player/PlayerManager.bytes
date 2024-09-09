@@ -1,0 +1,71 @@
+--玩家管理器
+PlayerManager = Class("PlayerManager")
+local json = require"3rd/json/json"
+local jsonString = "{\"Space\":\"\\u00A0\"}"
+local this = PlayerManager
+function this:GetInstance()
+	if nil == self.m_Instance then
+		self.m_Instance = self:New()
+	end
+	return self.m_Instance
+end
+local baseUrl = "http://localhost:8080/";
+local httpManager = CS.HTTPManager.GetInstance()
+local playerData = {
+    username = username,
+    level = level,
+    exp = exp,
+    equipments = equipments or {},
+    skills = skills or {}
+}
+function this:ctor()
+    -- 玩家属性初始化
+    self.players = {}
+
+end
+
+-- 获取玩家信息
+function this:GetPlayerInfo(username)
+    print("获取玩家信息 " .. username)
+    -- 调用C#的 HTTPManager 进行 HTTP GET 请求
+    local url = baseUrl .. "get_player?username=" .. username
+    
+    -- 调用C#的 GetRequest 方法，并通过 Lua 回调处理结果
+    httpManager:StartGetRequest(url, function(response)
+        -- 假设 response 是 JSON 格式的玩家数据
+        local playerData = json.decode(response)
+        if playerData then
+            -- 更新玩家信息到 Lua 的 PlayerManager 中
+            self.players[username] = playerData
+            print("Player info loaded: " .. username)
+        else
+            print("Player not found.")
+        end
+    end)
+end
+
+-- 添加玩家信息
+function this:AddPlayerInfo(username,level,exp)
+    print("添加玩家信息 " .. username)
+    -- 调用C#的 HTTPManager 进行 HTTP POST 请求
+    -- // 创建玩家数据
+    local playerData = {
+        username = username,
+        level = level,
+        exp = exp,
+        equipments = equipments or {},
+        skills = skills or {}
+    }
+    -- 将表转换为 JSON
+    local jsonData = json.encode(playerData)
+    print("JSON 数据: " .. jsonData)
+    local url = baseUrl .. "add_player";
+     -- 调用C#的 PostRequest 方法，发送玩家数据
+     httpManager:StartPostRequest(url, jsonData, function(response)
+        if response then
+            print("Player added successfully: " .. response..playerData.username)
+        else
+            print("Failed to add player.")
+        end
+    end)
+end
